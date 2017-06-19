@@ -15,3 +15,9 @@ python:
 
 # command to install dependencies
 install: "pip3 install argparse pymongo configparser"
+
+script:
+    - python3 tests/test.py
+
+after_success:
+    coveralls
