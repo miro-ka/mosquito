@@ -14,4 +14,4 @@ python:
 
 
 # command to install dependencies
-install: "pip3 install argparse pymongo configparser time"
+install: "pip3 install argparse pymongo configparser"
