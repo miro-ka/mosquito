@@ -12,10 +12,10 @@ def main():
     config = configparser.ConfigParser()
     config.read('config.ini')
     # TODO: check which exchange we will use
-    apiKey = config['Poloniex']['apiKey']
+    api_key = config['Poloniex']['apiKey']
     secret = config['Poloniex']['secret']
 
-    exchange = Polo(apiKey=apiKey, secret=secret)
+    exchange = Polo(apiKey=api_key, secret=secret)
 
     # TODO 1) config: define ticker interval
     # TODO 2) store ticker to mongodb

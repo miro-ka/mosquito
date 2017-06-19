@@ -7,14 +7,14 @@ class Polo:
         self.polo = Poloniex(apiKey, secret)
 
 
-    def returnTicker(self):
+    def return_ticker(self):
         '''
         Returns ticker for all currencies
         '''
         return self.polo.returnTicker()
 
 
-    def returnChartData(self, currencyPair, period=False, start=False, end=False):
+    def return_candles(self, currencyPair, period=False, start=False, end=False):
         '''
         Returns candlestick chart data
         '''

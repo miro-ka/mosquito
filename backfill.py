@@ -29,7 +29,7 @@ def main(args):
     config = configparser.ConfigParser()
     config.read('config.ini')
     # TODO: check which exchange we will use
-    apiKey = config['Poloniex']['apiKey']
+    api_key = config['Poloniex']['apiKey']
     secret = config['Poloniex']['secret']
     # Mongo parameters
     db = config['MongoDB']['db']
@@ -49,13 +49,13 @@ def main(args):
     config = configparser.ConfigParser()
     config.read('config.ini')
     # TODO: check which exchange we will use
-    apiKey = config['Poloniex']['apiKey']
+    api_key = config['Poloniex']['apiKey']
     secret = config['Poloniex']['secret']
-    exchange = Polo(apiKey=apiKey, secret=secret)
+    exchange = Polo(apiKey=api_key, secret=secret)
 
     # Get list of all currencies
     if args.all:
-        tickers = exchange.returnTicker()
+        tickers = exchange.return_ticker()
         pairs = list(tickers.keys())
     elif args.pair is not None:
         pairs = [args.pair]
@@ -66,9 +66,9 @@ def main(args):
     for pair in pairs:
         for day in reversed(range(1, args.days+1)):
             print('getting data for currency: ' + pair +', days left:' + str(day))
-            epochFrom = epochNow - (DAY*day)
-            epochTo = epochNow if day == 1 else epochNow - (DAY * (day-1))
-            candles = exchange.returnChartData(pair, 300, epochFrom, epochTo) # by default 5 minutes candles (minimum)
+            epoch_from = epochNow - (DAY*day)
+            epoch_to = epochNow if day == 1 else epochNow - (DAY * (day-1))
+            candles = exchange.return_candles(pair, 300, epoch_from, epoch_to) # by default 5 minutes candles (minimum)
             for candle in candles:
                 candle['exchange'] = 'polo'
                 candle['pair'] = pair
