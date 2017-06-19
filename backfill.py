@@ -61,13 +61,13 @@ def main(args):
         pairs = [args.pair]
 
     # Get the candlestick data
-    epochNow = int(time.time())
+    epoch_now = int(time.time())
 
     for pair in pairs:
         for day in reversed(range(1, args.days+1)):
             print('getting data for currency: ' + pair +', days left:' + str(day))
-            epoch_from = epochNow - (DAY*day)
-            epoch_to = epochNow if day == 1 else epochNow - (DAY * (day-1))
+            epoch_from = epoch_now - (DAY*day)
+            epoch_to = epoch_now if day == 1 else epoch_now - (DAY * (day-1))
             candles = exchange.return_candles(pair, 300, epoch_from, epoch_to) # by default 5 minutes candles (minimum)
             for candle in candles:
                 candle['exchange'] = 'polo'
