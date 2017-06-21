@@ -65,17 +65,27 @@ def main(args):
 
     for pair in pairs:
         for day in reversed(range(1, args.days+1)):
-            print('getting data for currency: ' + pair +', days left:' + str(day))
+            print('getting currency data: ' + pair +', days left:' + str(day))
             epoch_from = epoch_now - (DAY*day)
             epoch_to = epoch_now if day == 1 else epoch_now - (DAY * (day-1))
             candles = exchange.return_candles(pair, 300, epoch_from, epoch_to) # by default 5 minutes candles (minimum)
+
             for candle in candles:
+                # Convert strings to number (float or int)
+                for key, value in candle.items():
+                    try:
+                        candle[key] = int(value)
+                    except ValueError:
+                        candle[key] = float(value)
+                # Add identifier
                 candle['exchange'] = 'polo'
                 candle['pair'] = pair
                 id = 'polo' + '-' + pair + '-' +str(candle['date'])
                 candle['id'] = id
-                ##ticker.insertOne(candle)
-                ticker.update_one({'id': id}, {'$set':candle}, upsert=True)
+                # Store to DB
+                ticker.update_one({'id': id}, {'$set': candle}, upsert=True)
+
+    print('import done..')
 
 
 if __name__ == "__main__":

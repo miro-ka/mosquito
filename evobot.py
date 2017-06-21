@@ -1,15 +1,18 @@
-import time
 import argparse
+from core.engine import Engine
 import configparser
-from time import sleep
-from exchanges.poloniex.polo import Polo
 
 
-
-timeout = 60
 
 def main(args):
-    print('testing')
+
+    # Parse config and get working exchange
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    engine = Engine(args, config)
+    engine.run()
+
     '''
     # Parse config and get working exchange
     config = configparser.ConfigParser()
@@ -56,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--sim", action='store_true')
     parser.add_argument("--paper", help="Simulate your strategy on real ticker", action='store_true')
     parser.add_argument("--trade", help="REAL trading mode", action='store_true')
-    parser.add_argument("--strategy", help="Name of strategy to be run (if not set default one will be used")
+    parser.add_argument("--strategy", help="Name of strategy to be run (if not set, the default one will be used")
 
     args = parser.parse_args()
 
