@@ -1,22 +1,17 @@
-from core.environment import Environment
+from core.bot import Bot
 '''
 Main class for Simulation trading
 '''
 
 
-class Simulation(Environment):
-    def __init__(self):
+class Simulation(Bot):
+    def __init__(self, args):
+        super(Simulation, self).__init__(args)
         self.counter = 0
-
-    def finished(self):
-        '''
-        Checks if the simulation is finished
-        '''
-        return False
 
 
     def get_next(self, interval):
         '''
         Returns next state
         '''
-        self.counter += 1
+        print('getting next ticker from Sim')

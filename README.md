@@ -1,5 +1,5 @@
-# evobot
-Evolutionary Trading Bot coded in Python 3, inspired by [zenbot](https://github.com/carlos8f/zenbot)
+# green
+Flexible Trading Bot with main focus to Machine Learning and Genetic Algorithms, inspired by [zenbot](https://github.com/carlos8f/zenbot)
 
 [![Build Status](https://travis-ci.org/miti0/evobot.svg?branch=master)](https://travis-ci.org/miti0/evobot)
 [![Code Issues](https://www.quantifiedcode.com/api/v1/project/5609393e38ed496cbd166cdb7b0c019e/badge.svg)](https://www.quantifiedcode.com/app/project/5609393e38ed496cbd166cdb7b0c019e)
@@ -21,7 +21,7 @@ Evolutionary Trading Bot coded in Python 3, inspired by [zenbot](https://github.
 ### Install
  1. clone repo
  ```
- git clone https://github.com/miti0/evobot.git
+ git clone https://github.com/miti0/green.git
  ```
  2. install mongodb & required python packages
  
