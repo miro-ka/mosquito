@@ -1,10 +1,11 @@
-from core.simulation import Simulation
-from core.paper import Paper
-from core.trade import Trade
 import configparser
 import sys
 from termcolor import colored
-
+from core.simulation import Simulation
+from core.paper import Paper
+from core.trade import Trade
+from core.wallet import Wallet
+from importlib import import_module
 
 
 '''
@@ -14,28 +15,43 @@ Main class for Simulation Engine (main class where all is happening
 
 class Engine:
     def __init__(self, args, config_file):
+        self.buffer_size = None
+        self.interval = None
+        self.pairs = None
         self.parseConfig(config_file)
         # Arguments should override config.ini file, so lets initialize
         # them only after config file parsing
         self.args = args
         self.config = config_file
-        self.strategy = args.strategy
+        strategy_class = self.load_strategy(args.strategy)
+        self.strategy = strategy_class(args)
         self.look_back_data = []
+        self.wallet = Wallet(config_file)
         self.bot = None
+        self.data = None
         if args.sim:
-            self.bot = Simulation(args)
+            self.bot = Simulation(args, config_file)
         elif args.trade:
-            self.bot = Trade(args)
+            self.bot = Trade(args, config_file)
         elif args.paper:
-            self.bot = Paper(args)
+            self.bot = Paper(args, config_file)
 
+
+    def load_strategy(self, strategy_name):
+        module = import_module("strategies." + strategy_name)
+        strategy = getattr(module, strategy_name)
+        return strategy
 
 
     def parseConfig(self, config_file):
         config = configparser.ConfigParser()
         config.read(config_file)
         self.buffer_size = config['Trade']['buffer_size']
+        if self.buffer_size != '':
+            self.buffer_size = int(self.buffer_size)
         self.interval = config['Trade']['interval']
+        if self.interval != '':
+            self.interval = int(self.interval)
         self.pairs = config['Trade']['pairs'].split(',')
         self.strategy = config['Trade']['strategy']
 
@@ -54,10 +70,12 @@ class Engine:
 
         try:
             while True:
-                self.bot.get_next(self.interval)
+                # TODO self.wallet = wallet.update_balance()
+
+                self.data = self.bot.get_next(self.interval)
 
                 # TODO simulation/paper/trade - get next sample(sample_size)
-                # action = strategy.run
+                action = self.strategy.calulate(self.interval)
                 # TODO Update wallet
                 # TODO report
         except KeyboardInterrupt:
