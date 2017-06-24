@@ -1,6 +1,7 @@
 from termcolor import colored
 from datetime import  datetime
 
+
 class Report:
     """
     Main reporting class (overall score and plots)
@@ -12,6 +13,9 @@ class Report:
         self.init_balance = balance
 
     def calc_stats(self, ticker_data):
+        """
+        Creates ticker report
+        """
         if len(self.init_close) == 0:
             self.initialize_start_price(ticker_data)
         date_time = datetime.fromtimestamp(ticker_data['date']).strftime('%c') + ':\t '

@@ -56,6 +56,9 @@ class Engine:
         self.strategy = config['Trade']['strategy']
 
     def run(self):
+        """
+        This is the main simulation loop
+        """
         if self.bot is None:
             print(colored('The bot type is NOT specified. You need to choose one action (--sim, --paper, --trade)', 'red'))
             sys.exit()
