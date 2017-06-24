@@ -5,19 +5,23 @@ from .simulation import Simulation
 from .paper import Paper
 from .trade import Trade
 from .wallet import Wallet
+from .report import Report
 from importlib import import_module
-
 
 
 class Engine:
     """
     Main class for Simulation Engine (main class where all is happening
     """
+    buffer_size = None
+    interval = None
+    pairs = None
+    bot = None
+    ticker = None
+    look_back = []
+    report = None
 
     def __init__(self, args, config_file):
-        self.buffer_size = None
-        self.interval = None
-        self.pairs = None
         self.parse_config(config_file)
         # Arguments should override config.ini file, so lets initialize
         # them only after config file parsing
@@ -25,10 +29,7 @@ class Engine:
         self.config = config_file
         strategy_class = self.load_strategy(args.strategy)
         self.strategy = strategy_class(args)
-        self.look_back_data = []
         self.wallet = Wallet(config_file)
-        self.bot = None
-        self.data = None
         if args.sim:
             self.bot = Simulation(args, config_file)
         elif args.trade:
@@ -36,13 +37,11 @@ class Engine:
         elif args.paper:
             self.bot = Paper(args, config_file)
 
-
     @staticmethod
     def load_strategy(strategy_name):
-        module = import_module("strategies." + strategy_name)
-        strategy = getattr(module, strategy_name.capitalize())
+        mod = import_module("strategies." + strategy_name)
+        strategy = getattr(mod, strategy_name.capitalize())
         return strategy
-
 
     def parse_config(self, config_file):
         config = configparser.ConfigParser()
@@ -56,8 +55,6 @@ class Engine:
         self.pairs = config['Trade']['pairs'].split(',')
         self.strategy = config['Trade']['strategy']
 
-
-
     def run(self):
         if self.bot is None:
             print(colored('The bot type is NOT specified. You need to choose one action (--sim, --paper, --trade)', 'red'))
@@ -65,21 +62,37 @@ class Engine:
 
         print('starting simulation')
 
-        #TODO: initialize wallet
+        # Initialization
+        self.report = Report(self.wallet.initial_balance)
+        # TODO: initialize wallet
 
-        #TODO run loop
+        # TODO run loop
 
         try:
             while True:
+                # 1) Get next ticker set
+                self.ticker = self.bot.get_next(self.interval)
+
+                if len(self.look_back) > self.buffer_size:
+                    self.look_back.pop()
+                self.look_back.append(self.ticker)
+
+                # 2) simulation/paper/trade - get next action(sample_size)
+                action = self.strategy.calculate(self.look_back)
+
+                # 3) trade(action)
                 # TODO self.wallet = wallet.update_balance()
 
-                self.data = self.bot.get_next(self.interval)
+                # 4) trade.update_wallet
 
-                # TODO simulation/paper/trade - get next sample(sample_size)
-                action = self.strategy.calulate(self.interval)
-                # TODO Update wallet
-                # TODO report
+                # 5) write/draw report
+                self.report.calc_stats(self.ticker)
+
         except KeyboardInterrupt:
             print('shutting down and writing final statistics!')
+
+        except SystemExit:
+            print('simulation done')
+
 
 

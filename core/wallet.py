@@ -12,4 +12,4 @@ class Wallet:
         config.read(config_file)
         currency = config['Wallet']['currency'].split(',')
         value = config['Wallet']['value'].split(',')
-        self.initial = list(zip(currency, value))
+        self.initial_balance = list(zip(currency, value))

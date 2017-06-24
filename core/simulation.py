@@ -2,10 +2,10 @@ from pymongo import MongoClient, ASCENDING
 import configparser
 from .bot import Bot
 import time
+import sys
 
 
 DAY = 86400
-
 
 
 class Simulation(Bot):
@@ -27,7 +27,6 @@ class Simulation(Bot):
         self.pairs = self.config['Trade']['pairs'].split(',')
         self.exchange = self.config['Trade']['exchange']
 
-
     @staticmethod
     def get_sim_epoch_start(sim_days, sim_start):
         if sim_start:
@@ -36,13 +35,11 @@ class Simulation(Bot):
             epoch_now = int(time.time())
             return epoch_now - (DAY*sim_days)
 
-
     @staticmethod
     def initialize_config(config_file):
         config = configparser.ConfigParser()
         config.read(config_file)
         return config
-
 
     @staticmethod
     def initialize_db(config):
@@ -53,20 +50,19 @@ class Simulation(Bot):
         db = client[db]
         return db
 
-
     def get_next(self, interval):
-        '''
+        """
         Returns next state
-        '''
+        """
         db_doc = self.ticker.find_one({"$and": [{"date": {"$gte": self.current_epoch}},
                                       {"pair": {"$in": self.pairs}},
                                       {"exchange": self.exchange}]})
 
-#
-        print('getting db_data for epoch:', self.current_epoch)
-        print(db_doc['date'])
+        if db_doc is None:
+            sys.exit()
+        # print('getting db_data for epoch:', self.current_epoch)
+        # print(db_doc['date'])
         print(db_doc)
         self.current_epoch += interval*60
 
-        print('getting next ticker from Sim')
         return db_doc

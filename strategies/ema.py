@@ -10,11 +10,10 @@ class Ema(Base):
         super(Ema, self).__init__(args)
         self.name = 'ema'
 
-
-    def calulate(self, interval):
+    def calculate(self, look_back):
         """
         Returns next state
         """
 
-        print('running strategy ema')
+        # print('running strategy ema')
         return 'buy'
