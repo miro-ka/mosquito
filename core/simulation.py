@@ -28,8 +28,8 @@ class Simulation(Bot):
         self.exchange = self.config['Trade']['exchange']
 
 
-
-    def get_sim_epoch_start(self, sim_days, sim_start):
+    @staticmethod
+    def get_sim_epoch_start(sim_days, sim_start):
         if sim_start:
             return sim_start
         elif sim_days:
@@ -37,15 +37,15 @@ class Simulation(Bot):
             return epoch_now - (DAY*sim_days)
 
 
-
-    def initialize_config(self, config_file):
+    @staticmethod
+    def initialize_config(config_file):
         config = configparser.ConfigParser()
         config.read(config_file)
         return config
 
 
-
-    def initialize_db(self, config):
+    @staticmethod
+    def initialize_db(config):
         db = config['MongoDB']['db']
         port = int(config['MongoDB']['port'])
         url = config['MongoDB']['url']

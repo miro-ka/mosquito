@@ -37,7 +37,8 @@ class Engine:
             self.bot = Paper(args, config_file)
 
 
-    def load_strategy(self, strategy_name):
+    @staticmethod
+    def load_strategy(strategy_name):
         module = import_module("strategies." + strategy_name)
         strategy = getattr(module, strategy_name.capitalize())
         return strategy
