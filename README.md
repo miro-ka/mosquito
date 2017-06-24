@@ -1,9 +1,9 @@
 # green
 Flexible Trading Bot with main focus to Machine Learning and Genetic Algorithms, inspired by [zenbot](https://github.com/carlos8f/zenbot)
 
-[![Build Status](https://travis-ci.org/miti0/evobot.svg?branch=master)](https://travis-ci.org/miti0/evobot)
+[![Build Status](https://travis-ci.org/miti0/green.svg?branch=master)](https://travis-ci.org/miti0/green)
 [![Code Issues](https://www.quantifiedcode.com/api/v1/project/5609393e38ed496cbd166cdb7b0c019e/badge.svg)](https://www.quantifiedcode.com/app/project/5609393e38ed496cbd166cdb7b0c019e)
-[![Coverage Status](https://coveralls.io/repos/github/miti0/evobot/badge.svg?branch=master)](https://coveralls.io/github/miti0/evobot?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/miti0/green/badge.svg?branch=master)](https://coveralls.io/github/miti0/green?branch=master)
 
 
 ## About
