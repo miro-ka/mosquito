@@ -1,24 +1,24 @@
 import configparser
 import sys
 from termcolor import colored
-from core.simulation import Simulation
-from core.paper import Paper
-from core.trade import Trade
-from core.wallet import Wallet
+from .simulation import Simulation
+from .paper import Paper
+from .trade import Trade
+from .wallet import Wallet
 from importlib import import_module
 
 
-'''
-Main class for Simulation Engine (main class where all is happening
-'''
-
 
 class Engine:
+    """
+    Main class for Simulation Engine (main class where all is happening
+    """
+
     def __init__(self, args, config_file):
         self.buffer_size = None
         self.interval = None
         self.pairs = None
-        self.parseConfig(config_file)
+        self.parse_config(config_file)
         # Arguments should override config.ini file, so lets initialize
         # them only after config file parsing
         self.args = args
@@ -39,11 +39,11 @@ class Engine:
 
     def load_strategy(self, strategy_name):
         module = import_module("strategies." + strategy_name)
-        strategy = getattr(module, strategy_name)
+        strategy = getattr(module, strategy_name.capitalize())
         return strategy
 
 
-    def parseConfig(self, config_file):
+    def parse_config(self, config_file):
         config = configparser.ConfigParser()
         config.read(config_file)
         self.buffer_size = config['Trade']['buffer_size']

@@ -1,17 +1,18 @@
 from pymongo import MongoClient, ASCENDING
 import configparser
-from core.bot import Bot
+from .bot import Bot
 import time
 
 
-'''
-Main class for Simulation trading
-'''
 DAY = 86400
 
 
 
 class Simulation(Bot):
+    """
+    Main class for Simulation trading
+    """
+
     def __init__(self, args, config_file):
         super(Simulation, self).__init__(args, config_file)
         self.counter = 0

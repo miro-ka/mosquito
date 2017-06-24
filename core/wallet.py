@@ -1,11 +1,12 @@
 import configparser
 
-'''
-Class holding current status of wallet (assets and currencies)
-'''
 
 
 class Wallet:
+    """
+    Class holding current status of wallet (assets and currencies)
+    """
+
     def __init__(self, config_file):
         config = configparser.ConfigParser()
         config.read(config_file)
