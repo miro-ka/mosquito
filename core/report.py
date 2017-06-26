@@ -19,7 +19,7 @@ class Report:
         if len(self.init_close) == 0:
             self.initialize_start_price(ticker_data)
         date_time = datetime.fromtimestamp(ticker_data['date']).strftime('%c') + ':\t '
-        current_close = 'close:' + format(ticker_data['close'], '2f') + ', '
+        current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f') + ', '
         # Buy & Hold
         buy_and_hold = self.calc_buy_and_hold(ticker_data)
         if buy_and_hold < 0:
@@ -31,14 +31,14 @@ class Report:
         return 0
 
     def initialize_start_price(self, ticker_data):
-        currency = ticker_data['pair'].split('_', 1)[0]
-        closing = ticker_data['close']
+        currency = ticker_data.iloc[0]['curr_1']
+        closing = ticker_data.iloc[0]['close']
         balance_item = [item for item in self.init_balance if currency in item]
         if balance_item[0][0] == currency:
             self.init_close.append((currency, closing))
 
     def calc_buy_and_hold(self, ticker_data):
-        currency = ticker_data['pair'].split('_', 1)[0]
-        current_closing = ticker_data['close']
+        currency = ticker_data.iloc[0]['curr_1']
+        current_closing = ticker_data.iloc[0]['close']
         init_closing = [item for item in self.init_close if currency in item][0][1]
         return ((current_closing - init_closing)*100.0)/init_closing

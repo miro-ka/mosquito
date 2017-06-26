@@ -3,6 +3,7 @@ import configparser
 from .bot import Bot
 import time
 import sys
+import pandas as pd
 
 
 DAY = 86400
@@ -62,7 +63,11 @@ class Simulation(Bot):
             sys.exit()
         # print('getting db_data for epoch:', self.current_epoch)
         # print(db_doc['date'])
-        print(db_doc)
         self.current_epoch += interval*60
+        dict_keys = list(db_doc.keys())
+        df = pd.DataFrame([db_doc], columns=dict_keys)
+        df_pair = df['pair'].str.split('_', 1, expand=True)
+        df = pd.concat([df, df_pair], axis=1)
+        df.rename(columns={0: 'curr_1', 1: 'curr_2'}, inplace=True)
 
-        return db_doc
+        return df

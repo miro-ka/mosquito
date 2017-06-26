@@ -7,6 +7,7 @@ from .trade import Trade
 from .wallet import Wallet
 from .report import Report
 from importlib import import_module
+import pandas as pd
 
 
 class Engine:
@@ -18,7 +19,7 @@ class Engine:
     pairs = None
     bot = None
     ticker = None
-    look_back = []
+    look_back = None
     report = None
 
     def __init__(self, args, config_file):
@@ -30,6 +31,7 @@ class Engine:
         strategy_class = self.load_strategy(args.strategy)
         self.strategy = strategy_class(args)
         self.wallet = Wallet(config_file)
+        self.look_back = pd.DataFrame()
         if args.sim:
             self.bot = Simulation(args, config_file)
         elif args.trade:
@@ -76,10 +78,12 @@ class Engine:
                 # 1) Get next ticker set
                 self.ticker = self.bot.get_next(self.interval)
 
-                if len(self.look_back) > self.buffer_size:
-                    self.look_back.pop()
-                self.look_back.append(self.ticker)
+                self.look_back = self.look_back.append(self.ticker, ignore_index=True)
+                #print(self.look_back)
 
+                if len(self.look_back.index) > self.buffer_size:
+                    self.look_back = self.look_back.drop(self.look_back.index[0])
+                self.look_back.append(self.ticker)
                 # 2) simulation/paper/trade - get next action(sample_size)
                 action = self.strategy.calculate(self.look_back)
 
