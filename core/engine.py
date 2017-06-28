@@ -6,6 +6,7 @@ from .paper import Paper
 from .trade import Trade
 from .wallet import Wallet
 from .report import Report
+from .plot import Plot
 from importlib import import_module
 import pandas as pd
 
@@ -14,13 +15,9 @@ class Engine:
     """
     Main class for Simulation Engine (main class where all is happening
     """
-    buffer_size = None
-    interval = None
-    pairs = None
-    bot = None
-    ticker = None
-    look_back = None
-    report = None
+    buffer_size = interval = pairs = None
+    ticker = look_back = None
+    bot = report = plot = None
 
     def __init__(self, args, config_file):
         self.parse_config(config_file)
@@ -57,6 +54,14 @@ class Engine:
         self.pairs = config['Trade']['pairs'].split(',')
         self.strategy = config['Trade']['strategy']
 
+    def on_simulation_done(self):
+        """
+        Last function called when the simulation is finished
+        """
+        print('shutting down and writing final statistics!')
+
+        self.plot.draw(self.look_back)
+
     def run(self):
         """
         This is the main simulation loop
@@ -69,6 +74,7 @@ class Engine:
 
         # Initialization
         self.report = Report(self.wallet.initial_balance)
+        self.plot = Plot()
         # TODO: initialize wallet
 
         # TODO run loop
@@ -79,7 +85,7 @@ class Engine:
                 self.ticker = self.bot.get_next(self.interval)
 
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
-                #print(self.look_back)
+                print(self.ticker)
 
                 if len(self.look_back.index) > self.buffer_size:
                     self.look_back = self.look_back.drop(self.look_back.index[0])
@@ -92,14 +98,17 @@ class Engine:
 
                 # 4) trade.update_wallet
 
-                # 5) write/draw report
+                # 5) write report
                 self.report.calc_stats(self.ticker)
 
         except KeyboardInterrupt:
-            print('shutting down and writing final statistics!')
+            self.on_simulation_done()
 
         except SystemExit:
-            print('simulation done')
+            self.on_simulation_done()
+
+
+
 
 
 

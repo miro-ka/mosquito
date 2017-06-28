@@ -23,7 +23,7 @@ class Report:
         # Buy & Hold
         buy_and_hold = self.calc_buy_and_hold(ticker_data)
         if buy_and_hold < 0:
-            buy_and_hold = colored('b&h: ' + format(buy_and_hold, '.2f') + '%', 'red')
+            buy_and_hold = colored('buy_hold: ' + format(buy_and_hold, '.2f') + '%', 'red')
         else:
             buy_and_hold = colored('buy_hold: ' + format(buy_and_hold, '.2f') + '%', 'green')
 
