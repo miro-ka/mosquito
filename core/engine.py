@@ -1,7 +1,7 @@
 import configparser
 import sys
 from termcolor import colored
-from .simulation import Simulation
+from .backtest import Backtest
 from .paper import Paper
 from .trade import Trade
 from .wallet import Wallet
@@ -29,8 +29,8 @@ class Engine:
         self.strategy = strategy_class(args)
         self.wallet = Wallet(config_file)
         self.look_back = pd.DataFrame()
-        if args.sim:
-            self.bot = Simulation(args, config_file)
+        if args.backtest:
+            self.bot = Backtest(args, config_file)
         elif args.trade:
             self.bot = Trade(args, config_file)
         elif args.paper:

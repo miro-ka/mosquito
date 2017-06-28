@@ -9,20 +9,20 @@ import pandas as pd
 DAY = 86400
 
 
-class Simulation(Bot):
+class Backtest(Bot):
     """
-    Main class for Simulation trading
+    Main class for Backtest trading
     """
 
     def __init__(self, args, config_file):
-        super(Simulation, self).__init__(args, config_file)
+        super(Backtest, self).__init__(args, config_file)
         self.counter = 0
         self.config = self.initialize_config(config_file)
         self.db = self.initialize_db(self.config)
         self.ticker = self.db.ticker
-        self.sim_start = self.config['Simulation']['from']
-        self.sim_end = self.config['Simulation']['to']
-        self.sim_days = int(self.config['Simulation']['days'])
+        self.sim_start = self.config['Backtest']['from']
+        self.sim_end = self.config['Backtest']['to']
+        self.sim_days = int(self.config['Backtest']['days'])
         self.sim_epoch_start = self.get_sim_epoch_start(self.sim_days, self.sim_start)
         self.current_epoch = self.sim_epoch_start
         self.pairs = self.config['Trade']['pairs'].split(',')
