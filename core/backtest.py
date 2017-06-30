@@ -25,7 +25,7 @@ class Backtest(Bot):
         self.sim_days = int(self.config['Backtest']['days'])
         self.sim_epoch_start = self.get_sim_epoch_start(self.sim_days, self.sim_start)
         self.current_epoch = self.sim_epoch_start
-        self.pairs = self.config['Trade']['pairs'].split(',')
+        self.pairs = self.config['Trade']['pairs'].replace(" ", "").split(',')
         self.exchange = self.config['Trade']['exchange']
 
     @staticmethod

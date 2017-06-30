@@ -16,7 +16,7 @@ class Engine:
     Main class for Simulation Engine (main class where all is happening
     """
     buffer_size = interval = pairs = None
-    ticker = look_back = None
+    ticker = look_back = history = None
     bot = report = plot = None
 
     def __init__(self, args, config_file):
@@ -29,6 +29,7 @@ class Engine:
         self.strategy = strategy_class(args)
         self.wallet = Wallet(config_file)
         self.look_back = pd.DataFrame()
+        self.history = pd.DataFrame()
         if args.backtest:
             self.bot = Backtest(args, config_file)
         elif args.trade:
@@ -51,7 +52,7 @@ class Engine:
         self.interval = config['Trade']['interval']
         if self.interval != '':
             self.interval = int(self.interval)
-        self.pairs = config['Trade']['pairs'].split(',')
+        self.pairs = config['Trade']['pairs'].replace(" ", "").split(',')
         self.strategy = config['Trade']['strategy']
 
     def on_simulation_done(self):
@@ -59,8 +60,7 @@ class Engine:
         Last function called when the simulation is finished
         """
         print('shutting down and writing final statistics!')
-
-        self.plot.draw(self.look_back)
+        self.plot.draw(self.history)
 
     def run(self):
         """
@@ -73,23 +73,20 @@ class Engine:
         print('starting simulation')
 
         # Initialization
-        self.report = Report(self.wallet.initial_balance)
+        self.report = Report(self.wallet.initial_balance, self.pairs)
         self.plot = Plot()
-        # TODO: initialize wallet
-
-        # TODO run loop
 
         try:
             while True:
                 # 1) Get next ticker set
                 self.ticker = self.bot.get_next(self.interval)
-
+                self.history = self.history.append(self.ticker, ignore_index=True)
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
-                print(self.ticker)
-
+                #print('--ticker--', self.ticker)
                 if len(self.look_back.index) > self.buffer_size:
                     self.look_back = self.look_back.drop(self.look_back.index[0])
                 self.look_back.append(self.ticker)
+
                 # 2) simulation/paper/trade - get next action(sample_size)
                 action = self.strategy.calculate(self.look_back)
 
@@ -99,7 +96,7 @@ class Engine:
                 # 4) trade.update_wallet
 
                 # 5) write report
-                self.report.calc_stats(self.ticker)
+                self.report.calc_stats(self.ticker, self.wallet)
 
         except KeyboardInterrupt:
             self.on_simulation_done()

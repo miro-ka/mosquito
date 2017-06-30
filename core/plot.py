@@ -19,10 +19,7 @@ class Plot:
             print('Plot: Empty dataframe, nothing to draw!')
             return
 
-        print(df)
-
         df['date'] = pd.to_datetime(df['date'], unit='s')
-        #print(df)
         plotly.offline.init_notebook_mode()
 
         trace = go.Candlestick(x=df.date,

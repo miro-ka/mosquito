@@ -10,6 +10,7 @@ class Wallet:
     def __init__(self, config_file):
         config = configparser.ConfigParser()
         config.read(config_file)
-        currency = config['Wallet']['currency'].split(',')
-        value = config['Wallet']['value'].split(',')
+        currency = config['Wallet']['currency'].replace(" ", "").split(',')
+        value = config['Wallet']['value'].replace(" ", "").split(',')
         self.initial_balance = list(zip(currency, value))
+        self.current_balance = self.initial_balance
