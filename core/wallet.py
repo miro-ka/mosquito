@@ -1,7 +1,6 @@
 import configparser
 
 
-
 class Wallet:
     """
     Class holding current status of wallet (assets and currencies)

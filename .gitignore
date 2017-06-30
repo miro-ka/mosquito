@@ -1,5 +1,6 @@
 *.html
 core/__pycache__/
+core/bots/__pycache__/
 
 config.ini
 .idea/

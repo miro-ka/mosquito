@@ -1,14 +1,17 @@
 import configparser
 import sys
-from termcolor import colored
-from .backtest import Backtest
-from .paper import Paper
-from .trade import Trade
-from .wallet import Wallet
-from .report import Report
-from .plot import Plot
 from importlib import import_module
+
 import pandas as pd
+from core.bots.paper import Paper
+from termcolor import colored
+
+from core.bots.backtest import Backtest
+from core.bots.enums import TradeMode
+from core.bots.live import Live
+from core.plot import Plot
+from core.report import Report
+from core.wallet import Wallet
 
 
 class Engine:
@@ -18,6 +21,7 @@ class Engine:
     buffer_size = interval = pairs = None
     ticker = look_back = history = None
     bot = report = plot = None
+    trade_mode = None
 
     def __init__(self, args, config_file):
         self.parse_config(config_file)
@@ -32,10 +36,13 @@ class Engine:
         self.history = pd.DataFrame()
         if args.backtest:
             self.bot = Backtest(args, config_file)
+            self.trade_mode = TradeMode.backtest
         elif args.trade:
-            self.bot = Trade(args, config_file)
+            self.bot = Live(args, config_file)
+            self.trade_mode = TradeMode.live
         elif args.paper:
             self.bot = Paper(args, config_file)
+            self.trade_mode = TradeMode.paper
 
     @staticmethod
     def load_strategy(strategy_name):
@@ -60,14 +67,15 @@ class Engine:
         Last function called when the simulation is finished
         """
         print('shutting down and writing final statistics!')
-        self.plot.draw(self.history)
+        if self.args.plot:
+            self.plot.draw(self.history)
 
     def run(self):
         """
         This is the main simulation loop
         """
         if self.bot is None:
-            print(colored('The bot type is NOT specified. You need to choose one action (--sim, --paper, --trade)', 'red'))
+            print(colored('The bots type is NOT specified. You need to choose one action (--sim, --paper, --trade)', 'red'))
             sys.exit()
 
         print('starting simulation')
@@ -78,24 +86,25 @@ class Engine:
 
         try:
             while True:
-                # 1) Get next ticker set
+                # Get next ticker set and save it to our container
                 self.ticker = self.bot.get_next(self.interval)
                 self.history = self.history.append(self.ticker, ignore_index=True)
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
-                #print('--ticker--', self.ticker)
+                # print('--ticker--', self.ticker)
                 if len(self.look_back.index) > self.buffer_size:
                     self.look_back = self.look_back.drop(self.look_back.index[0])
                 self.look_back.append(self.ticker)
 
-                # 2) simulation/paper/trade - get next action(sample_size)
-                action = self.strategy.calculate(self.look_back)
+                # Get next actions
+                actions = self.strategy.calculate(self.look_back)
 
-                # 3) trade(action)
-                # TODO self.wallet = wallet.update_balance()
+                # Set trade
+                self.bot.trade(actions, self.wallet.current_balance)
 
-                # 4) trade.update_wallet
+                # Update_wallet
+                self.wallet = self.bot.refresh_wallet(self.wallet)
 
-                # 5) write report
+                # Write report
                 self.report.calc_stats(self.ticker, self.wallet)
 
         except KeyboardInterrupt:

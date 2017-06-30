@@ -1,6 +1,6 @@
-from pymongo import MongoClient, ASCENDING
+from pymongo import MongoClient
 import configparser
-from .bot import Bot
+from .base import Base
 import time
 import sys
 import pandas as pd
@@ -9,7 +9,7 @@ import pandas as pd
 DAY = 86400
 
 
-class Backtest(Bot):
+class Backtest(Base):
     """
     Main class for Backtest trading
     """
@@ -71,3 +71,23 @@ class Backtest(Bot):
         df.rename(columns={0: 'curr_1', 1: 'curr_2'}, inplace=True)
 
         return df
+
+    def trade(self, actions, wallet):
+        """
+        Simulate currency buy/sell
+        :param actions:
+        :return:
+        """
+        print('placing_trade')
+        for action in actions:
+            pass
+        pass
+
+    def refresh_wallet(self, wallet):
+        """
+        Returns new updated wallet balance
+        :return:
+        """
+        # TODO: update wallets balance
+        print('refreshing wallet')
+        return wallet

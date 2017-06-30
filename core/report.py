@@ -22,6 +22,8 @@ class Report:
             self.initialize_start_price(ticker_data)
         date_time = datetime.fromtimestamp(ticker_data['date']).strftime('%c') + ','
         current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f') + ','
+        # Wallet
+        wallet_text = self.get_wallet_text(wallet)
         # Balance
         balance = self.calc_balance(ticker_data, wallet)
         balance_text = self.get_color_text('$: ', balance) + ','
@@ -30,10 +32,27 @@ class Report:
         bh_text = self.get_color_text('b&h: ', bh)
         print(date_time,
               current_close,
+              wallet_text,
               balance_text,
               bh_text)
 
         return 0
+
+    @staticmethod
+    def get_wallet_text(wallet, currencies=None):
+        """
+        Returns wallet balance in string. By default it returns balance of the entire wallet.
+        You can specify currencies which you would like to receive update
+        :param wallet:
+        :param currencies:
+        :return:
+        """
+        # TODO return only wallet of given currencies
+        wallet_string = ''
+        for item in wallet.current_balance:
+            wallet_string += ' | ' + item[1] + str(item[0])
+        wallet_string += ' |'
+        return wallet_string
 
     @staticmethod
     def get_color_text(text, value):
