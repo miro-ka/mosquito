@@ -19,7 +19,7 @@ class Ema(Base):
         Returns list of pairs and their corresponding actions
         """
         print('running strategy ema')
-        action = TradeAction('BTC_ETH', ts.buy, None, True)
+        action = TradeAction('BTC_ETH', ts.sell, None, True)
         self.actions.append(action)
         return self.actions
 

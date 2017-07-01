@@ -109,6 +109,23 @@ class Backtest(Base):
                     print('cancelling sell order..')
                     self.current_action = ts.none
                     return wallet
+
+            # Sell
+            # For now we are accepting only 1 AND ONLY 1 active order
+            if action.action == ts.sell:
+                if self.current_action in [ts.sell, ts.selling, ts.bought, ts.none, None]:
+                    print(colored('selling ' + action.pair), 'red')
+                    currency[0] = (currency[0][0], currency[0][1] + (asset[0][1] * close_price))
+                    asset[0] = (asset[0][0], 0.0)
+                    # TODO: add buy_sell_all functionality
+                    self.current_action = ts.bought
+                    new_wallet = [currency[0] if currency[0][0] == e[0] else e for e in wallet]
+                    new_wallet = [asset[0] if asset[0][0] == e[0] else e for e in new_wallet]
+                    return new_wallet
+                elif self.current_action in [ts.buy, ts.buying]:
+                    print('cancelling buy order..')
+                    self.current_action = ts.none
+                    return wallet
         # TODO add trade to list of trades
         return wallet
 
