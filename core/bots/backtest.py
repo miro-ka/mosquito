@@ -4,7 +4,8 @@ from .base import Base
 import time
 import sys
 import pandas as pd
-
+from strategies.enums import TradeState as ts
+from termcolor import colored
 
 DAY = 86400
 
@@ -13,6 +14,8 @@ class Backtest(Base):
     """
     Main class for Backtest trading
     """
+    current_action = None
+    ticker_df = None
 
     def __init__(self, args, config_file):
         super(Backtest, self).__init__(args, config_file)
@@ -69,19 +72,45 @@ class Backtest(Base):
         df_pair = df['pair'].str.split('_', 1, expand=True)
         df = pd.concat([df, df_pair], axis=1)
         df.rename(columns={0: 'curr_1', 1: 'curr_2'}, inplace=True)
-
+        self.ticker_df = df
         return df
 
     def trade(self, actions, wallet):
         """
         Simulate currency buy/sell
         :param actions:
-        :return:
+        :return: updated wallet
         """
-        print('placing_trade')
         for action in actions:
-            pass
-        pass
+            (currency_symbol, asset_symbol) = tuple(action.pair.split('_'))
+            currency = [item for item in wallet if item[0] == currency_symbol]
+            asset = [item for item in wallet if item[0] == asset_symbol]
+
+            if not currency or not asset:
+                print('Error: provided incorrect currency pairs')
+                return wallet
+
+            ticker = self.ticker_df.loc[self.ticker_df['pair'] == action.pair]
+            close_price = ticker['close'][0]
+
+            # Buy
+            # For now we are accepting only 1 AND ONLY 1 active order
+            if action.action == ts.buy:
+                if self.current_action in [ts.buy, ts.buying, ts.sold, ts.none, None]:
+                    print(colored('buying ' + action.pair), 'red')
+                    asset[0] = (asset[0][0], asset[0][1] + (currency[0][1] / close_price))
+                    currency[0] = (currency[0][0], 0.0)
+                    # TODO: add buy_sell_all functionality
+                    self.current_action = ts.bought
+                    new_wallet = [currency[0] if currency[0][0] == e[0] else e for e in wallet]
+                    new_wallet = [asset[0] if asset[0][0] == e[0] else e for e in new_wallet]
+                    return new_wallet
+                elif self.current_action in [ts.sell, ts.selling]:
+                    print('cancelling sell order..')
+                    self.current_action = ts.none
+                    return wallet
+        # TODO add trade to list of trades
+        return wallet
 
     def refresh_wallet(self, wallet):
         """

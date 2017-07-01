@@ -99,10 +99,10 @@ class Engine:
                 actions = self.strategy.calculate(self.look_back)
 
                 # Set trade
-                self.bot.trade(actions, self.wallet.current_balance)
+                self.wallet.current_balance = self.bot.trade(actions, self.wallet.current_balance)
 
                 # Update_wallet
-                self.wallet = self.bot.refresh_wallet(self.wallet)
+                #self.wallet = self.bot.refresh_wallet(self.wallet)
 
                 # Write report
                 self.report.calc_stats(self.ticker, self.wallet)

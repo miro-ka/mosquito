@@ -11,5 +11,6 @@ class Wallet:
         config.read(config_file)
         currency = config['Wallet']['currency'].replace(" ", "").split(',')
         value = config['Wallet']['value'].replace(" ", "").split(',')
+        value = [float(i) for i in value]
         self.initial_balance = list(zip(currency, value))
         self.current_balance = self.initial_balance

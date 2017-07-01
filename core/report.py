@@ -43,14 +43,11 @@ class Report:
         """
         Returns wallet balance in string. By default it returns balance of the entire wallet.
         You can specify currencies which you would like to receive update
-        :param wallet:
-        :param currencies:
-        :return:
         """
         # TODO return only wallet of given currencies
         wallet_string = ''
         for item in wallet.current_balance:
-            wallet_string += ' | ' + item[1] + str(item[0])
+            wallet_string += ' | ' + str(item[1]) + item[0]
         wallet_string += ' |'
         return wallet_string
 
@@ -76,16 +73,17 @@ class Report:
                 pair_2_balance = float(pair_2_item[0][1])
                 current_balance += pair_1_balance + pair_2_balance*current_closing
 
-        #print('current_balance:', current_balance)
-        #print('initial_balance:', self.initial_balance)
-        perc_change = ((current_balance - self.initial_balance)*100.0)/self.initial_balance
+        # print('current_balance:', current_balance)
+        print('initial_close:', self.initial_close)
+        price_diff = current_balance - self.initial_balance
+        perc_change = ((price_diff*100.0)/self.initial_balance)
         return perc_change
 
     def initialize_start_price(self, ticker_data):
         """
         Save initial Closing price
         """
-        #print('-------------------saving init price')
+        # print('-------------------saving init price')
         ticker_pair = ticker_data.iloc[0]['pair']
         closing = ticker_data.iloc[0]['close']
         # Check if item is in our pairs, that we are trading

@@ -8,5 +8,7 @@ class TradeState(Enum):
     none = 0
     buy = 1
     buying = 2
-    sell = 3
-    selling = 4
+    bought = 3
+    sell = 4
+    selling = 5
+    sold = 6

@@ -1,5 +1,6 @@
 from pymongo import MongoClient, ASCENDING
 from exchanges.poloniex.polo import Polo
+from core.bots.enums import TradeMode as tm
 import configparser
 import time
 import argparse
@@ -18,7 +19,7 @@ backfill --all --days[]
 
 
 client = MongoClient('localhost', 27017)
-db = client.evobot1
+db = client.green1
 
 DAY = 86400
 
@@ -36,7 +37,6 @@ def main(args):
     port = int(config['MongoDB']['port'])
     url = config['MongoDB']['url']
 
-
     # Init mongo
     # TODO: get mongo details from config
     client = MongoClient(url, port)
@@ -44,14 +44,13 @@ def main(args):
     ticker = db.ticker
     db.ticker.create_index([('id', ASCENDING)], unique=True)
 
-
     # Parse config and get working exchange
     config = configparser.ConfigParser()
     config.read('config.ini')
     # TODO: check which exchange we will use
     api_key = config['Poloniex']['apiKey']
     secret = config['Poloniex']['secret']
-    exchange = Polo(apiKey=api_key, secret=secret)
+    exchange = Polo(tm.backtest, api_key=api_key, secret=secret)
 
     # Get list of all currencies
     if args.all:
