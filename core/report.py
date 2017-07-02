@@ -53,6 +53,9 @@ class Report:
 
     @staticmethod
     def get_color_text(text, value):
+        """
+        Returns colored text
+        """
         v = round(value, 2) + 0.0
         output_text = text + str(round(v, 2)) + '%'
         color = 'green' if round(v, 2) >= 0 else 'red'

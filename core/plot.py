@@ -4,7 +4,6 @@ import pandas as pd
 import plotly.offline as offline
 
 
-
 class Plot:
     """
     Main plotting class
@@ -14,12 +13,17 @@ class Plot:
         pass
 
     @staticmethod
-    def draw(df):
+    def draw(df, df_trades):
+        """
+        Candle-stick plot
+        """
         if df.empty:
             print('Plot: Empty dataframe, nothing to draw!')
             return
 
         df['date'] = pd.to_datetime(df['date'], unit='s')
+        df_trades['date'] = pd.to_datetime(df_trades['date'], unit='s')
+        print(df)
         plotly.offline.init_notebook_mode()
 
         trace = go.Candlestick(x=df.date,
@@ -28,15 +32,6 @@ class Plot:
                                low=df.low,
                                close=df.close)
         data = [trace]
-
-        """
-        # Default
-        def plot(figure_or_data, show_link=True, link_text='Export to plot.ly',
-         validate=True, output_type='file', include_plotlyjs=True,
-         filename='temp-plot.html', auto_open=True, image=None,
-         image_filename='plot_image', image_width=800, image_height=600,
-         config=None):
-       """
 
         """
         # Save to file
@@ -50,7 +45,25 @@ class Plot:
         html_file.close()
         """
 
+        # Create buy/sell annotations
+        annotations = []
+        for index, row in df_trades.iterrows():
+            d = dict(x=row['date'], y=row['close_price'], xref='x', yref='y', ax=0,
+                     ay=-40 if row['close_price'] == 'buy' else 40,
+                     showarrow=True, arrowhead=2, arrowsize=3, arrowwidth=2,
+                     arrowcolor='red' if row['close_price'] == 'sell' else 'green',
+                     bordercolor='#c7c7c7')
+            annotations.append(d)
+
+        layout = go.Layout(
+            title='Simulation result',
+            autosize=True,
+            showlegend=True,
+            annotations = annotations
+        )
+
         # Auto-open html page
-        offline.plot({'data': data,
-                      'layout': {'title': 'Simulation result', 'autosize': True}},
-                     auto_open=True, image_filename='plot_image',  validate=False)
+        offline.plot({'data': data, 'layout': layout},
+                     auto_open=True,
+                     image_filename='plot_image',
+                     validate=False)

@@ -47,6 +47,9 @@ class Backtest(Base):
 
     @staticmethod
     def initialize_db(config):
+        """
+        DB Initialization
+        """
         db = config['MongoDB']['db']
         port = int(config['MongoDB']['port'])
         url = config['MongoDB']['url']
@@ -75,7 +78,7 @@ class Backtest(Base):
         self.ticker_df = df
         return df
 
-    def trade(self, actions, wallet):
+    def trade(self, actions, wallet, trades):
         """
         Simulate currency buy/sell
         :param actions:
@@ -97,13 +100,15 @@ class Backtest(Base):
             # For now we are accepting only 1 AND ONLY 1 active order
             if action.action == ts.buy:
                 if self.current_action in [ts.buy, ts.buying, ts.sold, ts.none, None]:
-                    print(colored('buying ' + action.pair), 'red')
+                    print(colored('buying ' + action.pair, 'red'))
                     asset[0] = (asset[0][0], asset[0][1] + (currency[0][1] / close_price))
                     currency[0] = (currency[0][0], 0.0)
                     # TODO: add buy_sell_all functionality
                     self.current_action = ts.bought
                     new_wallet = [currency[0] if currency[0][0] == e[0] else e for e in wallet]
                     new_wallet = [asset[0] if asset[0][0] == e[0] else e for e in new_wallet]
+                    # Append trade
+                    trades.loc[len(trades)] = [ticker['date'][0], action.pair, close_price, 'buy']
                     return new_wallet
                 elif self.current_action in [ts.sell, ts.selling]:
                     print('cancelling sell order..')
@@ -114,13 +119,15 @@ class Backtest(Base):
             # For now we are accepting only 1 AND ONLY 1 active order
             if action.action == ts.sell:
                 if self.current_action in [ts.sell, ts.selling, ts.bought, ts.none, None]:
-                    print(colored('selling ' + action.pair), 'red')
+                    print(colored('selling ' + action.pair, 'red'))
                     currency[0] = (currency[0][0], currency[0][1] + (asset[0][1] * close_price))
                     asset[0] = (asset[0][0], 0.0)
                     # TODO: add buy_sell_all functionality
                     self.current_action = ts.bought
                     new_wallet = [currency[0] if currency[0][0] == e[0] else e for e in wallet]
                     new_wallet = [asset[0] if asset[0][0] == e[0] else e for e in new_wallet]
+                    # Append trade
+                    trades.loc[len(trades)] = [ticker['date'][0], action.pair, close_price, 'sell']
                     return new_wallet
                 elif self.current_action in [ts.buy, ts.buying]:
                     print('cancelling buy order..')

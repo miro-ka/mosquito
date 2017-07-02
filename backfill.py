@@ -6,26 +6,23 @@ import time
 import argparse
 
 
-
-"""
-Usage:
- 
-# Loads and stores data mongodb for specific currency and specific days (from now) 
-backfill --currency[] --days[]
-
-# Loads data for all currently supported currencies for specific days (from now)
-backfill --all --days[]
-"""
-
-
 client = MongoClient('localhost', 27017)
 db = client.green1
 
 DAY = 86400
 
 
-
 def main(args):
+    """
+    Usage:
+
+    # Loads and stores data mongodb for specific currency and specific days (from now)
+    backfill --currency[] --days[]
+
+    # Loads data for all currently supported currencies for specific days (from now)
+    backfill --all --days[]
+    """
+
     # Parse config and get working exchange
     config = configparser.ConfigParser()
     config.read('config.ini')

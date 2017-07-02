@@ -34,6 +34,8 @@ class Engine:
         self.wallet = Wallet(config_file)
         self.look_back = pd.DataFrame()
         self.history = pd.DataFrame()
+        trade_columns = ['date', 'pair', 'close_price', 'action']
+        self.trades = pd.DataFrame(columns=trade_columns, index=None)
         if args.backtest:
             self.bot = Backtest(args, config_file)
             self.trade_mode = TradeMode.backtest
@@ -51,6 +53,9 @@ class Engine:
         return strategy
 
     def parse_config(self, config_file):
+        """
+        Parsing of config.ini file
+        """
         config = configparser.ConfigParser()
         config.read(config_file)
         self.buffer_size = config['Trade']['buffer_size']
@@ -68,7 +73,7 @@ class Engine:
         """
         print('shutting down and writing final statistics!')
         if self.args.plot:
-            self.plot.draw(self.history)
+            self.plot.draw(self.history, self.trades)
 
     def run(self):
         """
@@ -99,10 +104,12 @@ class Engine:
                 actions = self.strategy.calculate(self.look_back)
 
                 # Set trade
-                self.wallet.current_balance = self.bot.trade(actions, self.wallet.current_balance)
+                self.wallet.current_balance = self.bot.trade(actions,
+                                                             self.wallet.current_balance,
+                                                             self.trades)
 
                 # Update_wallet
-                #self.wallet = self.bot.refresh_wallet(self.wallet)
+                # self.wallet = self.bot.refresh_wallet(self.wallet)
 
                 # Write report
                 self.report.calc_stats(self.ticker, self.wallet)
