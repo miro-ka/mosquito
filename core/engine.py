@@ -1,11 +1,9 @@
-import configparser
 import sys
+import configparser
 from importlib import import_module
-
 import pandas as pd
 from core.bots.paper import Paper
 from termcolor import colored
-
 from core.bots.backtest import Backtest
 from core.bots.enums import TradeMode
 from core.bots.live import Live
@@ -24,9 +22,9 @@ class Engine:
     trade_mode = None
 
     def __init__(self, args, config_file):
-        self.parse_config(config_file)
         # Arguments should override config.ini file, so lets initialize
         # them only after config file parsing
+        self.parse_config(config_file)
         self.args = args
         self.config = config_file
         strategy_class = self.load_strategy(args.strategy)
@@ -45,6 +43,7 @@ class Engine:
         elif args.paper:
             self.bot = Paper(args, config_file)
             self.trade_mode = TradeMode.paper
+        self.pairs = self.bot.get_pairs()
 
     @staticmethod
     def load_strategy(strategy_name):
@@ -64,7 +63,6 @@ class Engine:
         self.interval = config['Trade']['interval']
         if self.interval != '':
             self.interval = int(self.interval)
-        self.pairs = config['Trade']['pairs'].replace(" ", "").split(',')
         self.strategy = config['Trade']['strategy']
 
     def on_simulation_done(self):
@@ -93,6 +91,7 @@ class Engine:
             while True:
                 # Get next ticker set and save it to our container
                 self.ticker = self.bot.get_next(self.interval)
+
                 self.history = self.history.append(self.ticker, ignore_index=True)
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
                 # print('--ticker--', self.ticker)

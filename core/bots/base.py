@@ -20,6 +20,13 @@ class Base(ABC):
         pass
 
     @abstractmethod
+    def get_pairs(self):
+        """
+        Returns the pairs the bot is working with
+        """
+        pass
+
+    @abstractmethod
     def trade(self, actions, wallet):
         """
         Places given action

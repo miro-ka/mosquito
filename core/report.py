@@ -13,22 +13,24 @@ class Report:
     def __init__(self, initial_wallet, pairs):
         self.initial_wallet = initial_wallet
         self.pairs = pairs
+        self.initial_close = dict([(pair, None) for pair in self.pairs])
 
     def calc_stats(self, ticker_data, wallet):
         """
         Creates ticker report
         """
-        if len(self.initial_close) != len(self.pairs):
-            self.initialize_start_price(ticker_data)
-        date_time = datetime.fromtimestamp(ticker_data['date']).strftime('%c') + ','
+        none_init_balances = {k: v for k, v in self.initial_close.items() if v is None}
+        if len(none_init_balances) > 0:
+            self.initialize_start_price(ticker_data, none_init_balances)
+        date_time = datetime.fromtimestamp(ticker_data['date'][0]).strftime('%c') + ','
         current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f') + ','
         # Wallet
         wallet_text = self.get_wallet_text(wallet)
         # Balance
-        balance = self.calc_balance(ticker_data, wallet)
+        balance = self.calc_balance(ticker_data, wallet.current_balance)
         balance_text = self.get_color_text('$: ', balance) + ','
         # Buy & Hold
-        bh = self.calc_buy_and_hold(ticker_data)
+        bh = self.calc_buy_and_hold(ticker_data, wallet.initial_balance)
         bh_text = self.get_color_text('b&h: ', bh)
         print(date_time,
               current_close,
@@ -61,52 +63,57 @@ class Report:
         color = 'green' if round(v, 2) >= 0 else 'red'
         return colored(output_text, color)
 
-    def calc_balance(self, ticker_data, wallet):
+    def calc_balance(self, ticker_data, wallet_balance):
         """
         Calculates current balance (profit/loss)
         """
         current_balance = 0
-        for pair in self.pairs:
-            if pair == ticker_data.iloc[0]['pair']:
-                current_closing = ticker_data.iloc[0]['close']
-                # TODO Here we assume that our base is BITCOIN. This might need to be changed
-                pair_1_item = [item for item in wallet.current_balance if item[0] == ticker_data.iloc[0]['curr_1']]
-                pair_1_balance = float(pair_1_item[0][1])
-                pair_2_item = [item for item in wallet.current_balance if item[0] == ticker_data.iloc[0]['curr_2']]
-                pair_2_balance = float(pair_2_item[0][1])
-                current_balance += pair_1_balance + pair_2_balance*current_closing
+        for wallet_item in wallet_balance:
+            (currency, value) = wallet_item
+            if currency == 'BTC':
+                current_balance += value
+                continue
 
-        # print('current_balance:', current_balance)
-        print('initial_close:', self.initial_close)
+            pair = 'BTC_' + currency
+            ticker = ticker_data.loc[ticker_data['pair'] == pair]
+            if ticker.empty:
+                print('DataFrame of following pair is empty:', pair)
+                continue
+            current_closing = ticker.iloc[0]['close']
+            pair_2_item = [item for item in wallet_balance if item[0] == ticker.iloc[0]['curr_2']]
+            if pair_2_item:
+                pair_2_balance = float(pair_2_item[0][1])
+            current_balance += pair_2_balance * current_closing
         price_diff = current_balance - self.initial_balance
         perc_change = ((price_diff*100.0)/self.initial_balance)
         return perc_change
 
-    def initialize_start_price(self, ticker_data):
+    def initialize_start_price(self, ticker_data, none_init_balances):
         """
         Save initial Closing price
         """
-        # print('-------------------saving init price')
-        ticker_pair = ticker_data.iloc[0]['pair']
-        closing = ticker_data.iloc[0]['close']
-        # Check if item is in our pairs, that we are trading
-        if ticker_pair in self.pairs:
-            # Check if we have already saved the closing price
-            balance_item = [item for item in self.initial_close if ticker_pair in item[0]]
-            if not balance_item:
-                self.initial_close.append((ticker_pair, closing))
-                # Recalculate initial_balance
-                pair1_currency = ticker_data.iloc[0]['curr_1']
-                pair2_currency = ticker_data.iloc[0]['curr_2']
-                currency1_wallet = float([item for item in self.initial_wallet if pair1_currency in item[0]][0][1])
-                currency2_wallet = float([item for item in self.initial_wallet if pair2_currency in item[0]][0][1])
-                self.initial_balance += closing * currency2_wallet + currency1_wallet
+        # Get only currencies that have not been initialized yet
 
-    def calc_buy_and_hold(self, ticker_data):
+        for pair in none_init_balances:
+            ticker = ticker_data.loc[ticker_data['pair'] == pair]
+            if ticker.empty:
+                print('Couldnt find ticker for pair:', pair)
+                continue
+            closing = ticker.iloc[0]['close']
+            pair1_currency = ticker.iloc[0]['curr_1']
+            pair2_currency = ticker.iloc[0]['curr_2']
+            c1 = [item for item in self.initial_wallet if pair1_currency in item[0]]
+            currency1_wallet = currency2_wallet = 0
+            if c1:
+                currency1_wallet = float(c1[0][1])
+            c2 = [item for item in self.initial_wallet if pair2_currency in item[0]]
+            if c2:
+                currency2_wallet = float(c2[0][1])
+            self.initial_balance += closing * currency2_wallet + currency1_wallet
+            self.initial_close[pair] = closing
+
+    def calc_buy_and_hold(self, ticker_data, current_balance):
         """
         Calculate Buy & Hold price
         """
-        pair = ticker_data.iloc[0]['pair']
-        current_closing = ticker_data.iloc[0]['close']
-        init_closing = [item for item in self.initial_close if pair in item][0][1]
-        return ((current_closing - init_closing)*100.0)/init_closing
+        return self.calc_balance(ticker_data, current_balance)

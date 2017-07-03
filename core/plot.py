@@ -23,7 +23,7 @@ class Plot:
 
         df['date'] = pd.to_datetime(df['date'], unit='s')
         df_trades['date'] = pd.to_datetime(df_trades['date'], unit='s')
-        print(df)
+        #print(df)
         plotly.offline.init_notebook_mode()
 
         trace = go.Candlestick(x=df.date,
@@ -48,10 +48,11 @@ class Plot:
         # Create buy/sell annotations
         annotations = []
         for index, row in df_trades.iterrows():
+            xx = row['action']
             d = dict(x=row['date'], y=row['close_price'], xref='x', yref='y', ax=0,
-                     ay=-40 if row['close_price'] == 'buy' else 40,
+                     ay=40 if row['action'] == 'buy' else -40,
                      showarrow=True, arrowhead=2, arrowsize=3, arrowwidth=2,
-                     arrowcolor='red' if row['close_price'] == 'sell' else 'green',
+                     arrowcolor='red' if row['action'] == 'sell' else 'green',
                      bordercolor='#c7c7c7')
             annotations.append(d)
 

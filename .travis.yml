@@ -13,7 +13,7 @@ python:
 
 
 # command to install dependencies
-install: "pip3 install argparse pymongo configparser"
+install: "pip3 install argparse pymongo configparser TA-Lib"
 
 script:
     - python3 tests/test.py

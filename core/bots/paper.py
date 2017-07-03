@@ -20,6 +20,12 @@ class Paper(Base):
         # TODO
         pass
 
+    def get_pairs(self):
+        """
+        Returns the pairs the bot is working with
+        """
+        pass
+
     def refresh_wallet(self, wallet):
         """
         Returns new updated wallet balance

@@ -4,15 +4,15 @@ from .tradeaction import TradeAction
 import talib
 
 
-class Ema(Base):
+class Mosquito(Base):
     """
-    ema strategy
+    Strategy with focus to monitor entire exchange and buy & keep only the most profitable currencies
     """
 
     actions = []
 
     def __init__(self, args):
-        super(Ema, self).__init__(args)
+        super(Mosquito, self).__init__(args)
         self.name = 'ema'
 
     def calculate(self, look_back):
