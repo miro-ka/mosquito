@@ -13,7 +13,7 @@ class Report:
     def __init__(self, initial_wallet, pairs):
         self.initial_wallet = initial_wallet
         self.pairs = pairs
-        self.initial_close = dict([(pair, None) for pair in self.pairs])
+        self.initial_close = dict((pair, None) for pair in self.pairs)
 
     def calc_stats(self, ticker_data, wallet):
         """
@@ -22,6 +22,7 @@ class Report:
         none_init_balances = {k: v for k, v in self.initial_close.items() if v is None}
         if len(none_init_balances) > 0:
             self.initialize_start_price(ticker_data, none_init_balances)
+        print('ticker_data....', ticker_data)
         date_time = datetime.fromtimestamp(ticker_data['date'][0]).strftime('%c') + ','
         current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f') + ','
         # Wallet
@@ -93,11 +94,10 @@ class Report:
         Save initial Closing price
         """
         # Get only currencies that have not been initialized yet
-
         for pair in none_init_balances:
             ticker = ticker_data.loc[ticker_data['pair'] == pair]
             if ticker.empty:
-                print('Couldnt find ticker for pair:', pair)
+                print("Couldn't find ticker for pair:", pair)
                 continue
             closing = ticker.iloc[0]['close']
             pair1_currency = ticker.iloc[0]['curr_1']

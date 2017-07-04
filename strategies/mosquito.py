@@ -14,31 +14,37 @@ class Mosquito(Base):
     def __init__(self, args):
         super(Mosquito, self).__init__(args)
         self.name = 'ema'
+        self.min_buffer_data_size = 10
 
     def calculate(self, look_back):
-        if len(look_back) < 10:
-            action = TradeAction('BTC_ETH', ts.none, None, False)
-            self.actions.append(action)
+        """
+        Main Strategy function, which takes recent history data and returns recommended list of actions
+        """
+
+        dataset_cnt = look_back.groupby(['pair']).size().iloc[0]
+        print('dataset_cnt:', dataset_cnt)
+        # Wait until we have enough data
+        if dataset_cnt < self.min_buffer_data_size:
             return self.actions
 
-        """
-        Returns list of pairs and their corresponding actions
-        """
-        # print('----running strategy ema')
+        pairs_names = look_back.pair.unique()
+        ema_values = []
+        for pair in pairs_names:
+            df = look_back.loc[look_back['pair'] == pair].sort_values('date')
+            close = df['close'].values
+            # volume = df['volume']
+            ema = talib.EMA(close, timeperiod=len(close))[len(close)-1]
+            # slope = talib.LINEARREG_SLOPE(close, timeperiod=len(close))
+            ema_values.append((pair, ema))
 
-        close = look_back['close'].values
-        volume = look_back['volume'].values
-        obv = talib.OBV(close, volume)[-1]
-        new_action = ts.none
-        if obv >= 500:
-            new_action = ts.buy
+        # Get currency with the highest EMA
+        ema_sorted = sorted(ema_values, key=lambda x: x[1], reverse=True)
+        (winner_pair, ema) = ema_sorted[0]
 
-        if obv <= 400:
-            new_action = ts.sell
-
-        # print('obv:', obv, ', action: ', new_action)
-
-        action = TradeAction('BTC_ETH', new_action, None, True)
+        print('pairs_names:', pairs_names)
+        # obv = talib.OBV(close, volume)[-1]
+        # TODO: sell all
+        action = TradeAction(winner_pair, ts.buy, None, True)
         self.actions.append(action)
         return self.actions
 

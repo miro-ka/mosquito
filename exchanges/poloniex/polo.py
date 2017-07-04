@@ -17,7 +17,7 @@ class Polo(Base):
         """
         Returns ticker for all currencies
         """
-        return  self.polo.returnTicker()
+        return self.polo.returnTicker()
 
     def return_ticker_pairs(self):
         """

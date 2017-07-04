@@ -91,6 +91,9 @@ class Engine:
             while True:
                 # Get next ticker set and save it to our container
                 self.ticker = self.bot.get_next(self.interval)
+                if self.ticker.empty:
+                    print("No more data,..simulation done,. quitting")
+                    exit(0)
 
                 self.history = self.history.append(self.ticker, ignore_index=True)
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)

@@ -35,7 +35,6 @@ def main(args):
     url = config['MongoDB']['url']
 
     # Init mongo
-    # TODO: get mongo details from config
     client = MongoClient(url, port)
     db = client[db]
     ticker = db.ticker
@@ -47,7 +46,7 @@ def main(args):
     # TODO: check which exchange we will use
     api_key = config['Poloniex']['apiKey']
     secret = config['Poloniex']['secret']
-    exchange = Polo(tm.backtest, api_key=api_key, secret=secret)
+    exchange = Polo(api_key=api_key, secret=secret)
 
     # Get list of all currencies
     if args.all:
@@ -61,7 +60,7 @@ def main(args):
 
     for pair in pairs:
         for day in reversed(range(1, args.days+1)):
-            print('getting currency data: ' + pair +', days left:' + str(day))
+            print('getting currency data: ' + pair + ', days left:' + str(day))
             epoch_from = epoch_now - (DAY*day)
             epoch_to = epoch_now if day == 1 else epoch_now - (DAY * (day-1))
             candles = exchange.return_candles(pair, 300, epoch_from, epoch_to) # by default 5 minutes candles (minimum)
