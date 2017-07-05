@@ -14,6 +14,6 @@ class Base(ABC):
         self.args = args
 
     @abstractmethod
-    def calculate(self, interval):
+    def calculate(self, data, wallet):
         pass
 

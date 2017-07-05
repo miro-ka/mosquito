@@ -15,7 +15,7 @@ class Ema(Base):
         super(Ema, self).__init__(args)
         self.name = 'ema'
 
-    def calculate(self, look_back):
+    def calculate(self, look_back, wallet):
         if len(look_back) < 10:
             action = TradeAction('BTC_ETH', ts.none, None, False)
             self.actions.append(action)

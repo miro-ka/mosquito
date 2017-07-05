@@ -14,34 +14,44 @@ class Mosquito(Base):
     def __init__(self, args):
         super(Mosquito, self).__init__(args)
         self.name = 'ema'
-        self.min_buffer_data_size = 10
+        self.buffer_size = 3
 
-    def calculate(self, look_back):
+    def calculate(self, look_back, wallet):
         """
         Main Strategy function, which takes recent history data and returns recommended list of actions
         """
-
-        dataset_cnt = look_back.groupby(['pair']).size().iloc[0]
+        pairs_group = look_back.groupby(['pair'])
+        pairs_count = len(pairs_group.groups.keys())
+        dataset_cnt = pairs_group.size().iloc[0]
         print('dataset_cnt:', dataset_cnt)
         # Wait until we have enough data
-        if dataset_cnt < self.min_buffer_data_size:
+        if dataset_cnt < self.buffer_size:
             return self.actions
+        elif dataset_cnt > self.buffer_size:
+            look_back = look_back.tail(pairs_count * self.buffer_size)
 
         pairs_names = look_back.pair.unique()
-        ema_values = []
+        indicators = []
         for pair in pairs_names:
             df = look_back.loc[look_back['pair'] == pair].sort_values('date')
             close = df['close'].values
             # volume = df['volume']
-            ema = talib.EMA(close, timeperiod=len(close))[len(close)-1]
-            # slope = talib.LINEARREG_SLOPE(close, timeperiod=len(close))
-            ema_values.append((pair, ema))
+            end_index = len(df.index)-1
+            ema = talib.EMA(close, timeperiod=len(close))[end_index]
+            slope = talib.LINEARREG_SLOPE(close, timeperiod=len(close))[end_index]
+            indicators.append((pair, ema, slope))
 
         # Get currency with the highest EMA
-        ema_sorted = sorted(ema_values, key=lambda x: x[1], reverse=True)
-        (winner_pair, ema) = ema_sorted[0]
+        ema_sorted = sorted(indicators, key=lambda x: x[1], reverse=True)
+        slope_sorted = sorted(indicators, key=lambda x: x[2], reverse=True)
 
-        print('pairs_names:', pairs_names)
+        (winner_pair, ema, slope) = ema_sorted[0]
+
+        # TODO Calculated success probability
+
+
+
+        # print('pairs_names:', pairs_names)
         # obv = talib.OBV(close, volume)[-1]
         # TODO: sell all
         action = TradeAction(winner_pair, ts.buy, None, True)

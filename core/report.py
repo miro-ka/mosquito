@@ -20,9 +20,12 @@ class Report:
         Creates ticker report
         """
         none_init_balances = {k: v for k, v in self.initial_close.items() if v is None}
+        # Store initial closing price and initial overall wallet balance
         if len(none_init_balances) > 0:
             self.initialize_start_price(ticker_data, none_init_balances)
-        print('ticker_data....', ticker_data)
+            self.initial_balance = self.initialize_start_balance(self.initial_wallet,
+                                                                 self.initial_close)
+        # print('ticker_data....', ticker_data)
         date_time = datetime.fromtimestamp(ticker_data['date'][0]).strftime('%c') + ','
         current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f') + ','
         # Wallet
@@ -100,17 +103,25 @@ class Report:
                 print("Couldn't find ticker for pair:", pair)
                 continue
             closing = ticker.iloc[0]['close']
-            pair1_currency = ticker.iloc[0]['curr_1']
-            pair2_currency = ticker.iloc[0]['curr_2']
-            c1 = [item for item in self.initial_wallet if pair1_currency in item[0]]
-            currency1_wallet = currency2_wallet = 0
-            if c1:
-                currency1_wallet = float(c1[0][1])
-            c2 = [item for item in self.initial_wallet if pair2_currency in item[0]]
-            if c2:
-                currency2_wallet = float(c2[0][1])
-            self.initial_balance += closing * currency2_wallet + currency1_wallet
             self.initial_close[pair] = closing
+
+    @staticmethod
+    def initialize_start_balance(wallet, close_prices):
+        """
+        Calculate overall wallet balance in bitcoins
+        """
+        balance = 0.0
+        for (currency, value) in wallet:
+            if currency == 'BTC':
+                balance += value
+                continue
+            pair = 'BTC_' + currency
+            init_value = close_prices.get(pair)
+            if init_value is None:
+                init_value = 0.0
+            curr_value = value * init_value
+            balance += curr_value
+        return balance
 
     def calc_buy_and_hold(self, ticker_data, current_balance):
         """

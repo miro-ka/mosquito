@@ -103,7 +103,7 @@ class Engine:
                 self.look_back.append(self.ticker)
 
                 # Get next actions
-                actions = self.strategy.calculate(self.look_back)
+                actions = self.strategy.calculate(self.look_back, self.wallet)
 
                 # Set trade
                 self.wallet.current_balance = self.bot.trade(actions,
