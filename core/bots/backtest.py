@@ -67,23 +67,42 @@ class Backtest(Base):
         self.current_epoch += interval*60
         return self.ticker_df
 
-    def trade(self, actions, wallet, trades):
+    def trade(self, actions, wallet, trades, force_sell=True):
         """
         Simulate currency buy/sell (places fictive buy/sell orders)
         """
+        if self.ticker_df.empty:
+            print('Can not trade with empty dataframe, skipping trade')
+            return wallet
+
         for action in actions:
+            # If we are forcing_sell, we will first sell all our assets
+            if force_sell:
+                assets = wallet.copy()
+                del assets['BTC']
+                for asset, value in assets.items():
+                    pair = 'BTC_' + asset
+                    ticker = self.ticker_df.loc[self.ticker_df['pair'] == pair]
+                    print('tick-tack,,...', ticker)
+                    close_price = ticker['close'].iloc[0]
+                    earned_balance = close_price * value
+                    root_symbol = 'BTC'
+                    currency = wallet[root_symbol]
+                    # Store trade history
+                    trades.loc[len(trades)] = [ticker['date'].iloc[0], pair, close_price, 'sell']
+                    wallet[root_symbol] = currency + earned_balance
+                    wallet[asset] = 0.0
+
             (currency_symbol, asset_symbol) = tuple(action.pair.split('_'))
-            currency = [item for item in wallet if item[0] == currency_symbol]
-            asset = [item for item in wallet if item[0] == asset_symbol]
-
-            if not currency or not asset:
-                print('Error: provided incorrect currency pairs')
-                return wallet
-
+            # Get pairs current closing price
             ticker = self.ticker_df.loc[self.ticker_df['pair'] == action.pair]
             close_price = ticker['close'].iloc[0]
 
-            # print('self.previous_action:', self.previous_action)
+            currency_balance = asset_balance = 0.0
+            if currency_symbol in wallet:
+                currency_balance = wallet[currency_symbol]
+            if asset_symbol in wallet:
+                asset_balance = wallet[asset_symbol]
 
             # None
             if action.action == ts.none:
@@ -91,33 +110,25 @@ class Backtest(Base):
                 continue
             # Buy
             elif action.action == ts.buy:
-                curr_total = currency[0][1]
-                if curr_total <= 0:
+                if currency_balance <= 0:
                     # print('want to buy, not enough assets..')
                     continue
                 print(colored('buying ' + action.pair, 'green'))
-                asset[0] = (asset[0][0], asset[0][1] + (currency[0][1] / close_price))
-                currency[0] = (currency[0][0], 0.0)
-                new_wallet = [currency[0] if currency[0][0] == e[0] else e for e in wallet]
-                new_wallet = [asset[0] if asset[0][0] == e[0] else e for e in new_wallet]
+                wallet[asset_symbol] = asset_balance + (currency_balance / close_price)
+                wallet[currency_symbol] = 0.0
                 # Append trade
                 trades.loc[len(trades)] = [ticker['date'].iloc[0], action.pair, close_price, 'buy']
-                wallet = new_wallet
                 continue
             # Sell
             elif action.action == ts.sell:
-                asset_total = asset[0][1]
-                if asset_total <= 0:
+                if asset_balance <= 0:
                     # print('want to sell, not enough assets..')
                     continue
                 print(colored('selling ' + action.pair, 'red'))
-                currency[0] = (currency[0][0], currency[0][1] + (asset[0][1] * close_price))
-                asset[0] = (asset[0][0], 0.0)
-                new_wallet = [currency[0] if currency[0][0] == e[0] else e for e in wallet]
-                new_wallet = [asset[0] if asset[0][0] == e[0] else e for e in new_wallet]
+                wallet[currency_symbol] = currency_balance + (asset_balance * close_price)
+                wallet[asset_symbol] = 0.0
                 # Append trade
                 trades.loc[len(trades)] = [ticker['date'].iloc[0], action.pair, close_price, 'sell']
-                wallet = new_wallet
                 continue
         del actions[:]
         return wallet

@@ -110,9 +110,6 @@ class Engine:
                                                              self.wallet.current_balance,
                                                              self.trades)
 
-                # Update_wallet
-                # self.wallet = self.bot.refresh_wallet(self.wallet)
-
                 # Write report
                 self.report.calc_stats(self.ticker, self.wallet)
 

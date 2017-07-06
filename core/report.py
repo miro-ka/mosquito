@@ -52,8 +52,9 @@ class Report:
         """
         # TODO return only wallet of given currencies
         wallet_string = ''
-        for item in wallet.current_balance:
-            wallet_string += ' | ' + str(item[1]) + item[0]
+        for symbol, balance in wallet.current_balance.items():
+            if balance > 0:
+                wallet_string += ' | ' + str(balance) + symbol
         wallet_string += ' |'
         return wallet_string
 
@@ -72,8 +73,7 @@ class Report:
         Calculates current balance (profit/loss)
         """
         current_balance = 0
-        for wallet_item in wallet_balance:
-            (currency, value) = wallet_item
+        for currency, value in wallet_balance.items():
             if currency == 'BTC':
                 current_balance += value
                 continue
@@ -84,10 +84,12 @@ class Report:
                 print('DataFrame of following pair is empty:', pair)
                 continue
             current_closing = ticker.iloc[0]['close']
-            pair_2_item = [item for item in wallet_balance if item[0] == ticker.iloc[0]['curr_2']]
-            if pair_2_item:
-                pair_2_balance = float(pair_2_item[0][1])
+            currency_symbol = ticker.iloc[0]['curr_2']
+            pair_2_balance = 0.0
+            if currency_symbol in wallet_balance:
+                pair_2_balance = float(wallet_balance[currency_symbol])
             current_balance += pair_2_balance * current_closing
+
         price_diff = current_balance - self.initial_balance
         perc_change = ((price_diff*100.0)/self.initial_balance)
         return perc_change
@@ -111,7 +113,7 @@ class Report:
         Calculate overall wallet balance in bitcoins
         """
         balance = 0.0
-        for (currency, value) in wallet:
+        for currency, value in wallet.items():
             if currency == 'BTC':
                 balance += value
                 continue
@@ -123,8 +125,8 @@ class Report:
             balance += curr_value
         return balance
 
-    def calc_buy_and_hold(self, ticker_data, current_balance):
+    def calc_buy_and_hold(self, ticker_data, initial_balance):
         """
         Calculate Buy & Hold price
         """
-        return self.calc_balance(ticker_data, current_balance)
+        return self.calc_balance(ticker_data, initial_balance)
