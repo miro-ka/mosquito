@@ -26,6 +26,7 @@ class Backtest(Base):
         super(Backtest, self).__init__(args, config_file)
         self.counter = 0
         self.config = self.initialize_config(config_file)
+        self.transaction_fee = float(self.config['Trade']['transaction_fee'])
         self.sim_start = self.config['Backtest']['from']
         self.sim_end = self.config['Backtest']['to']
         self.sim_days = int(self.config['Backtest']['days'])
@@ -83,8 +84,11 @@ class Backtest(Base):
                 for asset, value in assets.items():
                     pair = 'BTC_' + asset
                     ticker = self.ticker_df.loc[self.ticker_df['pair'] == pair]
-                    print('tick-tack,,...', ticker)
+                    if ticker.empty:
+                        print('No currency data for pair: ' + pair + ', skipping')
+                        continue
                     close_price = ticker['close'].iloc[0]
+                    value -= (self.transaction_fee*value)/100.0
                     earned_balance = close_price * value
                     root_symbol = 'BTC'
                     currency = wallet[root_symbol]
@@ -114,6 +118,7 @@ class Backtest(Base):
                     # print('want to buy, not enough assets..')
                     continue
                 print(colored('buying ' + action.pair, 'green'))
+                currency_balance -= (self.transaction_fee * currency_balance) / 100.0
                 wallet[asset_symbol] = asset_balance + (currency_balance / close_price)
                 wallet[currency_symbol] = 0.0
                 # Append trade
@@ -125,6 +130,7 @@ class Backtest(Base):
                     # print('want to sell, not enough assets..')
                     continue
                 print(colored('selling ' + action.pair, 'red'))
+                asset_balance -= (self.transaction_fee * asset_balance) / 100.0
                 wallet[currency_symbol] = currency_balance + (asset_balance * close_price)
                 wallet[asset_symbol] = 0.0
                 # Append trade

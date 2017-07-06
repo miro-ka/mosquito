@@ -12,7 +12,7 @@ class Mosquito(Base):
     def __init__(self, args):
         super(Mosquito, self).__init__(args)
         self.name = 'ema'
-        self.min_history_ticks = 12
+        self.min_history_ticks = 5
 
     def calculate(self, look_back, wallet):
         """
