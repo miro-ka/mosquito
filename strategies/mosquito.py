@@ -12,7 +12,7 @@ class Mosquito(Base):
     def __init__(self, args):
         super(Mosquito, self).__init__(args)
         self.name = 'ema'
-        self.min_history_ticks = 5
+        self.min_history_ticks = 12
 
     def calculate(self, look_back, wallet):
         """
@@ -37,16 +37,20 @@ class Mosquito(Base):
             close = df['close'].values
             # volume = df['volume']
             end_index = len(df.index)-1
+            # if we have only 1 item, skip pair (not enough data)
+            if len(df.index) <= 1:
+                print("Can't run ta-lib with only one element. Pair: ", pair)
+                continue
             ema = talib.EMA(close, timeperiod=len(close))[end_index]
             slope = talib.LINEARREG_SLOPE(close, timeperiod=len(close))[end_index]
             indicators.append((pair, ema, slope))
 
         # Get currency with the highest EMA
-        # ema_sorted = sorted(indicators, key=lambda x: x[1], reverse=True)
+        #ema_sorted = sorted(indicators, key=lambda x: x[1], reverse=True)
         slope_sorted = sorted(indicators, key=lambda x: x[2], reverse=True)
 
         (winner_pair, ema, slope) = slope_sorted[0]
-
+        print('mosquito: slopes: ', slope_sorted)
         # TODO Calculated success probability
         # obv = talib.OBV(close, volume)[-1]
         action = TradeAction(winner_pair, ts.buy, None, True)

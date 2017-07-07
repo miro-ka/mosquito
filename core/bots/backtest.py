@@ -1,16 +1,13 @@
-from pymongo import MongoClient
 import configparser
 from .base import Base
 import time
-import sys
-import pandas as pd
 from strategies.enums import TradeState as ts
 from core.bots.enums import TradeMode
 from termcolor import colored
 from exchanges.exchange import Exchange
 
 
-DAY = 86400
+DAY = 3600
 
 
 class Backtest(Base):
@@ -29,8 +26,8 @@ class Backtest(Base):
         self.transaction_fee = float(self.config['Trade']['transaction_fee'])
         self.sim_start = self.config['Backtest']['from']
         self.sim_end = self.config['Backtest']['to']
-        self.sim_days = int(self.config['Backtest']['days'])
-        self.sim_epoch_start = self.get_sim_epoch_start(self.sim_days, self.sim_start)
+        self.sim_hours = int(self.config['Backtest']['hours'])
+        self.sim_epoch_start = self.get_sim_epoch_start(self.sim_hours, self.sim_start)
         self.current_epoch = self.sim_epoch_start
         self.exchange = Exchange(args, config_file, TradeMode.backtest)
         self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
@@ -47,12 +44,12 @@ class Backtest(Base):
             return in_pairs.replace(" ", "").split(',')
 
     @staticmethod
-    def get_sim_epoch_start(sim_days, sim_start):
+    def get_sim_epoch_start(sim_hours, sim_start):
         if sim_start:
             return sim_start
-        elif sim_days:
+        elif sim_hours:
             epoch_now = int(time.time())
-            return epoch_now - (DAY*sim_days)
+            return epoch_now - (DAY*sim_hours)
 
     @staticmethod
     def initialize_config(config_file):
@@ -82,13 +79,17 @@ class Backtest(Base):
                 assets = wallet.copy()
                 del assets['BTC']
                 for asset, value in assets.items():
+                    if value == 0.0:
+                        continue
                     pair = 'BTC_' + asset
                     ticker = self.ticker_df.loc[self.ticker_df['pair'] == pair]
                     if ticker.empty:
                         print('No currency data for pair: ' + pair + ', skipping')
                         continue
                     close_price = ticker['close'].iloc[0]
-                    value -= (self.transaction_fee*value)/100.0
+                    fee = self.transaction_fee*float(value)/100.0
+                    print('txn fee:', fee, ', balance before: ', value, ', after: ', value-fee)
+                    value -= fee
                     earned_balance = close_price * value
                     root_symbol = 'BTC'
                     currency = wallet[root_symbol]
@@ -118,7 +119,9 @@ class Backtest(Base):
                     # print('want to buy, not enough assets..')
                     continue
                 print(colored('buying ' + action.pair, 'green'))
-                currency_balance -= (self.transaction_fee * currency_balance) / 100.0
+                fee = self.transaction_fee * float(currency_balance) / 100.0
+                print('txn fee:', fee, ',currency_balance: ', currency_balance, ', after: ', currency_balance-fee)
+                currency_balance -= fee
                 wallet[asset_symbol] = asset_balance + (currency_balance / close_price)
                 wallet[currency_symbol] = 0.0
                 # Append trade
@@ -130,7 +133,9 @@ class Backtest(Base):
                     # print('want to sell, not enough assets..')
                     continue
                 print(colored('selling ' + action.pair, 'red'))
-                asset_balance -= (self.transaction_fee * asset_balance) / 100.0
+                fee = self.transaction_fee * float(currency_balance) / 100.0
+                print('txn fee:', fee, ',asset_balance: ', asset_balance, ', after: ', asset_balance-fee)
+                asset_balance -= fee
                 wallet[currency_symbol] = currency_balance + (asset_balance * close_price)
                 wallet[asset_symbol] = 0.0
                 # Append trade

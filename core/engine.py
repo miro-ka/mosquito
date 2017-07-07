@@ -70,6 +70,7 @@ class Engine:
         Last function called when the simulation is finished
         """
         print('shutting down and writing final statistics!')
+        # TODO: this should be done next! (miro)
         if self.args.plot:
             self.plot.draw(self.history, self.trades)
 
