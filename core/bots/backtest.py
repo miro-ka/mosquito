@@ -82,6 +82,9 @@ class Backtest(Base):
                     if value == 0.0:
                         continue
                     pair = 'BTC_' + asset
+                    # If we have the same pair that we want to buy, lets not sell it
+                    if pair == action.pair:
+                        continue
                     ticker = self.ticker_df.loc[self.ticker_df['pair'] == pair]
                     if ticker.empty:
                         print('No currency data for pair: ' + pair + ', skipping')
@@ -116,7 +119,7 @@ class Backtest(Base):
             # Buy
             elif action.action == ts.buy:
                 if currency_balance <= 0:
-                    # print('want to buy, not enough assets..')
+                    print('want to buy, not enough money, or everything already bought..')
                     continue
                 print(colored('buying ' + action.pair, 'green'))
                 fee = self.transaction_fee * float(currency_balance) / 100.0
@@ -130,7 +133,7 @@ class Backtest(Base):
             # Sell
             elif action.action == ts.sell:
                 if asset_balance <= 0:
-                    # print('want to sell, not enough assets..')
+                    print('want to buy, not enough money, or everything already sold..')
                     continue
                 print(colored('selling ' + action.pair, 'red'))
                 fee = self.transaction_fee * float(currency_balance) / 100.0

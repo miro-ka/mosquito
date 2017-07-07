@@ -12,7 +12,7 @@ class Mosquito(Base):
     def __init__(self, args):
         super(Mosquito, self).__init__(args)
         self.name = 'ema'
-        self.min_history_ticks = 12
+        self.min_history_ticks = 6
 
     def calculate(self, look_back, wallet):
         """
@@ -46,7 +46,7 @@ class Mosquito(Base):
             indicators.append((pair, ema, slope))
 
         # Get currency with the highest EMA
-        #ema_sorted = sorted(indicators, key=lambda x: x[1], reverse=True)
+        # ema_sorted = sorted(indicators, key=lambda x: x[1], reverse=True)
         slope_sorted = sorted(indicators, key=lambda x: x[2], reverse=True)
 
         (winner_pair, ema, slope) = slope_sorted[0]

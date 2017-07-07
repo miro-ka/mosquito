@@ -30,7 +30,6 @@ class Engine:
         strategy_class = self.load_strategy(args.strategy)
         self.strategy = strategy_class(args)
         self.wallet = Wallet(config_file)
-        self.look_back = pd.DataFrame()
         self.history = pd.DataFrame()
         trade_columns = ['date', 'pair', 'close_price', 'action']
         self.trades = pd.DataFrame(columns=trade_columns, index=None)
@@ -44,6 +43,8 @@ class Engine:
             self.bot = Paper(args, config_file)
             self.trade_mode = TradeMode.paper
         self.pairs = self.bot.get_pairs()
+        self.look_back = pd.DataFrame()
+        self.max_lookback_size = self.buffer_size*(60/self.interval)*len(self.pairs)
 
     @staticmethod
     def load_strategy(strategy_name):
@@ -99,9 +100,11 @@ class Engine:
                 self.history = self.history.append(self.ticker, ignore_index=True)
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
                 # print('--ticker--', self.ticker)
-                if len(self.look_back.index) > self.buffer_size:
-                    self.look_back = self.look_back.drop(self.look_back.index[0])
-                self.look_back.append(self.ticker)
+                buffer_size = len(self.look_back.index)
+                print('buffer_size: ', buffer_size)
+                if buffer_size > self.max_lookback_size:
+                    print('max memory exceeded, cleaning buffer')
+                    self.look_back = self.look_back.drop(self.look_back.index[[0, buffer_size - self.max_lookback_size]])
 
                 # Get next actions
                 actions = self.strategy.calculate(self.look_back, self.wallet)
