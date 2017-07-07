@@ -139,10 +139,11 @@ class Backtest(Base):
         del actions[:]
         return wallet
 
+    @staticmethod
     def refresh_wallet(self, wallet):
         """
-        Returns new updated wallet balance
-        :return:
+        Returns new updated wallet balance. In back testing, the wallet is updated in trade
+         method, so there is nothing extra needed here.
         """
         # TODO: update wallets balance
         print('refreshing wallet')
