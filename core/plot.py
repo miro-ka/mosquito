@@ -13,17 +13,25 @@ class Plot:
         pass
 
     @staticmethod
-    def draw(df, df_trades):
+    def draw(df, df_trades, pair):
         """
         Candle-stick plot
         """
         if df.empty:
+            print('No data to plot!')
+            return
+
+        df = df[df['pair'] == pair]
+
+        if df.empty:
             print('Plot: Empty dataframe, nothing to draw!')
             return
 
+        pd.options.mode.chained_assignment = None
+
         df['date'] = pd.to_datetime(df['date'], unit='s')
         df_trades['date'] = pd.to_datetime(df_trades['date'], unit='s')
-        #print(df)
+
         plotly.offline.init_notebook_mode()
 
         trace = go.Candlestick(x=df.date,

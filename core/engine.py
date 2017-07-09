@@ -18,8 +18,8 @@ class Engine:
     """
     buffer_size = interval = pairs = None
     ticker = look_back = history = None
-    bot = report = plot = None
-    trade_mode = None
+    bot = report = plot = plot_pair = None
+    trade_mode = root_report_currency = None
 
     def __init__(self, args, config_file):
         # Arguments should override config.ini file, so lets initialize
@@ -58,6 +58,7 @@ class Engine:
         """
         config = configparser.ConfigParser()
         config.read(config_file)
+        self.root_report_currency = config['Trade']['root_report_currency']
         self.buffer_size = config['Trade']['buffer_size']
         if self.buffer_size != '':
             self.buffer_size = int(self.buffer_size)
@@ -65,6 +66,7 @@ class Engine:
         if self.interval != '':
             self.interval = int(self.interval)
         self.strategy = config['Trade']['strategy']
+        self.plot_pair = config['Report']['plot_pair']
 
     def on_simulation_done(self):
         """
@@ -73,7 +75,9 @@ class Engine:
         print('shutting down and writing final statistics!')
         # TODO: this should be done next! (miro)
         if self.args.plot:
-            self.plot.draw(self.history, self.trades)
+            self.plot.draw(self.history,
+                           self.trades,
+                           self.plot_pair)
 
     def run(self):
         """
@@ -86,7 +90,9 @@ class Engine:
         print('starting simulation')
 
         # Initialization
-        self.report = Report(self.wallet.initial_balance, self.pairs)
+        self.report = Report(self.wallet.initial_balance,
+                             self.pairs,
+                             self.root_report_currency)
         self.plot = Plot()
 
         try:

@@ -24,10 +24,10 @@ class Polo(Base):
         Returns ticker pairs for all currencies
         """
         ticker = self.polo.returnTicker()
-        only_btc_key = [k for k in list(ticker) if 'BTC_' in k]
-        l = [(key, ticker.get(key)) for key in only_btc_key]
-        only_btc_dict = dict(l)
-        return only_btc_dict
+        #only_btc_key = [k for k in list(ticker) if 'BTC_' in k]
+        #l = [(key, ticker.get(key)) for key in only_btc_key]
+        #only_btc_dict = dict(l)
+        return ticker
 
     def return_candles(self, currency_pair, period=False, start=False, end=False):
         """

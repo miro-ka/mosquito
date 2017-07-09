@@ -29,14 +29,16 @@ class Ema(Base):
         """
         # print('----running strategy ema')
 
-        close = look_back['close'].values
-        volume = look_back['volume'].values
+        pair_data = look_back[look_back['pair'] == 'BTC_ETH']
+        close = pair_data['close'].values
+        volume = pair_data['volume'].values
         obv = talib.OBV(close, volume)[-1]
+        print('obv:', obv)
         new_action = ts.none
-        if obv >= 500:
+        if obv >= 200:
             new_action = ts.buy
 
-        if obv <= 400:
+        if obv < 200:
             new_action = ts.sell
 
         # print('obv:', obv, ', action: ', new_action)
