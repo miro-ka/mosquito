@@ -1,4 +1,3 @@
-import configparser
 from .base import Base
 import time
 from strategies.enums import TradeState as ts
@@ -38,10 +37,16 @@ class Backtest(Base):
     def process_input_pairs(self, in_pairs):
         if in_pairs == 'all':
             print('setting_all_pairs')
-            return self.exchange.get_all_pairs()
+            return self.exchange.get_all_tickers()
             # Get all pairs from API
         else:
             return in_pairs.replace(" ", "").split(',')
+
+    def get_wallet_balance(self):
+        """
+        Returns wallet balance
+        """
+        pass
 
     @staticmethod
     def get_sim_epoch_start(sim_hours, sim_start):
@@ -51,17 +56,11 @@ class Backtest(Base):
             epoch_now = int(time.time())
             return epoch_now - (DAY*sim_hours)
 
-    @staticmethod
-    def initialize_config(config_file):
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        return config
-
     def get_next(self, interval):
         """
         Returns next state of current_time + interval (in minutes)
         """
-        self.ticker_df = self.exchange.get_ticker(self.current_epoch, self.pairs)
+        self.ticker_df = self.exchange.get_offline_ticker(self.current_epoch, self.pairs)
         self.current_epoch += interval*60
         return self.ticker_df
 

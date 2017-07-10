@@ -22,8 +22,17 @@ class Exchange:
             self.db = self.initialize_db(config)
             self.ticker = self.db.ticker
 
-    def get_all_pairs(self):
-        return list(self.exchange.return_ticker_pairs())
+    def get_all_tickers(self):
+        """
+        Returns ticker for all pairs
+        """
+        return list(self.exchange.get_all_tickers())
+
+    def get_symbol_ticker(self, symbol):
+        """
+        Returns ticker for given symbol
+        """
+        return self.exchange.get_symbol_ticker(symbol)
 
     @staticmethod
     def initialize_db(config):
@@ -60,8 +69,16 @@ class Exchange:
         """
         return self.exchange.trade(actions, wallet, trade_mode)
 
-    def get_ticker(self, epoch, pairs):
+    def get_balances(self):
+        """
+        Returns all available account balances
+        """
+        return self.exchange.get_balances()
 
+    def get_offline_ticker(self, epoch, pairs):
+        """
+        Returns offline data from DB
+        """
         ticker = pd.DataFrame()
         for pair in pairs:
             db_doc = self.ticker.find_one({"$and": [{"date": {"$gte": epoch}},

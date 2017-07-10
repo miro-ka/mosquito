@@ -20,10 +20,9 @@ class Mosquito(Base):
         """
         actions = []
 
-        pairs_group = look_back.groupby(['pair'])
-        pairs_count = len(pairs_group.groups.keys())
-        dataset_cnt = pairs_group.size().iloc[0]
+        (dataset_cnt, pairs_count) = self.get_dataset_count(look_back, self.group_by_field)
         print('dataset_cnt:', dataset_cnt)
+
         # Wait until we have enough data
         if dataset_cnt < self.min_history_ticks:
             return actions

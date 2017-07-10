@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import configparser
 
 
 class Base(ABC):
@@ -9,6 +10,12 @@ class Base(ABC):
     def __init__(self, args, config_file):
         super(Base, self).__init__()
         self.args = args
+
+    @staticmethod
+    def initialize_config(config_file):
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        return config
 
     @abstractmethod
     def get_next(self, interval):
@@ -32,6 +39,13 @@ class Base(ABC):
         Places given action
         :param actions:
         :return:
+        """
+        pass
+
+    @abstractmethod
+    def get_wallet_balance(self):
+        """
+        Returns wallet balance
         """
         pass
 

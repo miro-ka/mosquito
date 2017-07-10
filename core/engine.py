@@ -36,12 +36,13 @@ class Engine:
         if args.backtest:
             self.bot = Backtest(args, config_file)
             self.trade_mode = TradeMode.backtest
-        elif args.trade:
-            self.bot = Live(args, config_file)
-            self.trade_mode = TradeMode.live
         elif args.paper:
             self.bot = Paper(args, config_file)
             self.trade_mode = TradeMode.paper
+            self.wallet.initial_balance = self.wallet.current_balance = self.bot.get_wallet_balance()
+        elif args.trade:
+            self.bot = Live(args, config_file)
+            self.trade_mode = TradeMode.live
         self.pairs = self.bot.get_pairs()
         self.look_back = pd.DataFrame()
         self.max_lookback_size = self.buffer_size*(60/self.interval)*len(self.pairs)
@@ -107,7 +108,6 @@ class Engine:
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
                 # print('--ticker--', self.ticker)
                 buffer_size = len(self.look_back.index)
-                print('buffer_size: ', buffer_size)
                 if buffer_size > self.max_lookback_size:
                     print('max memory exceeded, cleaning buffer')
                     self.look_back = self.look_back.drop(self.look_back.index[[0, buffer_size - self.max_lookback_size]])
