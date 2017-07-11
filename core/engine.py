@@ -104,9 +104,9 @@ class Engine:
                     print("No more data,..simulation done,. quitting")
                     exit(0)
 
+                # Save ticker to buffer
                 self.history = self.history.append(self.ticker, ignore_index=True)
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
-                # print('--ticker--', self.ticker)
                 buffer_size = len(self.look_back.index)
                 if buffer_size > self.max_lookback_size:
                     print('max memory exceeded, cleaning buffer')

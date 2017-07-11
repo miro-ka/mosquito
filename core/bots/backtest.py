@@ -14,8 +14,6 @@ class Backtest(Base):
     Main class for Backtest trading
     """
     previous_action = None
-    ticker_df = None
-    exchange = None
     mode = TradeMode.backtest
 
     def __init__(self, args, config_file):
@@ -30,9 +28,6 @@ class Backtest(Base):
         self.current_epoch = self.sim_epoch_start
         self.exchange = Exchange(args, config_file, TradeMode.backtest)
         self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
-
-    def get_pairs(self):
-        return self.pairs
 
     def process_input_pairs(self, in_pairs):
         if in_pairs == 'all':

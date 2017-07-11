@@ -61,12 +61,6 @@ class Paper(Base):
         # TODO
         return wallet
 
-    def get_pairs(self):
-        """
-        Returns the pairs the bot is working with
-        """
-        return self.pairs
-
     def refresh_wallet(self, wallet):
         """
         Returns new updated wallet balance
