@@ -34,14 +34,22 @@ class Ema(Base):
         """
         # print('----running strategy ema')
 
-        df = look_back[look_back['pair'] == 'USDT_BTC']
+        df = look_back[look_back['pair'] == 'BTC_ETH']
         close = df['close'].values
         # volume = df['volume'].values
         end_index = len(df.index) - 1
         ema = talib.EMA(close, timeperiod=len(close))[end_index]
         slope = talib.LINEARREG_SLOPE(close, timeperiod=len(close))[end_index]
 
+        new_action = ts.none
+
         print('ema:', ema, ', slope:', slope)
+
+        if ema >= 0:
+            new_action = ts.buy
+
+        if ema < 0:
+            new_action = ts.sell
 
         """
         obv = talib.OBV(close, volume)[-1]
@@ -54,8 +62,8 @@ class Ema(Base):
             new_action = ts.sell
         """
 
-        # action = TradeAction('BTC_ETH', new_action, None, True)
-        # self.actions.append(action)
+        action = TradeAction('BTC_ETH', new_action, None, True)
+        self.actions.append(action)
         return self.actions
 
 
