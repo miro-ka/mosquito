@@ -68,11 +68,3 @@ class Paper(Base):
         """
         # TODO: update wallets balance
         return wallet
-
-    def process_input_pairs(self, in_pairs):
-        if in_pairs == 'all':
-            print('setting_all_pairs')
-            return self.exchange.get_all_tickers()
-            # Get all pairs from API
-        else:
-            return in_pairs.replace(" ", "").split(',')

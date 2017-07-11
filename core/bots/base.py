@@ -15,6 +15,14 @@ class Base(ABC):
         super(Base, self).__init__()
         self.args = args
 
+    def process_input_pairs(self, in_pairs):
+        if in_pairs == 'all':
+            print('setting_all_pairs')
+            return self.exchange.get_all_tickers()
+            # Get all pairs from API
+        else:
+            return in_pairs.replace(" ", "").split(',')
+
     @staticmethod
     def initialize_config(config_file):
         config = configparser.ConfigParser()

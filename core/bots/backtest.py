@@ -29,14 +29,6 @@ class Backtest(Base):
         self.exchange = Exchange(args, config_file, TradeMode.backtest)
         self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
 
-    def process_input_pairs(self, in_pairs):
-        if in_pairs == 'all':
-            print('setting_all_pairs')
-            return self.exchange.get_all_tickers()
-            # Get all pairs from API
-        else:
-            return in_pairs.replace(" ", "").split(',')
-
     def get_wallet_balance(self):
         """
         Returns wallet balance
