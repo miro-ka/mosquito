@@ -16,6 +16,8 @@ class Base(ABC):
     def __init__(self, args, config_file):
         super(Base, self).__init__()
         self.args = args
+        self.config = self.initialize_config(config_file)
+        self.transaction_fee = float(self.config['Trade']['transaction_fee'])
 
     def process_input_pairs(self, in_pairs):
         if in_pairs == 'all':
@@ -110,35 +112,37 @@ class Base(ABC):
 
             # None
             if action.action == ts.none:
-                self.previous_action = action.action
                 continue
             # Buy
             elif action.action == ts.buy:
                 if currency_balance <= 0:
-                    print('want to buy, not enough money, or everything already bought..')
+                    print('want to buy ' + action.pair + ', not enough money, or everything already bought..')
+                    actions.remove(action)
                     continue
                 print(colored('buying ' + action.pair, 'green'))
                 fee = self.transaction_fee * float(currency_balance) / 100.0
-                print('txn fee:', fee, ',currency_balance: ', currency_balance, ', after: ', currency_balance-fee)
+                # print('txn fee:', fee, ',currency_balance: ', currency_balance, ', after: ', currency_balance-fee)
                 currency_balance -= fee
                 wallet[asset_symbol] = asset_balance + (currency_balance / close_price)
                 wallet[currency_symbol] = 0.0
                 # Append trade
                 trades.loc[len(trades)] = [ticker['date'].iloc[0], action.pair, close_price, 'buy']
+                actions.remove(action)
                 continue
             # Sell
             elif action.action == ts.sell:
                 if asset_balance <= 0:
-                    print('want to buy, not enough money, or everything already sold..')
+                    print('want to sell ' + action.pair + ', not enough assets, or everything already sold..')
+                    actions.remove(action)
                     continue
                 print(colored('selling ' + action.pair, 'red'))
                 fee = self.transaction_fee * float(currency_balance) / 100.0
-                print('txn fee:', fee, ',asset_balance: ', asset_balance, ', after: ', asset_balance-fee)
+                # print('txn fee:', fee, ',asset_balance: ', asset_balance, ', after: ', asset_balance-fee)
                 asset_balance -= fee
                 wallet[currency_symbol] = currency_balance + (asset_balance * close_price)
                 wallet[asset_symbol] = 0.0
                 # Append trade
                 trades.loc[len(trades)] = [ticker['date'].iloc[0], action.pair, close_price, 'sell']
+                actions.remove(action)
                 continue
-        del actions[:]
         return wallet

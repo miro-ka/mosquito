@@ -10,12 +10,16 @@ class Report:
 
     initial_closing_prices = None
     initial_balance = 0.0
+    verbosity = 1
 
     def __init__(self, initial_wallet, pairs, root_report_currency):
         self.initial_wallet = initial_wallet
         self.pairs = pairs
         self.initial_closing_prices = pd.DataFrame()
         self.root_report_currency = root_report_currency
+
+    def set_verbosity(self, verbosity):
+        self.verbosity = verbosity
 
     def calc_stats(self, ticker_data, wallet):
         """
@@ -93,7 +97,8 @@ class Report:
             rate_value = self.get_exchange_rate_value('BTC', ticker_data, btc_value, root_currency)
             return rate_value
 
-        print("Couldn't find exchange rate for:", currency)
+        if self.verbosity > 0:
+            print("Couldn't find exchange rate for:", currency)
         return 0.0
 
     def calc_balance(self, ticker_data, wallet_balance):
@@ -116,7 +121,6 @@ class Report:
         Save initial closing price
         """
         # Get only currencies that have not been initialized yet
-        print('close_prices:', self.initial_closing_prices)
         for index, row in ticker_data.iterrows():
             pair = row['pair']
             if self.initial_closing_prices.empty:

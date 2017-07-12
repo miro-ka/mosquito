@@ -14,7 +14,8 @@ class Ema(Base):
     def __init__(self, args):
         super(Ema, self).__init__(args)
         self.name = 'ema'
-        self.min_history_ticks = 5
+        self.min_history_ticks = 0
+        self.pair = 'BTC_ETH'
 
     def calculate(self, look_back, wallet):
         """
@@ -31,10 +32,10 @@ class Ema(Base):
 
         """
         Returns list of pairs and their corresponding actions
-        """
+       
         # print('----running strategy ema')
 
-        df = look_back[look_back['pair'] == 'BTC_ETH']
+        df = look_back[look_back['pair'] == self.pair]
         close = df['close'].values
         # volume = df['volume'].values
         end_index = len(df.index) - 1
@@ -42,7 +43,11 @@ class Ema(Base):
         slope = talib.LINEARREG_SLOPE(close, timeperiod=len(close))[end_index]
 
         new_action = ts.none
+         """
+        new_action = ts.buy
 
+
+        """
         print('ema:', ema, ', slope:', slope)
 
         if ema >= 0:
@@ -51,7 +56,7 @@ class Ema(Base):
         if ema < 0:
             new_action = ts.sell
 
-        """
+        
         obv = talib.OBV(close, volume)[-1]
         print('obv:', obv)
         new_action = ts.none
@@ -62,7 +67,7 @@ class Ema(Base):
             new_action = ts.sell
         """
 
-        action = TradeAction('BTC_ETH', new_action, None, True)
+        action = TradeAction(self.pair, new_action, None, True)
         self.actions.append(action)
         return self.actions
 

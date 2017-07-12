@@ -58,8 +58,7 @@ class Paper(Base):
         """
         Simulate currency buy/sell (places fictive buy/sell orders)
         """
-        # TODO
-        return wallet
+        return super(Paper, self).trade(actions, wallet, trades, force_sell=False)
 
     def refresh_wallet(self, wallet):
         """

@@ -11,14 +11,11 @@ class Backtest(Base):
     """
     Main class for Backtest trading
     """
-    previous_action = None
     mode = TradeMode.backtest
 
     def __init__(self, args, config_file):
         super(Backtest, self).__init__(args, config_file)
         self.counter = 0
-        self.config = self.initialize_config(config_file)
-        self.transaction_fee = float(self.config['Trade']['transaction_fee'])
         self.sim_start = self.config['Backtest']['from']
         self.sim_end = self.config['Backtest']['to']
         self.sim_hours = int(self.config['Backtest']['hours'])
@@ -48,6 +45,12 @@ class Backtest(Base):
         self.ticker_df = self.exchange.get_offline_ticker(self.current_epoch, self.pairs)
         self.current_epoch += interval*60
         return self.ticker_df
+
+    def trade(self, actions, wallet, trades, force_sell=True):
+        """
+        Simulate currency buy/sell (places fictive buy/sell orders)
+        """
+        return super(Backtest, self).trade(actions, wallet, trades)
 
     @staticmethod
     def refresh_wallet(self, wallet):

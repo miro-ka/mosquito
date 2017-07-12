@@ -16,7 +16,7 @@ class Engine:
     """
     Main class for Simulation Engine (main class where all is happening
     """
-    buffer_size = interval = pairs = None
+    buffer_size = interval = pairs = verbosity = None
     ticker = look_back = history = None
     bot = report = plot = plot_pair = None
     trade_mode = root_report_currency = None
@@ -68,6 +68,7 @@ class Engine:
             self.interval = int(self.interval)
         self.strategy = config['Trade']['strategy']
         self.plot_pair = config['Report']['plot_pair']
+        self.verbosity = int(config['General']['verbosity'])
 
     def on_simulation_done(self):
         """
@@ -88,12 +89,12 @@ class Engine:
             print(colored('The bots type is NOT specified. You need to choose one action (--sim, --paper, --trade)', 'red'))
             sys.exit()
 
-        print('starting simulation')
-
+        print('Starting simulation..')
         # Initialization
         self.report = Report(self.wallet.initial_balance,
                              self.pairs,
                              self.root_report_currency)
+        self.report.set_verbosity(self.verbosity)
         self.plot = Plot()
 
         try:
