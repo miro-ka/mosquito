@@ -7,7 +7,7 @@ import argparse
 
 
 client = MongoClient('localhost', 27017)
-db = client.green1
+db = client.mosquito
 
 DAY = 86400
 
