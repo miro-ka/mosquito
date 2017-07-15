@@ -45,7 +45,7 @@ class Engine:
             self.trade_mode = TradeMode.live
         self.pairs = self.bot.get_pairs()
         self.look_back = pd.DataFrame()
-        self.max_lookback_size = self.buffer_size*(60/self.interval)*len(self.pairs)
+        self.max_lookback_size = int(self.buffer_size*(60/self.interval)*len(self.pairs))
 
     @staticmethod
     def load_strategy(strategy_name):
@@ -110,8 +110,10 @@ class Engine:
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
                 buffer_size = len(self.look_back.index)
                 if buffer_size > self.max_lookback_size:
-                    print('max memory exceeded, cleaning buffer')
-                    self.look_back = self.look_back.drop(self.look_back.index[[0, buffer_size - self.max_lookback_size]])
+                    print('max memory exceeded, cleaning/cutting buffer')
+                    rows_to_delete = buffer_size - self.max_lookback_size
+                    self.look_back = self.look_back.ix[rows_to_delete:]
+                    self.look_back = self.look_back.reset_index(drop=True)
 
                 # Get next actions
                 actions = self.strategy.calculate(self.look_back, self.wallet)
