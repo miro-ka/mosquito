@@ -50,6 +50,9 @@ class Engine:
 
     @staticmethod
     def load_strategy(arg_strategy, config_strategy):
+        """
+        Loads strategy module based on given name.
+        """
         if arg_strategy is None and config_strategy == '':
             print(colored('Not provided stategy,. please add it as an argument or in config file', 'red'))
             sys.exit()

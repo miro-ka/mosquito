@@ -24,6 +24,9 @@ class Polo(Base):
         return only_non_zeros
 
     def get_symbol_ticker(self, symbol):
+        """
+        Returns real-time ticker Data-Frame
+        """
         ticker = self.polo.returnTicker()[symbol]
         df = pd.DataFrame.from_dict(ticker, orient="index")
         df = df.T
