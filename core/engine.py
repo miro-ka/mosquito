@@ -20,6 +20,7 @@ class Engine:
     ticker = look_back = history = None
     bot = report = plot = plot_pair = None
     trade_mode = root_report_currency = None
+    config_strategy_name = None
 
     def __init__(self, args, config_file):
         # Arguments should override config.ini file, so lets initialize
@@ -27,7 +28,7 @@ class Engine:
         self.parse_config(config_file)
         self.args = args
         self.config = config_file
-        strategy_class = self.load_strategy(args.strategy)
+        strategy_class = self.load_strategy(args.strategy, self.config_strategy_name)
         self.strategy = strategy_class(args)
         self.wallet = Wallet(config_file)
         self.history = pd.DataFrame()
@@ -48,10 +49,17 @@ class Engine:
         self.max_lookback_size = int(self.buffer_size*(60/self.interval)*len(self.pairs))
 
     @staticmethod
-    def load_strategy(strategy_name):
+    def load_strategy(arg_strategy, config_strategy):
+        if arg_strategy is None and config_strategy == '':
+            print(colored('Not provided stategy,. please add it as an argument or in config file', 'red'))
+            sys.exit()
+        if arg_strategy is not None:
+            strategy_name = arg_strategy
+        else:
+            strategy_name = config_strategy
         mod = import_module("strategies." + strategy_name)
-        strategy = getattr(mod, strategy_name.capitalize())
-        return strategy
+        strategy_class = getattr(mod, strategy_name.capitalize())
+        return strategy_class
 
     def parse_config(self, config_file):
         """
@@ -66,7 +74,7 @@ class Engine:
         self.interval = config['Trade']['interval']
         if self.interval != '':
             self.interval = int(self.interval)
-        self.strategy = config['Trade']['strategy']
+        self.config_strategy_name = config['Trade']['strategy']
         self.plot_pair = config['Report']['plot_pair']
         self.verbosity = int(config['General']['verbosity'])
 
