@@ -22,7 +22,6 @@ class Backtest(Base):
         self.sim_epoch_start = self.get_sim_epoch_start(self.sim_hours, self.sim_start)
         self.current_epoch = self.sim_epoch_start
         self.exchange = Exchange(args, config_file, TradeMode.backtest)
-        self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
 
     def get_wallet_balance(self):
         """

@@ -1,7 +1,6 @@
 from .base import Base
 from exchanges.exchange import Exchange
 from core.bots.enums import TradeMode
-import pandas as pd
 import time
 
 
@@ -14,12 +13,7 @@ class Paper(Base):
 
     def __init__(self, args, config_file):
         super(Paper, self).__init__(args, config_file)
-        self.counter = 0
-        self.ticker_df = pd.DataFrame()
-        self.config = self.initialize_config(config_file)
         self.exchange = Exchange(args, config_file, TradeMode.paper)
-        self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
-        self.last_tick_epoch = 0
 
     def get_wallet_balance(self):
         """
