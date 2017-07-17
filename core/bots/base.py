@@ -80,8 +80,8 @@ class Base(ABC):
             if force_sell:
                 assets = wallet.copy()
                 del assets['BTC']
-                for asset, value in assets.items():
-                    if value == 0.0:
+                for asset, amount in assets.items():
+                    if amount == 0.0:
                         continue
                     pair = 'BTC_' + asset
                     # If we have the same pair that we want to buy, lets not sell it
@@ -92,10 +92,10 @@ class Base(ABC):
                         print('No currency data for pair: ' + pair + ', skipping')
                         continue
                     close_price = ticker['close'].iloc[0]
-                    fee = self.transaction_fee*float(value)/100.0
-                    print('txn fee:', fee, ', balance before: ', value, ', after: ', value-fee)
-                    value -= fee
-                    earned_balance = close_price * value
+                    fee = self.transaction_fee*float(amount)/100.0
+                    print('txn fee:', fee, ', balance before: ', amount, ', after: ', amount-fee)
+                    amount -= fee
+                    earned_balance = close_price * amount
                     root_symbol = 'BTC'
                     currency = wallet[root_symbol]
                     # Store trade history

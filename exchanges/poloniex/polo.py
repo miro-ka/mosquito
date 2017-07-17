@@ -3,6 +3,7 @@ from .base import Base
 from core.bots.enums import TradeMode
 import pandas as pd
 import time
+from strategies.enums import TradeState
 
 
 class Polo(Base):
@@ -76,5 +77,20 @@ class Polo(Base):
         if trade_mode == TradeMode.backtest:
             return Base.trade(actions, wallet)
         else:
-            # TODO: implement life trading
-            print('TODO: live trading')
+            res = self.life_trade(actions)
+            # TODO: update balance here
+            return wallet
+
+    def life_trade(self, actions):
+        print('live_trading')
+        """
+        Performs trades are returns list of order ids (if trade_type configures it)
+        """
+        res = []
+        for action in actions:
+            if action.action == TradeState.none:
+                continue
+
+        return res
+
+

@@ -1,7 +1,8 @@
+import talib
+
+from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState as ts
-from .tradeaction import TradeAction
-import talib
 
 
 class Mosquito(Base):
@@ -42,17 +43,17 @@ class Mosquito(Base):
                 continue
             ema = talib.EMA(close, timeperiod=len(close))[end_index]
             slope = talib.LINEARREG_SLOPE(close, timeperiod=len(close))[end_index]
-            indicators.append((pair, ema, slope))
+            indicators.append((pair, ema, slope, close))
 
         # Get currency with the highest EMA
         # ema_sorted = sorted(indicators, key=lambda x: x[1], reverse=True)
         slope_sorted = sorted(indicators, key=lambda x: x[2], reverse=True)
 
-        (winner_pair, ema, slope) = slope_sorted[0]
+        (winner_pair, ema, slope, close) = slope_sorted[0]
         print('mosquito: slopes: ', slope_sorted)
         # TODO Calculated success probability
         # obv = talib.OBV(close, volume)[-1]
-        action = TradeAction(winner_pair, ts.buy, None, True)
+        action = TradeAction(winner_pair, ts.buy, None, close, True)
         actions.append(action)
         return actions
 

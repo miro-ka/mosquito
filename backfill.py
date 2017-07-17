@@ -22,13 +22,9 @@ def main(args):
     # Loads data for all currently supported currencies for specific days (from now)
     backfill --all --days[]
     """
-
     # Parse config and get working exchange
     config = configparser.ConfigParser()
     config.read('config.ini')
-    # TODO: check which exchange we will use
-    api_key = config['Poloniex']['apiKey']
-    secret = config['Poloniex']['secret']
     # Mongo parameters
     db = config['MongoDB']['db']
     port = int(config['MongoDB']['port'])
@@ -40,13 +36,8 @@ def main(args):
     ticker = db.ticker
     db.ticker.create_index([('id', ASCENDING)], unique=True)
 
-    # Parse config and get working exchange
-    config = configparser.ConfigParser()
-    config.read('config.ini')
     # TODO: check which exchange we will use
-    api_key = config['Poloniex']['apiKey']
-    secret = config['Poloniex']['secret']
-    exchange = Polo(api_key=api_key, secret=secret)
+    exchange = Polo(config['Poloniex'])
 
     # Get list of all currencies
     if args.all:
@@ -75,7 +66,7 @@ def main(args):
                 # Add identifier
                 candle['exchange'] = 'polo'
                 candle['pair'] = pair
-                id = 'polo' + '-' + pair + '-' +str(candle['date'])
+                id = 'polo' + '-' + pair + '-' + str(candle['date'])
                 candle['id'] = id
                 # Store to DB
                 ticker.update_one({'id': id}, {'$set': candle}, upsert=True)

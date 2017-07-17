@@ -40,11 +40,13 @@ class Engine:
         elif args.paper:
             self.bot = Paper(args, config_file)
             self.trade_mode = TradeMode.paper
-            self.wallet.initial_balance = self.wallet.current_balance = self.bot.get_wallet_balance()
+            self.wallet.initial_balance = self.bot.get_wallet_balance()
+            self.wallet.current_balance = self.bot.get_wallet_balance()
         elif args.live:
             self.bot = Live(args, config_file)
             self.trade_mode = TradeMode.live
-            self.wallet.initial_balance = self.wallet.current_balance = self.bot.get_wallet_balance()
+            self.wallet.initial_balance = self.bot.get_wallet_balance()
+            self.wallet.current_balance = self.bot.get_wallet_balance()
         self.pairs = self.bot.get_pairs()
         self.look_back = pd.DataFrame()
         self.max_lookback_size = int(self.buffer_size*(60/self.interval)*len(self.pairs))

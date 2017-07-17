@@ -10,7 +10,7 @@ class Wallet:
         config = configparser.ConfigParser()
         config.read(config_file)
         currency = config['Wallet']['currency'].replace(" ", "").split(',')
-        value = config['Wallet']['value'].replace(" ", "").split(',')
-        value = [float(i) for i in value]
-        self.initial_balance = dict(zip(currency, value))
+        amount = config['Wallet']['amount'].replace(" ", "").split(',')
+        amount = [float(i) for i in amount]
+        self.initial_balance = dict(zip(currency, amount))
         self.current_balance = self.initial_balance.copy()

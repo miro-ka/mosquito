@@ -1,7 +1,8 @@
+import talib
+
+from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState as ts
-from .tradeaction import TradeAction
-import talib
 
 
 class Ema(Base):
@@ -14,7 +15,7 @@ class Ema(Base):
     def __init__(self, args):
         super(Ema, self).__init__(args)
         self.name = 'ema'
-        self.min_history_ticks = 5
+        self.min_history_ticks = 3
         self.pair = 'BTC_ETH'
 
     def calculate(self, look_back, wallet):
@@ -26,7 +27,7 @@ class Ema(Base):
         print('dataset_cnt:', dataset_cnt)
 
         if dataset_cnt < self.min_history_ticks:
-            action = TradeAction('BTC_ETH', ts.none, None, False)
+            action = TradeAction('BTC_ETH', ts.none, None, 0.0, False)
             self.actions.append(action)
             return self.actions
 
@@ -43,6 +44,7 @@ class Ema(Base):
 
         print('ema:', ema, ', slope:', slope)
 
+        """
         if slope >= 0:
             new_action = ts.buy
 
@@ -50,8 +52,9 @@ class Ema(Base):
             new_action = ts.sell
 
         # obv = talib.OBV(close, volume)[-1]
-
-        action = TradeAction(self.pair, new_action, None, True)
+        """
+        new_action = ts.buy
+        action = TradeAction(self.pair, new_action, None, close, True)
         self.actions.append(action)
         return self.actions
 
