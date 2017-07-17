@@ -1,4 +1,3 @@
-import sys
 import configparser
 from .poloniex.polo import Polo
 from core.bots.enums import TradeMode
@@ -15,6 +14,7 @@ class Exchange:
 
     def __init__(self, args, config_file, trade_mode):
         self.exchange = self.load_exchange(config_file)
+        self.args = args
         self.trade_mode = trade_mode
         if self.trade_mode == TradeMode.backtest:
             config = configparser.ConfigParser()
@@ -56,9 +56,7 @@ class Exchange:
         exchange_name = config['Trade']['exchange']
 
         if exchange_name == 'polo':
-            api_key = config['Poloniex']['apiKey']
-            secret = config['Poloniex']['secret']
-            return Polo(api_key=api_key, secret=secret)
+            return Polo(config['Poloniex'])
         else:
             print('Trying to use not defined exchange!')
             return None
@@ -69,11 +67,23 @@ class Exchange:
         """
         return self.exchange.trade(actions, wallet, trade_mode)
 
+    def cancel_order(self, order_number):
+        """
+        Cancels order for given order number
+        """
+        return self.exchange.cancel_order(order_number)
+
     def get_balances(self):
         """
         Returns all available account balances
         """
         return self.exchange.get_balances()
+
+    def return_open_orders(self, currency_pair='all'):
+        """
+        Returns your open orders
+        """
+        return self.exchange.return_open_orders(currency_pair)
 
     def get_offline_ticker(self, epoch, pairs):
         """

@@ -13,6 +13,8 @@ class Live(Base):
         super(Live, self).__init__(args, config_file)
         self.counter = 0
         self.exchange = Exchange(args, config_file, TradeMode.live)
+        # open_orders = self.exchange.return_open_orders()
+        # print(open_orders)
 
     def get_next(self, interval):
         """
@@ -51,7 +53,8 @@ class Live(Base):
         """
         Simulate currency buy/sell (places fictive buy/sell orders)
         """
-        return super(Live, self).trade(actions, wallet, trades, force_sell=False)
+        # TODO: we need to deal with trades-buffer (trades)
+        return self.exchange.trade(actions, wallet, TradeMode.live)
 
     def refresh_wallet(self, wallet):
         """

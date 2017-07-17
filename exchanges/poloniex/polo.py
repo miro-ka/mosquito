@@ -10,10 +10,13 @@ class Polo(Base):
     Poloniex interface
     """
 
-    def __init__(self, api_key=None, secret=None, offline_mode=True):
+    def __init__(self, polo_args):
         super(Polo, self).__init__()
+        api_key = polo_args['api_key']
+        secret = polo_args['secret']
         self.polo = Poloniex(api_key, secret)
-        self.offline_mode = offline_mode
+        self.buy_order_type = polo_args['buy_order_type']
+        self.sell_order_type = polo_args['sell_order_type']
 
     def get_balances(self):
         """
@@ -44,6 +47,18 @@ class Polo(Base):
         """
         return self.polo.returnTicker()
 
+    def cancel_order(self, order_number):
+        """
+        Cancels order for given order number
+        """
+        return self.polo.cancelOrder(order_number)
+
+    def return_open_orders(self, currency_pair = 'all'):
+        """
+        Returns your open orders
+        """
+        return self.polo.returnOpenOrders(currency_pair)
+
     def get_all_tickers(self):
         """
         Returns ticker pairs for all currencies
@@ -62,4 +77,4 @@ class Polo(Base):
             return Base.trade(actions, wallet)
         else:
             # TODO: implement life trading
-            print('TODO:')
+            print('TODO: live trading')
