@@ -21,6 +21,7 @@ class Engine:
     bot = report = plot = plot_pair = None
     trade_mode = root_report_currency = None
     config_strategy_name = None
+    actions = None
 
     def __init__(self, args, config_file):
         # Arguments should override config.ini file, so lets initialize
@@ -40,13 +41,13 @@ class Engine:
         elif args.paper:
             self.bot = Paper(args, config_file)
             self.trade_mode = TradeMode.paper
-            self.wallet.initial_balance = self.bot.get_wallet_balance()
-            self.wallet.current_balance = self.bot.get_wallet_balance()
+            self.wallet.initial_balance = self.bot.get_balance()
+            self.wallet.current_balance = self.bot.get_balance()
         elif args.live:
             self.bot = Live(args, config_file)
             self.trade_mode = TradeMode.live
-            self.wallet.initial_balance = self.bot.get_wallet_balance()
-            self.wallet.current_balance = self.bot.get_wallet_balance()
+            self.wallet.initial_balance = self.bot.get_balance()
+            self.wallet.current_balance = self.bot.get_balance()
         self.pairs = self.bot.get_pairs()
         self.look_back = pd.DataFrame()
         self.max_lookback_size = int(self.buffer_size*(60/self.interval)*len(self.pairs))
@@ -57,7 +58,7 @@ class Engine:
         Loads strategy module based on given name.
         """
         if arg_strategy is None and config_strategy == '':
-            print(colored('Not provided stategy,. please add it as an argument or in config file', 'red'))
+            print(colored('Not provided strategy,. please add it as an argument or in config file', 'red'))
             sys.exit()
         if arg_strategy is not None:
             strategy_name = arg_strategy
@@ -112,6 +113,7 @@ class Engine:
         self.plot = Plot()
 
         try:
+
             while True:
                 # Get next ticker set and save it to our container
                 self.ticker = self.bot.get_next(self.interval)
@@ -130,12 +132,15 @@ class Engine:
                     self.look_back = self.look_back.reset_index(drop=True)
 
                 # Get next actions
-                actions = self.strategy.calculate(self.look_back, self.wallet)
+                self.actions = self.strategy.calculate(self.look_back, self.wallet)
 
                 # Set trade
-                self.wallet.current_balance = self.bot.trade(actions,
-                                                             self.wallet.current_balance,
-                                                             self.trades)
+                self.actions = self.bot.trade(self.actions,
+                                              self.wallet.current_balance,
+                                              self.trades)
+
+                # Get wallet balance
+                self.wallet.current_balance = self.bot.get_balance()
 
                 # Write report
                 self.report.calc_stats(self.ticker, self.wallet)

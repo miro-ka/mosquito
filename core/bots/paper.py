@@ -15,12 +15,6 @@ class Paper(Base):
         super(Paper, self).__init__(args, config_file)
         self.exchange = Exchange(args, config_file, TradeMode.paper)
 
-    def get_wallet_balance(self):
-        """
-        Returns wallet balance
-        """
-        return self.exchange.get_balances()
-
     def get_next(self, interval):
         """
         Returns next state
@@ -53,11 +47,3 @@ class Paper(Base):
         Simulate currency buy/sell (places fictive buy/sell orders)
         """
         return super(Paper, self).trade(actions, wallet, trades, force_sell=False)
-
-    def refresh_wallet(self, wallet):
-        """
-        Returns new updated wallet balance
-        :return:
-        """
-        # TODO: update wallets balance
-        return wallet

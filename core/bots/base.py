@@ -12,6 +12,7 @@ class Base(ABC):
     ticker_df = pd.DataFrame()
     pairs = []
     exchange = None
+    balance = None
 
     def __init__(self, args, config_file):
         super(Base, self).__init__()
@@ -52,28 +53,21 @@ class Base(ABC):
         """
         pass
 
-    @abstractmethod
-    def get_wallet_balance(self):
+    def get_balance(self):
         """
-        Returns wallet balance
+        Returns current balance
         """
-        pass
-
-    @abstractmethod
-    def refresh_wallet(self, wallet):
-        """
-        Returns new updated wallet balance
-        :return:
-        """
-        pass
+        return self.balance
 
     def trade(self, actions, wallet, trades, force_sell=True):
         """
-        Simulate currency buy/sell (places fictive buy/sell orders)
+        Simulate currency buy/sell (places fictive buy/sell orders).
+        Returns remaining / not - processed actions
         """
+        self.balance = wallet
         if self.ticker_df.empty:
             print('Can not trade with empty dataframe, skipping trade')
-            return wallet
+            return actions
 
         for action in actions:
             # If we are forcing_sell, we will first sell all our assets
@@ -116,6 +110,7 @@ class Base(ABC):
 
             # None
             if action.action == ts.none:
+                actions.remove(action)
                 continue
             # Buy
             elif action.action == ts.buy:
@@ -149,4 +144,5 @@ class Base(ABC):
                 trades.loc[len(trades)] = [ticker['date'].iloc[0], action.pair, close_price, 'sell']
                 actions.remove(action)
                 continue
-        return wallet
+        self.balance = wallet
+        return actions

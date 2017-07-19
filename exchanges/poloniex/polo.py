@@ -77,20 +77,40 @@ class Polo(Base):
         if trade_mode == TradeMode.backtest:
             return Base.trade(actions, wallet)
         else:
-            res = self.life_trade(actions)
+            actions = self.life_trade(actions)
             # TODO: update balance here
-            return wallet
+            return actions
 
     def life_trade(self, actions):
         print('live_trading')
         """
-        Performs trades are returns list of order ids (if trade_type configures it)
+        Places orders and returns order number
         """
-        res = []
         for action in actions:
             if action.action == TradeState.none:
+                actions.remove(action)
                 continue
+            if action.action == TradeState.buy:
+                action.order_number = self.polo.buy(action.pair,
+                                                    action.rate,
+                                                    action.amount,
+                                                    self.buy_order_type)
+                if self.buy_order_type == 'postOnly':
+                    # TODO
+                    pass
+                actions.remove(action)
+                pass
+            if action.action == TradeState.sell:
+                action.order_number = self.polo.sell(action.pair,
+                                                     action.rate,
+                                                     action.amount,
+                                                     self.buy_order_type)
+                if self.sell_order_type == 'postOnly':
+                    # TODO
+                    pass
+                actions.remove(action)
+                pass
 
-        return res
+        return actions
 
 

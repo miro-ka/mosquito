@@ -43,7 +43,7 @@ class Live(Base):
         self.last_tick_epoch = epoch_now
         return self.ticker_df
 
-    def get_wallet_balance(self):
+    def get_balance(self):
         """
         Returns wallet balance
         """
@@ -55,11 +55,3 @@ class Live(Base):
         """
         # TODO: we need to deal with trades-buffer (trades)
         return self.exchange.trade(actions, wallet, TradeMode.live)
-
-    def refresh_wallet(self, wallet):
-        """
-        Returns new updated wallet balance
-        :return:
-        """
-        # TODO: update wallets balance
-        return wallet

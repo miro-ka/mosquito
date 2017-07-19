@@ -23,12 +23,6 @@ class Backtest(Base):
         self.current_epoch = self.sim_epoch_start
         self.exchange = Exchange(args, config_file, TradeMode.backtest)
 
-    def get_wallet_balance(self):
-        """
-        Returns wallet balance
-        """
-        pass
-
     @staticmethod
     def get_sim_epoch_start(sim_hours, sim_start):
         if sim_start:
@@ -51,12 +45,3 @@ class Backtest(Base):
         """
         return super(Backtest, self).trade(actions, wallet, trades)
 
-    @staticmethod
-    def refresh_wallet(self, wallet):
-        """
-        Returns new updated wallet balance. In back testing, the wallet is updated in trade
-         method, so there is nothing extra needed here.
-        """
-        # TODO: update wallets balance
-        print('refreshing wallet')
-        return wallet
