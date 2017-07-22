@@ -34,7 +34,10 @@ Mosquito currently supports following exchanges:
  
  3. Run desired command (full list of commands below)
  
- 
+
+### Plot and Final Statistics
+![mosquito plot]https://github.com/miti0/mosquito/blob/master/images/mosquito_plot.png)
+
 
 ### Backfill
 Backfill gets history data from exchange and stores them to mongodb. Data can be after that used for testing your simulation strategies.
