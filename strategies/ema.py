@@ -3,6 +3,7 @@ import talib
 from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState
+import pandas as pd
 
 
 class Ema(Base):
@@ -58,9 +59,18 @@ class Ema(Base):
         # new_action = TradeState.buy
 
         if new_action == TradeState.buy:
-            rate = df_last.lowestAsk.convert_objects(convert_numeric=True).iloc[0]
+            if 'lowestAsk' in df_last:
+                # rate = df_last.lowestAsk.convert_objects(convert_numeric=True).iloc[0]
+                rate = pd.to_numeric(df_last['lowestAsk'], downcast='float').iloc[0]
+            else:
+                rate = pd.to_numeric(df_last['close'], downcast='float').iloc[0]
+
         elif new_action == TradeState.sell:
-            rate = df_last.highestBid.convert_objects(convert_numeric=True).iloc[0]
+            if 'lowestAsk' in df_last:
+                rate = pd.to_numeric(df_last['highestBid'], downcast='float').iloc[0]
+                # rate = df_last.highestBid.convert_objects(convert_numeric=True).iloc[0]
+            else:
+                rate = pd.to_numeric(df_last['close'], downcast='float')
 
         amount = 0.1
         action = TradeAction(self.pair, new_action, amount, rate, True)

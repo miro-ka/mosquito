@@ -43,5 +43,5 @@ class Backtest(Base):
         """
         Simulate currency buy/sell (places fictive buy/sell orders)
         """
-        return super(Backtest, self).trade(actions, wallet, trades)
+        return super(Backtest, self).trade(actions, wallet, trades, force_sell=False)
 

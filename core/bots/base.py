@@ -70,6 +70,10 @@ class Base(ABC):
             return actions
 
         for action in actions:
+            # None
+            if action.action == ts.none:
+                actions.remove(action)
+                continue
             # If we are forcing_sell, we will first sell all our assets
             if force_sell:
                 assets = wallet.copy()
@@ -108,12 +112,8 @@ class Base(ABC):
             if asset_symbol in wallet:
                 asset_balance = wallet[asset_symbol]
 
-            # None
-            if action.action == ts.none:
-                actions.remove(action)
-                continue
             # Buy
-            elif action.action == ts.buy:
+            if action.action == ts.buy:
                 if currency_balance <= 0:
                     print('want to buy ' + action.pair + ', not enough money, or everything already bought..')
                     actions.remove(action)
