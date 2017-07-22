@@ -1,9 +1,11 @@
-from poloniex import Poloniex
-from .base import Base
-from core.bots.enums import TradeMode
-import pandas as pd
 import time
+import sys
+import pandas as pd
+from poloniex import Poloniex, PoloniexError
+from core.bots.enums import TradeMode
+from exchanges.base import Base
 from strategies.enums import TradeState
+from termcolor import colored
 
 
 class Polo(Base):
@@ -78,39 +80,40 @@ class Polo(Base):
             return Base.trade(actions, wallet)
         else:
             actions = self.life_trade(actions)
-            # TODO: update balance here
             return actions
 
     def life_trade(self, actions):
-        print('live_trading')
         """
         Places orders and returns order number
+        !!! For now we are NOT handling postOnly type of orders !!!
         """
+        print('live_trading')
         for action in actions:
             if action.action == TradeState.none:
                 actions.remove(action)
                 continue
             if action.action == TradeState.buy:
-                action.order_number = self.polo.buy(action.pair,
-                                                    action.rate,
-                                                    action.amount,
-                                                    self.buy_order_type)
-                if self.buy_order_type == 'postOnly':
-                    # TODO
-                    pass
-                actions.remove(action)
-                pass
+                try:
+                    action.order_number = self.polo.buy(action.pair, action.rate, action.amount, self.buy_order_type)
+                except PoloniexError as e:
+                    print(colored('Got exception: ' + str(e) + 'txn: buy-' + action.pair, 'red'))
+                    continue
+                amount_unfilled = action.order_number.get('amountUnfilled')
+                if amount_unfilled == 0.0:
+                    actions.remove(action)
+                else:
+                    action.amount = amount_unfilled
             if action.action == TradeState.sell:
-                action.order_number = self.polo.sell(action.pair,
-                                                     action.rate,
-                                                     action.amount,
-                                                     self.buy_order_type)
-                if self.sell_order_type == 'postOnly':
-                    # TODO
-                    pass
-                actions.remove(action)
-                pass
-
+                try:
+                    action.order_number = self.polo.sell(action.pair, action.rate,  action.amount, self.buy_order_type)
+                except PoloniexError as e:
+                    print(colored('Got exception: ' + str(e) + 'txn: sell-' + action.pair, 'red'))
+                    continue
+                amount_unfilled = action.order_number.get('amountUnfilled')
+                if amount_unfilled == 0.0:
+                    actions.remove(action)
+                else:
+                    action.amount = amount_unfilled
         return actions
 
 
