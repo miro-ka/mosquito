@@ -36,7 +36,7 @@ Mosquito currently supports following exchanges:
  
 
 ### Plot and Final Statistics
-[![mosquito_plot.png](https://s22.postimg.org/px5umpxr5/mosquito_plot.png)](https://postimg.org/image/3xzfzigwt/ | width=480)
+[![mosquito_plot.png](https://s22.postimg.org/px5umpxr5/mosquito_plot.png)](https://postimg.org/image/3xzfzigwt/){:height="450px" width="540px"}
 
 
 ### Backfill
