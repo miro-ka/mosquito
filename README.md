@@ -35,13 +35,8 @@ Mosquito currently supports following exchanges:
  3. Run desired command (full list of commands below)
  
 
-### Plot and Final Statistics
-Mosquito has a simple plot utility for visualizing current pair combined with trading history. Visualization uses external library [plotly](https://plot.ly/).
 
-[![mosquito_plot.png](https://s22.postimg.org/px5umpxr5/mosquito_plot.png)](https://postimg.org/image/3xzfzigwt/)
-
-
-### Backfill
+## Backfill
 Backfill gets history data from exchange and stores them to mongodb. Data can be after that used for testing your simulation strategies.
 
 ```
@@ -65,9 +60,36 @@ python3 backfill --days 3 --all
 ```
 
 
-### TODO
- * Live bot should check if we have the currency we want to buy. If not 
- eather convert money to it, or ignore the action
+## Trading
+This is the main module that handles passed strategy and places buy/sell orders. 
+
+Currently Trading supports following modes:
+ * **Backtest** - fast simulation mode using past data and placing fictive buy/sell orders.
+ * **Paper** - mode simulating live ticker but placing fictive buy/sell orders.
+ * **Live** - live trading with placing REAL buy/sell orders.
+
+> Backtest and Paper trading are using immediate buy/sell orders by using the last ticker 
+closing price. This results to NOT 100% accurate strategy results, what you should be aware of.
+ 
+
+### Backtest
+todo
+
+
+### Paper
+todo
+
+
+### Live
+todo
+
+
+
+## Plot and Statistics
+Mosquito has a simple plot utility for visualizing current pair combined with trading history. Visualization uses external library [plotly](https://plot.ly/).
+
+[![mosquito_plot.png](https://s22.postimg.org/px5umpxr5/mosquito_plot.png)](https://postimg.org/image/3xzfzigwt/)
+
 
 
 ### License: GNU GENERAL PUBLIC LICENSE
