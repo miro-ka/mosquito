@@ -1,4 +1,5 @@
-# mosquito
+<img src="https://user-images.githubusercontent.com/1301154/28501904-86816828-6fe6-11e7-81a0-73c7d6afe5d5.png" width="480">
+
 Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms, inspired by [zenbot](https://github.com/carlos8f/zenbot)
 
 [![Build Status](https://travis-ci.org/miti0/mosquito.svg?branch=master)](https://travis-ci.org/miti0/mosquito)
