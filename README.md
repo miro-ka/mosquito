@@ -9,6 +9,7 @@ Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms,
 ## About
 Mosquito is a crypto currency trading bot writen in Python, with main focus on modularity, so it is straight forward to plug-in new exchange. 
 
+
 Mosquito currently supports following exchanges:
  * Poloniex - supporting *fillOrKill* and *immediateOrCancel* trading types. *postOnly* type is not supported. You can 
  read more about trading types [here.](https://github.com/s4w3d0ff/python-poloniex/blob/master/poloniex/__init__.py)
@@ -41,13 +42,16 @@ Mosquito currently supports following exchanges:
 Backfill gets history data from exchange and stores them to mongodb. Data can be after that used for testing your simulation strategies.
 
 ```
-usage: backfill.py [-h] [--pair PAIR] [--all] --days DAYS
+usage: mosquito.py [-h] [--backtest] [--paper] [--live] [--strategy STRATEGY] [--plot]
 
 optional arguments:
-  -h, --help   show this help message and exit
-  --pair PAIR  Pair to backfill. For ex. [BTC_ETH]
-  --all        Backfill data for ALL currencies
-  --days DAYS  Number of days to backfill
+  -h, --help           show this help message and exit
+  --backtest           Simulate your strategy on history ticker data
+  --paper              Simulate your strategy on real ticker
+  --live               REAL trading mode
+  --strategy STRATEGY  Name of strategy to be run (if not set, the default one will be used
+  --plot               Generate a candle stick plot at simulation end
+
 ```
 
 Example below load historical data for BTC_ETH pair for the last 5 days
@@ -74,7 +78,14 @@ closing price. This results to NOT 100% accurate strategy results, what you shou
  
 
 ### Backtest
-todo
+Fast simulation mode using past data and placing fictive buy/sell orders. Simulation configuration is done via 
+*config.ini* file (some of the parameters can be overridden with command line arguments).
+
+Below is an example of running a backtest together with final buy/sell plot generated at the end of the simulation.
+```
+python3 mosquito.py --backtest --plot
+```
+> ! Please be aware that Backtest should 99% work, but it is still waiting for a final verification test.
 
 
 ### Paper
