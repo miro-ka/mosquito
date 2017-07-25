@@ -16,7 +16,7 @@ class Bumblebee(Base):
     def __init__(self, args):
         super(Bumblebee, self).__init__(args)
         self.name = 'ema'
-        self.min_history_ticks = 60  # 60 minute interval
+        self.min_history_ticks = 3  # 60  # 60 minute interval
         self.pair = 'BTC_DGB'
 
     def calculate(self, look_back, wallet):
@@ -54,7 +54,7 @@ class Bumblebee(Base):
         # Create new buy/sell order
         new_action = TradeState.none
 
-        if obv >= 100:
+        if obv >= 0:  # 200
             new_action = TradeState.buy
         elif obv < 0:
             new_action = TradeState.sell
@@ -68,19 +68,16 @@ class Bumblebee(Base):
             return self.actions
         elif new_action == TradeState.buy:
             if 'lowestAsk' in df_last:
-                # rate = df_last.lowestAsk.convert_objects(convert_numeric=True).iloc[0]
                 rate = pd.to_numeric(df_last['lowestAsk'], downcast='float').iloc[0]
             else:
                 rate = pd.to_numeric(df_last['close'], downcast='float').iloc[0]
         elif new_action == TradeState.sell:
             if 'lowestAsk' in df_last:
                 rate = pd.to_numeric(df_last['highestBid'], downcast='float').iloc[0]
-                # rate = df_last.highestBid.convert_objects(convert_numeric=True).iloc[0]
             else:
                 rate = pd.to_numeric(df_last['close'], downcast='float')
 
-        new_action.buy_sell_all = True
-        action = TradeAction(self.pair, new_action, rate=rate)
+        action = TradeAction(self.pair, new_action, rate=rate, buy_sell_all=True)
         self.actions.append(action)
         return self.actions
 

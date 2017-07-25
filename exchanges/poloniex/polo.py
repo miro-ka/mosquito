@@ -92,6 +92,12 @@ class Polo(Base):
             if action.action == TradeState.none:
                 actions.remove(action)
                 continue
+
+            # Handle buy_sell_all cases
+            wallet = self.get_balances()
+            if action.buy_sell_all:
+                action.amount = self.get_buy_sell_all_amount(wallet, action.action, action.pair, action.rate)
+
             if action.action == TradeState.buy:
                 try:
                     action.order_number = self.polo.buy(action.pair, action.rate, action.amount, self.buy_order_type)
@@ -103,7 +109,7 @@ class Polo(Base):
                     actions.remove(action)
                 else:
                     action.amount = amount_unfilled
-            if action.action == TradeState.sell:
+            elif action.action == TradeState.sell:
                 try:
                     action.order_number = self.polo.sell(action.pair, action.rate,  action.amount, self.buy_order_type)
                 except PoloniexError as e:
@@ -116,4 +122,22 @@ class Polo(Base):
                     action.amount = amount_unfilled
         return actions
 
+    @staticmethod
+    def get_buy_sell_all_amount(wallet, action, pair, rate):
+        if action == TradeState.none:
+            return 0.0
 
+        if rate == 0.0:
+            print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + pair, 'red'))
+            return 0.0
+
+        (symbol_1, symbol_2) = tuple(pair.split('_'))
+        amount = 0.0
+        if action == TradeState.buy and symbol_1 in wallet:
+            assets = wallet.get(symbol_1)
+            amount = assets/rate
+        elif symbol_2 in wallet:
+            assets = wallet.get(symbol_2)
+            amount = assets*rate
+
+        return amount

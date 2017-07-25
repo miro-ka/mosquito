@@ -2,6 +2,7 @@
 core/__pycache__/
 core/bots/__pycache__/
 
+images/mosquito_imgs.zip
 config.ini
 .idea/
 exchanges/__pycache__/
