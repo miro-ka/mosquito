@@ -16,7 +16,7 @@ class Bumblebee(Base):
     def __init__(self, args):
         super(Bumblebee, self).__init__(args)
         self.name = 'ema'
-        self.min_history_ticks = 3  # 60  # 60 minute interval
+        self.min_history_ticks = 60  # 60 minute interval
         self.pair = 'BTC_DGB'
 
     def calculate(self, look_back, wallet):
@@ -54,7 +54,7 @@ class Bumblebee(Base):
         # Create new buy/sell order
         new_action = TradeState.none
 
-        if obv >= 0:  # 200
+        if obv >= 200:
             new_action = TradeState.buy
         elif obv < 0:
             new_action = TradeState.sell
