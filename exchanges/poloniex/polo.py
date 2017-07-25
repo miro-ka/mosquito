@@ -124,6 +124,9 @@ class Polo(Base):
 
     @staticmethod
     def get_buy_sell_all_amount(wallet, action, pair, rate):
+        """
+        Calculates total amount for ALL assets in wallet
+        """
         if action == TradeState.none:
             return 0.0
 
