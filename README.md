@@ -70,12 +70,12 @@ This is the main module that handles passed strategy and places buy/sell orders.
 
 Currently Trading supports following modes:
  * **Backtest** - fast simulation mode using past data and placing fictive buy/sell orders.
- * **Paper** - mode simulating live ticker but placing fictive buy/sell orders.
+ * **Paper** - mode simulating live ticker with placing fictive buy/sell orders.
  * **Live** - live trading with placing REAL buy/sell orders.
 
 > Backtest and Paper trading are using immediate buy/sell orders by using the last ticker 
 closing price. This results to NOT 100% accurate strategy results, what you should be aware of.
- 
+
 
 ### Backtest
 Fast simulation mode using past data and placing fictive buy/sell orders. Simulation configuration is done via 
@@ -85,15 +85,27 @@ Below is an example of running a backtest together with final buy/sell plot gene
 ```
 python3 mosquito.py --backtest --plot
 ```
-> ! Please be aware that Backtest should 99% work, but it is still waiting for a final verification test.
+> ! Please be aware that Backtest should 99% work, but it is currently under final verification test.
 
 
 ### Paper
-todo
+Trading mode that simulates live ticker with placing fictive buy/sell orders. Simulation configuration is done via 
+*config.ini* file (some of the parameters can be overridden with command line arguments).
+
+Below is an example of running a backtest together with final buy/sell plot generated at the end of the simulation.
+```
+python3 mosquito.py --paper
+```
+> ! Please be aware that Paper should 99% work, but it is currently under final verification test.
 
 
 ### Live
-todo
+Live trading with placing REAL buy/sell orders. Configuration is done via *config.ini* file (some of the parameters can be overridden with command line arguments).
+Below is an example of running a backtest together with final buy/sell plot generated at the end of the simulation.
+```
+python3 mosquito.py --live
+```
+> ! Please be aware that Live should 99% work, but it is currently under final verification test.
 
 
 
