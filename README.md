@@ -116,6 +116,14 @@ Visualization uses external library [plotly](https://plot.ly/). Below You can se
 <img src="https://user-images.githubusercontent.com/1301154/28573699-70c6d14c-7119-11e7-8bb6-06c53908066d.png">
 
 
+## Donate
+
+If you would like to support the project in other way than code-contributing, you can donate Mosquito development on 
+following Bitcoin address:
+
+16v94untkyuTXyE4euWzDA5r4vKd996CP8
+
+
 
 ### License: GNU GENERAL PUBLIC LICENSE
 
