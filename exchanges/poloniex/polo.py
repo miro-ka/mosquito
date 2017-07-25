@@ -1,5 +1,4 @@
 import time
-import sys
 import pandas as pd
 from poloniex import Poloniex, PoloniexError
 from core.bots.enums import TradeMode

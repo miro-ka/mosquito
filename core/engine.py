@@ -16,12 +16,22 @@ class Engine:
     """
     Main class for Simulation Engine (main class where all is happening
     """
-    buffer_size = interval = pairs = verbosity = None
-    ticker = look_back = history = None
-    bot = report = plot = plot_pair = None
-    trade_mode = root_report_currency = None
+    buffer_size = None
+    interval = None
+    pairs = None
+    verbosity = None
+    ticker = None
+    look_back = None
+    history = None
+    bot = None
+    report = None
+    plot = None
+    plot_pair = None
+    trade_mode = None
+    root_report_currency = None
     config_strategy_name = None
     actions = None
+    prefetch = None
 
     def __init__(self, args, config_file):
         # Arguments should override config.ini file, so lets initialize
@@ -76,6 +86,7 @@ class Engine:
         config.read(config_file)
         self.root_report_currency = config['Trade']['root_report_currency']
         self.buffer_size = config['Trade']['buffer_size']
+        self.prefetch = config.getboolean('Trade', 'prefetch')
         if self.buffer_size != '':
             self.buffer_size = int(self.buffer_size)
         self.interval = config['Trade']['interval']
@@ -113,7 +124,6 @@ class Engine:
         self.plot = Plot()
 
         try:
-
             while True:
                 # Get next ticker set and save it to our container
                 self.ticker = self.bot.get_next(self.interval)

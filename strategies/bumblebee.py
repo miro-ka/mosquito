@@ -14,7 +14,7 @@ class Bumblebee(Base):
     def __init__(self, args):
         super(Bumblebee, self).__init__(args)
         self.name = 'ema'
-        self.min_history_ticks = 3  # 60 minute interval
+        self.min_history_ticks = 60  # 60 minute interval
         self.pair = 'BTC_DGB'
 
     def calculate(self, look_back, wallet):
