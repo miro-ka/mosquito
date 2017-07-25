@@ -9,9 +9,9 @@ Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms,
 ## About
 Mosquito is a crypto currency trading bot writen in Python, with main focus on modularity, so it is straight forward to plug-in new exchange. 
 
-
+### Supported Exchanges
 Mosquito currently supports following exchanges:
- * Poloniex - supporting *fillOrKill* and *immediateOrCancel* trading types. *postOnly* type is not supported. You can 
+ * **Poloniex** - supporting *fillOrKill* and *immediateOrCancel* trading types. *postOnly* type is not supported. You can 
  read more about trading types [here.](https://github.com/s4w3d0ff/python-poloniex/blob/master/poloniex/__init__.py)
 
 
