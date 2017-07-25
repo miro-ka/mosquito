@@ -61,6 +61,7 @@ class Base(ABC):
 
     def trade(self, actions, wallet, trades, force_sell=True):
         """
+        force_sell: Sells ALL assets before buying new one
         Simulate currency buy/sell (places fictive buy/sell orders).
         Returns remaining / not - processed actions
         """
