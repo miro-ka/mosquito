@@ -11,8 +11,6 @@ class Bumblebee(Base):
     Bumblebee strategy
     """
 
-    actions = []
-
     def __init__(self, args):
         super(Bumblebee, self).__init__(args)
         self.name = 'ema'
@@ -33,6 +31,7 @@ class Bumblebee(Base):
             self.actions.append(action)
             return self.actions
 
+        self.actions.clear()
         # Calculate indicators
         df = look_back.tail(self.min_history_ticks)
         df = df[df['pair'] == self.pair]

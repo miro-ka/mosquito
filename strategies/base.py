@@ -8,6 +8,7 @@ class Base(ABC):
     """
 
     action_request = ts.none
+    actions = []
 
     def __init__(self, args):
         super(Base, self).__init__()

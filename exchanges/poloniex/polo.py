@@ -25,8 +25,13 @@ class Polo(Base):
         """
         Return available account balances (function returns ONLY currencies > 0)
         """
-        balances = self.polo.returnBalances()
-        only_non_zeros = {k: float(v) for k, v in balances.items() if float(v) > 0.0}
+        try:
+            balances = self.polo.returnBalances()
+            only_non_zeros = {k: float(v) for k, v in balances.items() if float(v) > 0.0}
+        except PoloniexError as e:
+            print(colored('Got exception (polo.get_balances): ' + str(e), 'red'))
+            only_non_zeros = dict()
+
         return only_non_zeros
 
     def get_symbol_ticker(self, symbol):
@@ -98,8 +103,10 @@ class Polo(Base):
             if action.buy_sell_all:
                 action.amount = self.get_buy_sell_all_amount(wallet, action.action, action.pair, action.rate)
 
+            # ** Buy Action **
             if action.action == TradeState.buy:
                 try:
+                    print(colored('buying ' + action.pair, 'green'))
                     action.order_number = self.polo.buy(action.pair, action.rate, action.amount, self.buy_order_type)
                 except PoloniexError as e:
                     print(colored('Got exception: ' + str(e) + 'txn: buy-' + action.pair, 'red'))
@@ -109,8 +116,10 @@ class Polo(Base):
                     actions.remove(action)
                 else:
                     action.amount = amount_unfilled
+            # ** Sell Action **
             elif action.action == TradeState.sell:
                 try:
+                    print(colored('selling ' + action.pair, 'red'))
                     action.order_number = self.polo.sell(action.pair, action.rate,  action.amount, self.buy_order_type)
                 except PoloniexError as e:
                     print(colored('Got exception: ' + str(e) + 'txn: sell-' + action.pair, 'red'))
