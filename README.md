@@ -117,7 +117,6 @@ Visualization uses external library [plotly](https://plot.ly/). Below You can se
 
 
 ## Donate
-
 If you would like to support the project in other way than code-contributing, you can donate Mosquito development on 
 following Bitcoin address:
 
@@ -126,7 +125,6 @@ following Bitcoin address:
 
 
 ### License: GNU GENERAL PUBLIC LICENSE
-
 - Copyright (C) 2017 Miroslav Karpis (miti0)
 
 
