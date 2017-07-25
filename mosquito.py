@@ -9,6 +9,14 @@ def main(args):
     engine.run()
 
 
+def has_mandatory_fields(args):
+    """
+    Checks if command arguments contain all mandatory arguments
+    """
+    if not args.backtest and not args.live and not args.paper:
+        return False
+    return True
+
 if __name__ == "__main__":
     # Parse input
     parser = argparse.ArgumentParser()
@@ -19,6 +27,10 @@ if __name__ == "__main__":
     parser.add_argument("--plot", help="Generate a candle stick plot at simulation end", action='store_true')
 
     args = parser.parse_args()
+
+    if not has_mandatory_fields(args):
+        print("Missing trade mode argument (backtest, paper or live). See --help for more details.")
+        exit(0)
 
     main(args)
 
