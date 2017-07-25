@@ -103,10 +103,16 @@ class Polo(Base):
             if action.buy_sell_all:
                 action.amount = self.get_buy_sell_all_amount(wallet, action.action, action.pair, action.rate)
 
+            # If we don't have enough assets, just skip/remove the action
+            if action.amount == 0.0:
+                print(colored('No assets to buy/sell, ...skipping: ' + str(action.amount) + action.pair, 'green'))
+                actions.remove(action)
+                continue
+
             # ** Buy Action **
             if action.action == TradeState.buy:
                 try:
-                    print(colored('buying ' + action.pair, 'green'))
+                    print(colored('setting buy order: ' + str(action.amount) +  action.pair, 'green'))
                     action.order_number = self.polo.buy(action.pair, action.rate, action.amount, self.buy_order_type)
                 except PoloniexError as e:
                     print(colored('Got exception: ' + str(e) + 'txn: buy-' + action.pair, 'red'))
@@ -119,7 +125,7 @@ class Polo(Base):
             # ** Sell Action **
             elif action.action == TradeState.sell:
                 try:
-                    print(colored('selling ' + action.pair, 'red'))
+                    print(colored('setting sell order: ' + str(action.amount) +  action.pair, 'red'))
                     action.order_number = self.polo.sell(action.pair, action.rate,  action.amount, self.buy_order_type)
                 except PoloniexError as e:
                     print(colored('Got exception: ' + str(e) + 'txn: sell-' + action.pair, 'red'))
@@ -148,7 +154,7 @@ class Polo(Base):
         if action == TradeState.buy and symbol_1 in wallet:
             assets = wallet.get(symbol_1)
             amount = assets/rate
-        elif symbol_2 in wallet:
+        elif action == TradeState.sell and symbol_2 in wallet:
             assets = wallet.get(symbol_2)
             amount = assets*rate
 
