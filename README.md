@@ -113,7 +113,7 @@ python3 mosquito.py --live
 Mosquito has a simple plot utility for visualizing current pair combined with trading history. 
 Visualization uses external library [plotly](https://plot.ly/). Below You can see an example visualizing ticker price plot, together with simulated buy/sell orders.
 
-<img src="https://user-images.githubusercontent.com/1301154/28573213-eb597862-7117-11e7-9b3f-3ca5aec26bad.png">
+<img src="https://user-images.githubusercontent.com/1301154/28573699-70c6d14c-7119-11e7-8bb6-06c53908066d.png">
 
 
 
