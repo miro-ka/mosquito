@@ -51,7 +51,7 @@ def main(args):
 
     for pair in pairs:
         for day in reversed(range(1, args.days+1)):
-            print('getting currency data: ' + pair + ', days left:' + str(day))
+            print('Getting currency data: ' + pair + ', days left: ' + str(day))
             epoch_from = epoch_now - (DAY*day)
             epoch_to = epoch_now if day == 1 else epoch_now - (DAY * (day-1))
             candles = exchange.return_candles(pair, 300, epoch_from, epoch_to) # by default 5 minutes candles (minimum)
@@ -71,7 +71,7 @@ def main(args):
                 # Store to DB
                 ticker.update_one({'id': id}, {'$set': candle}, upsert=True)
 
-    print('import done..')
+    print('Backfill data import done..')
 
 
 if __name__ == "__main__":

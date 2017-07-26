@@ -42,6 +42,12 @@ class Paper(Base):
         self.last_tick_epoch = epoch_now
         return self.ticker_df
 
+    def get_balance(self):
+        """
+        Returns wallet balance
+        """
+        return self.exchange.get_balances()
+
     def trade(self, actions, wallet, trades, force_sell=True):
         """
         Simulate currency buy/sell (places fictive buy/sell orders)
