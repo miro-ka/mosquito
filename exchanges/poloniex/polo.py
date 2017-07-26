@@ -111,7 +111,7 @@ class Polo(Base):
             # ** Buy Action **
             if action.action == TradeState.buy:
                 try:
-                    print(colored('setting buy order: ' + str(action.amount) +  action.pair, 'green'))
+                    print(colored('setting buy order: ' + str(action.amount) + '' + action.pair, 'green'))
                     action.order_number = self.polo.buy(action.pair, action.rate, action.amount, self.buy_order_type)
                 except PoloniexError as e:
                     print(colored('Got exception: ' + str(e) + 'txn: buy-' + action.pair, 'red'))
@@ -124,7 +124,7 @@ class Polo(Base):
             # ** Sell Action **
             elif action.action == TradeState.sell:
                 try:
-                    print(colored('setting sell order: ' + str(action.amount) +  action.pair, 'red'))
+                    print(colored('setting sell order: ' + str(action.amount) + '' + action.pair, 'red'))
                     action.order_number = self.polo.sell(action.pair, action.rate,  action.amount, self.buy_order_type)
                 except PoloniexError as e:
                     print(colored('Got exception: ' + str(e) + 'txn: sell-' + action.pair, 'red'))
@@ -155,6 +155,6 @@ class Polo(Base):
             amount = assets/rate
         elif action == TradeState.sell and symbol_2 in wallet:
             assets = wallet.get(symbol_2)
-            amount = assets*rate
+            amount = assets
 
         return amount

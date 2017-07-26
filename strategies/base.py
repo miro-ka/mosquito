@@ -16,6 +16,12 @@ class Base(ABC):
         self.min_history_ticks = 5
         self.group_by_field = 'pair'
 
+    def get_min_history_ticks(self):
+        """
+        Returns min_history_ticks
+        """
+        return self.min_history_ticks
+
     @staticmethod
     def get_dataset_count(df, group_by_field):
         """

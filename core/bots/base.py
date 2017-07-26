@@ -3,6 +3,10 @@ import configparser
 import pandas as pd
 from termcolor import colored
 from strategies.enums import TradeState as ts
+import time
+from backfill import main as backfill
+from argparse import Namespace
+import math
 
 
 class Base(ABC):
@@ -31,6 +35,29 @@ class Base(ABC):
             # Get all pairs from API
         else:
             return in_pairs.replace(" ", "").split(',')
+
+    def prefetch(self, min_ticker_size, ticker_interval):
+        """
+        Method pre-fetches data to ticker buffer
+        """
+        prefetch_epoch_size = ticker_interval * min_ticker_size * 60
+        prefetch_days = math.ceil(prefetch_epoch_size / 86400)
+        # Prefetch/Backfill data
+        for pair in self.pairs:
+            args = Namespace(pair=pair, days=prefetch_days, all=False)
+            backfill(args)
+        # Load data to our ticker buffer
+        prefetch_epoch_size = ticker_interval * min_ticker_size * 60
+        epoch_now = int(time.time())
+        prefetch_epoch = epoch_now - prefetch_epoch_size
+        print('Going to prefetch data of size (minutes): ', ticker_interval * min_ticker_size)
+        df = pd.DataFrame()
+        while prefetch_epoch < epoch_now:
+            data = self.exchange.get_offline_ticker(prefetch_epoch, self.pairs)
+            df = df.append(data, ignore_index=True)
+            prefetch_epoch += (ticker_interval * 60)
+        print('Fetching done..')
+        return df
 
     @staticmethod
     def initialize_config(config_file):

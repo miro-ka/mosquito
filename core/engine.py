@@ -123,6 +123,11 @@ class Engine:
         self.report.set_verbosity(self.verbosity)
         self.plot = Plot()
 
+        # Prefetch Buffer Data (if
+        if self.prefetch:
+            self.history = self.bot.prefetch(self.strategy.get_min_history_ticks(), self.interval)
+            self.look_back = self.history.copy()
+
         try:
             while True:
                 # Get next ticker set and save it to our container

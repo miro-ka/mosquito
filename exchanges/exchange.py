@@ -16,11 +16,11 @@ class Exchange:
         self.exchange = self.load_exchange(config_file)
         self.args = args
         self.trade_mode = trade_mode
-        if self.trade_mode == TradeMode.backtest:
-            config = configparser.ConfigParser()
-            config.read(config_file)
-            self.db = self.initialize_db(config)
-            self.ticker = self.db.ticker
+        # if self.trade_mode == TradeMode.backtest:
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        self.db = self.initialize_db(config)
+        self.ticker = self.db.ticker
 
     def get_all_tickers(self):
         """
@@ -92,7 +92,6 @@ class Exchange:
         ticker = pd.DataFrame()
         for pair in pairs:
             db_doc = self.ticker.find_one({"$and": [{"date": {"$gte": epoch}},
-                                          # {"pair": {"$in": pair}},
                                           {"pair": pair},
                                           {"exchange": 'polo'}]})
 
