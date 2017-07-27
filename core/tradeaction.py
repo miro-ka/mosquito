@@ -1,5 +1,6 @@
 from strategies.enums import TradeState
 
+
 class TradeAction:
     """
     Trade Action class

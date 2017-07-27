@@ -4,6 +4,7 @@ from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState
 import pandas as pd
+from lib.indicators.percentchange import percent_change
 
 
 class Bumblebee(Base):
@@ -53,13 +54,14 @@ class Bumblebee(Base):
         # Create new buy/sell order
         new_action = TradeState.none
 
-        if obv >= 200:
-            new_action = TradeState.buy
-        elif obv < 0:
-            new_action = TradeState.sell
+        # Calculate perc. change
+        perc_change = percent_change(look_back, 4)
+        print('perc_change:', perc_change)
 
-        # obv = talib.OBV(close, volume)[-1]
-        # """
+        if obv >= 50:
+            new_action = TradeState.buy
+        elif obv < -50 or perc_change <= -1.0:
+            new_action = TradeState.sell
 
         df_last = df.iloc[[-1]]
 
