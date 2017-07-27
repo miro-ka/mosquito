@@ -2,6 +2,9 @@ import plotly.plotly
 import plotly.graph_objs as go
 import pandas as pd
 import plotly.offline as offline
+import pytz
+from tzlocal import get_localzone
+import time
 
 
 class Plot:
@@ -29,12 +32,20 @@ class Plot:
 
         pd.options.mode.chained_assignment = None
 
-        df['date'] = pd.to_datetime(df['date'], unit='s')
-        df_trades['date'] = pd.to_datetime(df_trades['date'], unit='s')
+        df['date'] = pd.to_datetime(df['date'], unit='s', utc=True)
+        df_trades['date'] = pd.to_datetime(df_trades['date'], unit='s', utc=True)
+        local_tz = get_localzone()
+        # Convert datetime to current time-zone
+        df['date'] = df['date'].dt.tz_localize('UTC').dt.tz_convert(local_tz)
+        df = df.set_index(['date'])
+        df_index = df.index.tz_localize(None)
+
+        df_trades['date'] = df_trades['date'].dt.tz_localize('UTC').dt.tz_convert(local_tz)
+        df_trades = df_trades.set_index(['date'])
 
         plotly.offline.init_notebook_mode()
 
-        trace = go.Candlestick(x=df.date,
+        trace = go.Candlestick(x=df_index,
                                open=df.open,
                                high=df.high,
                                low=df.low,
@@ -56,8 +67,7 @@ class Plot:
         # Create buy/sell annotations
         annotations = []
         for index, row in df_trades.iterrows():
-            xx = row['action']
-            d = dict(x=row['date'], y=row['close_price'], xref='x', yref='y', ax=0,
+            d = dict(x=index.tz_localize(None), y=row['close_price'], xref='x', yref='y', ax=0,
                      ay=40 if row['action'] == 'buy' else -40,
                      showarrow=True, arrowhead=2, arrowsize=3, arrowwidth=2,
                      arrowcolor='red' if row['action'] == 'sell' else 'green',
@@ -68,7 +78,7 @@ class Plot:
             title='Simulation result',
             autosize=True,
             showlegend=True,
-            annotations = annotations
+            annotations=annotations
         )
 
         # Auto-open html page
