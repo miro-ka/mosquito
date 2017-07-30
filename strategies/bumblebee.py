@@ -54,13 +54,13 @@ class Bumblebee(Base):
         # Create new buy/sell order
         new_action = TradeState.none
 
-        # Calculate perc. change
-        perc_change = percent_change(look_back, 4)
+        # Calculate perc. change for 'hand-brake
+        perc_change = percent_change(look_back, 2)
         print('perc_change:', perc_change)
 
-        if obv >= 50:
+        if obv >= 200:
             new_action = TradeState.buy
-        elif obv < -50 or perc_change <= -1.0:
+        elif obv < 0 or perc_change <= -1.0:
             new_action = TradeState.sell
 
         df_last = df.iloc[[-1]]

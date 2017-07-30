@@ -1,6 +1,7 @@
 from termcolor import colored
-from datetime import datetime
 import pandas as pd
+import time
+from datetime import datetime
 
 
 class Report:
@@ -17,9 +18,41 @@ class Report:
         self.pairs = pairs
         self.initial_closing_prices = pd.DataFrame()
         self.root_report_currency = root_report_currency
+        self.sim_start_epoch = int(time.time())
 
     def set_verbosity(self, verbosity):
         self.verbosity = verbosity
+
+    def write_final_stats(self, ticker_start, ticker_end, wallet, trades):
+        """
+        Final statistics report
+        """
+        curr_bal_percent = self.calc_balance(ticker_end, wallet.current_balance)
+        buy_and_hold = self.calc_buy_and_hold(ticker_end, wallet.initial_balance)
+        print('')
+        print('****************************************************')
+        print('*           Final simulation report:               *')
+        print('****************************************************')
+        print(self.get_color_text('Strategy result: ', curr_bal_percent))
+        print(self.get_color_text('Buy & Hold: ', buy_and_hold))
+        print(self.get_color_text('Strategy vs Buy & Hold: ', curr_bal_percent-buy_and_hold))
+        # Get real sim time values
+        sim_start = ticker_start.date.iloc[0]
+        sim_end = ticker_end.date.iloc[0]
+        minutes, seconds = divmod(sim_end-sim_start, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
+        print('Total txn:', len(trades))
+        print('Simulated (data time):', days, 'days,', hours, 'hours and', minutes, 'minutes')
+        txn_per_hour = len(trades)/((sim_end-sim_start)/3600.0)
+        print('Transactions per hour:', round(txn_per_hour, 2))
+        # Get simulation run time values
+        time_now = int(time.time())
+        time_diff = time_now - self.sim_start_epoch
+        minutes, seconds = divmod(time_diff, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
+        print('Simulation run time:',  hours, 'hours', minutes, 'minutes and', seconds, 'seconds')
 
     def calc_stats(self, ticker_data, wallet):
         """

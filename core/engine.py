@@ -61,6 +61,15 @@ class Engine:
         self.pairs = self.bot.get_pairs()
         self.look_back = pd.DataFrame()
         self.max_lookback_size = int(self.buffer_size*(60/self.interval)*len(self.pairs))
+        self.initialize()
+
+    def initialize(self):
+        # Initialization
+        self.report = Report(self.wallet.initial_balance,
+                             self.pairs,
+                             self.root_report_currency)
+        self.report.set_verbosity(self.verbosity)
+        self.plot = Plot()
 
     @staticmethod
     def load_strategy(arg_strategy, config_strategy):
@@ -101,11 +110,11 @@ class Engine:
         Last function called when the simulation is finished
         """
         print('shutting down and writing final statistics!')
-        # TODO: this should be done next! (miro)
         if self.args.plot:
             self.plot.draw(self.history,
                            self.trades,
                            self.plot_pair)
+        self.report.write_final_stats(self.history.head(1), self.look_back.tail(1), self.wallet, self.trades)
 
     def run(self):
         """
@@ -116,12 +125,6 @@ class Engine:
             sys.exit()
 
         print('Starting simulation..')
-        # Initialization
-        self.report = Report(self.wallet.initial_balance,
-                             self.pairs,
-                             self.root_report_currency)
-        self.report.set_verbosity(self.verbosity)
-        self.plot = Plot()
 
         # Prefetch Buffer Data (if
         if self.prefetch:
