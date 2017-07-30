@@ -7,7 +7,14 @@ Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms,
 
 
 ## About
-Mosquito is a crypto currency trading bot writen in Python, with main focus on modularity, so it is straight forward to plug-in new exchange. 
+Mosquito is a crypto currency trading bot writen in Python, with main focus on modularity, 
+so it is straight forward to plug-in new exchange. 
+
+The idea to build a new bot came because of I was missing following easy-access features in all of available bots
+available at the time mid 2017:
+ * **Multi-currency bot** - Be able to monitor and exchange several currencies in one strategy (no need to run 5 same strategies for 5 different currencies).
+ * **Easy AI plug** - Possibility to easily plug any of the existing AI/ML libraries (for ex. scikit or keras)
+
 
 ### Supported Exchanges
 Mosquito currently supports following exchanges:
