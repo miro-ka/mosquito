@@ -7,6 +7,8 @@ import time
 from backfill import main as backfill
 from argparse import Namespace
 import math
+from core.bots.enums import TradeMode
+from exchanges.exchange import Exchange
 
 
 class Base(ABC):
@@ -18,10 +20,11 @@ class Base(ABC):
     exchange = None
     balance = None
 
-    def __init__(self, args, config_file):
+    def __init__(self, args, config_file, trade_mode):
         super(Base, self).__init__()
         self.args = args
         self.config = self.initialize_config(config_file)
+        self.exchange = Exchange(args, config_file, trade_mode)
         self.transaction_fee = float(self.config['Trade']['transaction_fee'])
         self.ticker_df = pd.DataFrame()
         self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
@@ -32,7 +35,6 @@ class Base(ABC):
         if in_pairs == 'all':
             print('setting_all_pairs')
             return self.exchange.get_all_tickers()
-            # Get all pairs from API
         else:
             return in_pairs.replace(" ", "").split(',')
 

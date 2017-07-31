@@ -9,11 +9,11 @@ class Paper(Base):
     Main class for Paper trading
     """
 
+    mode = TradeMode.paper
     ticker_df = None
 
     def __init__(self, args, config_file):
-        super(Paper, self).__init__(args, config_file)
-        self.exchange = Exchange(args, config_file, TradeMode.paper)
+        super(Paper, self).__init__(args, config_file, self.mode)
 
     def get_next(self, interval):
         """

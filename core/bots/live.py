@@ -1,5 +1,4 @@
 from .base import Base
-from exchanges.exchange import Exchange
 from core.bots.enums import TradeMode
 import time
 
@@ -9,10 +8,11 @@ class Live(Base):
     Main class for Live Trading
     """
 
+    mode = TradeMode.live
+
     def __init__(self, args, config_file):
-        super(Live, self).__init__(args, config_file)
+        super(Live, self).__init__(args, config_file, TradeMode.live)
         self.counter = 0
-        self.exchange = Exchange(args, config_file, TradeMode.live)
         # open_orders = self.exchange.return_open_orders()
         # print(open_orders)
 

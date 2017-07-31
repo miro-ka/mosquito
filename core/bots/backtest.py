@@ -1,8 +1,7 @@
 from .base import Base
 import time
-from core.bots.enums import TradeMode
-from exchanges.exchange import Exchange
 import pandas as pd
+from core.bots.enums import TradeMode
 
 
 DAY = 3600
@@ -12,13 +11,14 @@ class Backtest(Base):
     """
     Main class for Backtest trading
     """
+
     mode = TradeMode.backtest
     sim_start = None
     sim_end = None
     sim_hours = None
 
     def __init__(self, args, config_file):
-        super(Backtest, self).__init__(args, config_file)
+        super(Backtest, self).__init__(args, config_file, self.mode)
         self.counter = 0
         if self.config['Backtest']['from']:
             self.sim_start = int(self.config['Backtest']['from'])
@@ -28,7 +28,6 @@ class Backtest(Base):
             self.sim_hours = int(self.config['Backtest']['hours'])
         self.sim_epoch_start = self.get_sim_epoch_start(self.sim_hours, self.sim_start)
         self.current_epoch = self.sim_epoch_start
-        self.exchange = Exchange(args, config_file, TradeMode.backtest)
 
     @staticmethod
     def get_sim_epoch_start(sim_hours, sim_start):
