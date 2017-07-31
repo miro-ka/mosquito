@@ -123,6 +123,23 @@ Visualization uses external library [plotly](https://plot.ly/). Below You can se
 
 <img src="https://user-images.githubusercontent.com/1301154/28573699-70c6d14c-7119-11e7-8bb6-06c53908066d.png">
 
+Below is an example of Final Simulation Report summary:
+```
+****************************************************
+              Final simulation report:               
+****************************************************
+Wallet at Start: | 50.0DGB |
+Wallet at End: | 51.3464723121DGB |
+Strategy result: -5.68%
+Buy & Hold: -8.16%
+Strategy vs Buy & Hold: 2.47%
+Total txn: 10
+Simulated (data time): 0 days, 4 hours and 55 minutes
+Transactions per hour: 2.03
+Simulation run time: 0 hours 1 minutes and 13 seconds
+Created new window in existing browser session.
+```
+
 
 ## Donate
 If you would like to support the project in other way than code-contributing, you can donate Mosquito development on 

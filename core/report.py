@@ -33,6 +33,8 @@ class Report:
         print('****************************************************')
         print('*           Final simulation report:               *')
         print('****************************************************')
+        print('Wallet at Start:', self.get_wallet_text(wallet.initial_balance))
+        print('Wallet at End:', self.get_wallet_text(wallet.current_balance))
         print(self.get_color_text('Strategy result: ', curr_bal_percent))
         print(self.get_color_text('Buy & Hold: ', buy_and_hold))
         print(self.get_color_text('Strategy vs Buy & Hold: ', curr_bal_percent-buy_and_hold))
@@ -67,7 +69,7 @@ class Report:
         date_time = datetime.fromtimestamp(ticker_data['date'][0]).strftime('%c') + ','
         current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f') + ','
         # Wallet
-        wallet_text = self.get_wallet_text(wallet)
+        wallet_text = self.get_wallet_text(wallet.current_balance)
         # Balance
         balance = self.calc_balance(ticker_data, wallet.current_balance)
         balance_text = self.get_color_text('$: ', balance) + ','
@@ -90,9 +92,9 @@ class Report:
         """
         # TODO return only wallet of given currencies
         wallet_string = ''
-        for symbol, balance in wallet.current_balance.items():
+        for symbol, balance in wallet.items():
             if balance > 0:
-                wallet_string += ' | ' + str(balance) + symbol
+                wallet_string += '| ' + str(balance) + symbol
         wallet_string += ' |'
         return wallet_string
 

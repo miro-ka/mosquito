@@ -15,7 +15,7 @@ class Bumblebee(Base):
     def __init__(self, args):
         super(Bumblebee, self).__init__(args)
         self.name = 'ema'
-        self.min_history_ticks = 60  # 60 minute interval
+        self.min_history_ticks = 60  # 300 minute interval
         self.pair = 'BTC_DGB'
 
     def calculate(self, look_back, wallet):
@@ -40,11 +40,14 @@ class Bumblebee(Base):
         volume = df['volume'].values
 
         # ** Ema **
-        # ema = talib.EMA(close, timeperiod=len(close))[end_index]
         # end_index = len(df.index) - 1
+        # ema = talib.EMA(close, timeperiod=len(close))[end_index]
+        # print('ema:', ema)
 
         # ** Slope **
+        # end_index = len(df.index) - 1
         # slope = talib.LINEARREG_SLOPE(close, timeperiod=len(close))[end_index]
+        # print('slope:', slope)
 
         # ** OBV (On Balance Volume)
         obv = talib.OBV(close, volume)
@@ -58,9 +61,9 @@ class Bumblebee(Base):
         perc_change = percent_change(look_back, 2)
         print('perc_change:', perc_change)
 
-        if obv >= 200:
+        if obv >= 20:
             new_action = TradeState.buy
-        elif obv < 0 or perc_change <= -1.0:
+        elif obv < -5:  # or perc_change <= -1.0:
             new_action = TradeState.sell
 
         df_last = df.iloc[[-1]]
