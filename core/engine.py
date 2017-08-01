@@ -126,7 +126,7 @@ class Engine:
 
         print('Starting simulation..')
 
-        # Prefetch Buffer Data (if
+        # Prefetch Buffer Data (if enabled in config)
         if self.prefetch:
             self.history = self.bot.prefetch(self.strategy.get_min_history_ticks(), self.interval)
             self.look_back = self.history.copy()
