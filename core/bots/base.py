@@ -7,7 +7,6 @@ import time
 from backfill import main as backfill
 from argparse import Namespace
 import math
-from core.bots.enums import TradeMode
 from exchanges.exchange import Exchange
 
 
@@ -32,11 +31,23 @@ class Base(ABC):
         self.transaction_fee = float(self.config['Trade']['transaction_fee'])
 
     def process_input_pairs(self, in_pairs):
+        all_pairs = self.exchange.get_all_tickers()
         if in_pairs == 'all':
             print('setting_all_pairs')
-            return self.exchange.get_all_tickers()
+            return all_pairs
         else:
-            return in_pairs.replace(" ", "").split(',')
+            pairs = []
+            parsed_pairs = in_pairs.replace(" ", "").split(',')
+            for in_pair in parsed_pairs:
+                if '*' in in_pair:
+                    prefix = in_pair.replace('*', '')
+                    pairs_list = [p for p in all_pairs if prefix in p]
+                    pairs.extend(pairs_list)
+                    # remove duplicates
+                    pairs = list(set(pairs))
+                else:
+                    pairs.append(in_pair)
+            return pairs
 
     def prefetch(self, min_ticker_size, ticker_interval):
         """

@@ -60,7 +60,7 @@ class Polo(Base):
         """
         return self.polo.cancelOrder(order_number)
 
-    def return_open_orders(self, currency_pair = 'all'):
+    def return_open_orders(self, currency_pair='all'):
         """
         Returns your open orders
         """

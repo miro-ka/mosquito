@@ -1,5 +1,4 @@
 from .base import Base
-from exchanges.exchange import Exchange
 from core.bots.enums import TradeMode
 import time
 

@@ -10,8 +10,8 @@ from lib.indicators.percentchange import percent_change
 class Bumblebee(Base):
     """
     Bumblebee strategy
+    About: Strategy dealing with ONLY 1 pair
     """
-
     def __init__(self, args):
         super(Bumblebee, self).__init__(args)
         self.name = 'ema'
