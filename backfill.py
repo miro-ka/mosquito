@@ -1,6 +1,5 @@
 from pymongo import MongoClient, ASCENDING
 from exchanges.poloniex.polo import Polo
-from core.bots.enums import TradeMode as tm
 import configparser
 import time
 import argparse
@@ -66,8 +65,8 @@ def main(args):
                 # Add identifier
                 candle['exchange'] = 'polo'
                 candle['pair'] = pair
-                id = 'polo' + '-' + pair + '-' + str(candle['date'])
-                candle['id'] = id
+                unique_id = 'polo' + '-' + pair + '-' + str(candle['date'])
+                candle['id'] = unique_id
                 # Store to DB
                 ticker.update_one({'id': id}, {'$set': candle}, upsert=True)
 

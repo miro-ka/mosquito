@@ -2,9 +2,9 @@ import plotly.plotly
 import plotly.graph_objs as go
 import pandas as pd
 import plotly.offline as offline
-import pytz
 from tzlocal import get_localzone
-import time
+# import pytz
+# import time
 
 
 class Plot:

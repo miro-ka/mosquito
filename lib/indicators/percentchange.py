@@ -1,4 +1,3 @@
-import pandas as pd
 
 
 def percent_change(df, n_size=1):

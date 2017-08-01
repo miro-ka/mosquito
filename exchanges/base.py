@@ -8,7 +8,6 @@ class Base(ABC):
 
     def __init__(self):
         super(Base, self).__init__()
-        pass
 
     @abstractmethod
     def return_open_orders(self, currency_pair='all'):
@@ -24,8 +23,7 @@ class Base(ABC):
         """
         pass
 
-    @staticmethod
-    def trade(actions, wallet, trade_mode):
+    def trade(self, actions, wallet, trade_mode):
         """
         Apply given actions and returns updated wallet - Base class only simulates buy/sell.
         For exchange the buy/sel logic should be implemented here

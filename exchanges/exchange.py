@@ -1,6 +1,5 @@
 import configparser
 from .poloniex.polo import Polo
-from core.bots.enums import TradeMode
 from pymongo import MongoClient
 import pandas as pd
 

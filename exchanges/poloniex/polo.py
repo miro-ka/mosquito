@@ -81,7 +81,7 @@ class Polo(Base):
 
     def trade(self, actions, wallet, trade_mode):
         if trade_mode == TradeMode.backtest:
-            return Base.trade(actions, wallet)
+            return Base.trade(actions, wallet, trade_mode)
         else:
             actions = self.life_trade(actions)
             return actions
