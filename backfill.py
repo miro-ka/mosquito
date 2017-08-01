@@ -68,7 +68,7 @@ def main(args):
                 unique_id = 'polo' + '-' + pair + '-' + str(candle['date'])
                 candle['id'] = unique_id
                 # Store to DB
-                ticker.update_one({'id': id}, {'$set': candle}, upsert=True)
+                ticker.update_one({'id': unique_id}, {'$set': candle}, upsert=True)
 
     print('Backfill data import done..')
 
