@@ -23,7 +23,8 @@ class Base(ABC):
         """
         pass
 
-    def trade(self, actions, wallet, trade_mode):
+    @classmethod
+    def trade(cls, actions, wallet, trade_mode):
         """
         Apply given actions and returns updated wallet - Base class only simulates buy/sell.
         For exchange the buy/sel logic should be implemented here
