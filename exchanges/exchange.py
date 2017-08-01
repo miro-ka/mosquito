@@ -89,13 +89,14 @@ class Exchange:
         Returns offline data from DB
         """
         ticker = pd.DataFrame()
+        print('getting offline ticker for total pairs:', len(pairs), ', epoch:', epoch)
         for pair in pairs:
             db_doc = self.ticker.find_one({"$and": [{"date": {"$gte": epoch}},
                                           {"pair": pair},
                                           {"exchange": 'polo'}]})
 
             if db_doc is None:
-                print('not data for pair:', pair)
+                print('not data for pair:', pair, ', epoch:', epoch)
                 continue
 
             dict_keys = list(db_doc.keys())

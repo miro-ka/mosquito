@@ -7,13 +7,13 @@ from .enums import TradeState as ts
 
 class Mosquito(Base):
     """
-    Strategy with focus to monitor entire exchange and buy & keep only the most profitable currencies
+    Strategy with focus to monitor multiple currencies and buy & keep only the most profitable currencies
     """
 
     def __init__(self, args):
         super(Mosquito, self).__init__(args)
-        self.name = 'ema'
-        self.min_history_ticks = 6
+        self.name = 'mosquito'
+        self.min_history_ticks = 6  # 30 minutes of data
 
     def calculate(self, look_back, wallet):
         """
@@ -27,8 +27,8 @@ class Mosquito(Base):
         # Wait until we have enough data
         if dataset_cnt < self.min_history_ticks:
             return actions
-        elif dataset_cnt > self.min_history_ticks:
-            look_back = look_back.tail(pairs_count * self.min_history_ticks)
+
+        look_back = look_back.tail(pairs_count * self.min_history_ticks)
 
         pairs_names = look_back.pair.unique()
         indicators = []
