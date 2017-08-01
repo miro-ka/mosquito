@@ -3,7 +3,7 @@
 Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms, inspired by [zenbot](https://github.com/carlos8f/zenbot)
 
 [![Build Status](https://travis-ci.org/miti0/mosquito.svg?branch=master)](https://travis-ci.org/miti0/mosquito)
-[![Code Issues](https://www.quantifiedcode.com/api/v1/project/5609393e38ed496cbd166cdb7b0c019e/badge.svg)](https://www.quantifiedcode.com/app/project/5609393e38ed496cbd166cdb7b0c019e)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d037c01ffa2441118ae709efeaae34b1)](https://www.codacy.com/app/miti0/mosquito?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=miti0/mosquito&amp;utm_campaign=Badge_Grade)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/mosquito-bot/Lobby)
 
 
