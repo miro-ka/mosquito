@@ -12,13 +12,14 @@ class Polo(Base):
     Poloniex interface
     """
 
-    def __init__(self, polo_args):
+    def __init__(self, polo_args, verbosity=2):
         super(Polo, self).__init__()
         api_key = polo_args['api_key']
         secret = polo_args['secret']
         self.polo = Poloniex(api_key, secret)
         self.buy_order_type = polo_args['buy_order_type']
         self.sell_order_type = polo_args['sell_order_type']
+        self.verbosity = verbosity
 
     def get_balances(self):
         """
@@ -91,8 +92,13 @@ class Polo(Base):
         Places orders and returns order number
         !!! For now we are NOT handling postOnly type of orders !!!
         """
-        print('live_trading')
         for action in actions:
+            if self.verbosity > 0:
+                print('Processing live-action: ' + str(action.action) +
+                      ', amount:', str(action.amount) +
+                      ', pair:', action.pair +
+                      ', rate:', str(action.rate) +
+                      ', buy_sell_all:', action.buy_sell_all)
             if action.action == TradeState.none:
                 actions.remove(action)
                 continue

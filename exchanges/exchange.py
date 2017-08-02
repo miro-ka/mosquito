@@ -52,10 +52,11 @@ class Exchange:
         """
         config = configparser.ConfigParser()
         config.read(config_file)
+        verbosity = int(config['General']['verbosity'])
         exchange_name = config['Trade']['exchange']
 
         if exchange_name == 'polo':
-            return Polo(config['Poloniex'])
+            return Polo(config['Poloniex'], verbosity)
         else:
             print('Trying to use not defined exchange!')
             return None
@@ -89,7 +90,7 @@ class Exchange:
         Returns offline data from DB
         """
         ticker = pd.DataFrame()
-        print('getting offline ticker for total pairs:', len(pairs), ', epoch:', epoch)
+        print('getting offline ticker for total pairs:' + str(len(pairs)) + ', epoch:', str(epoch))
         for pair in pairs:
             db_doc = self.ticker.find_one({"$and": [{"date": {"$gte": epoch}},
                                           {"pair": pair},

@@ -23,13 +23,19 @@ class Bumblebee(Base):
         Main strategy logic (the meat of the strategy)
         """
 
+        # self.actions.clear()
+        # new_action = TradeState.buy
+        # action = TradeAction(self.pair, new_action, rate=None, buy_sell_all=True)
+        # self.actions.append(action)
+        # return self.actions
+
         (dataset_cnt, pairs_count) = self.get_dataset_count(look_back, self.group_by_field)
         print('dataset_cnt:', dataset_cnt)
 
-        # Wait until we enough dataset
+        # Wait until we have enough data
         if dataset_cnt < self.min_history_ticks:
-            action = TradeAction(self.pair, TradeState.none, None, 0.0, False)
-            self.actions.append(action)
+            # action = TradeAction(self.pair, TradeState.none, None, 0.0, False)
+            # self.actions.append(action)
             return self.actions
 
         self.actions.clear()

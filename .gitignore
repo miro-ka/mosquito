@@ -9,3 +9,8 @@ config.ini
 exchanges/__pycache__/
 exchanges/poloniex/__pycache__/
 strategies/__pycache__/
+
+
+config.bumblebee.ini
+config.mosquito.ini
+
