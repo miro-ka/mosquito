@@ -42,7 +42,7 @@ class Engine:
         self.args = args
         self.config = config_file
         strategy_class = self.load_strategy(args.strategy, self.config_strategy_name)
-        self.strategy = strategy_class(args)
+        self.strategy = strategy_class(args, self.verbosity)
         self.wallet = Wallet(config_file)
         self.history = pd.DataFrame()
         trade_columns = ['date', 'pair', 'close_price', 'action']

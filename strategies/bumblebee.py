@@ -12,8 +12,8 @@ class Bumblebee(Base):
     Bumblebee strategy
     About: Strategy dealing with ONLY 1 pair
     """
-    def __init__(self, args):
-        super(Bumblebee, self).__init__(args)
+    def __init__(self, args, verbosity=2):
+        super(Bumblebee, self).__init__(args, verbosity)
         self.name = 'ema'
         self.min_history_ticks = 60  # 300 minute interval
         self.pair = 'BTC_DGB'

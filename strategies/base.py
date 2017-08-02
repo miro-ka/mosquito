@@ -10,8 +10,9 @@ class Base(ABC):
     action_request = ts.none
     actions = []
 
-    def __init__(self, args):
+    def __init__(self, args, verbosity=2):
         super(Base, self).__init__()
+        self.verbosity = verbosity
         self.args = args
         self.min_history_ticks = 5
         self.group_by_field = 'pair'

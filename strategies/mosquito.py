@@ -11,11 +11,14 @@ class Mosquito(Base):
     About: Multi-currency strategy focusing on buying most profitable strategy
     """
 
-    def __init__(self, args):
-        super(Mosquito, self).__init__(args)
+    def __init__(self, args, verbosity=2):
+        super(Mosquito, self).__init__(args, verbosity)
         self.name = 'mosquito'
-        self.data_intervals = [3, 6, 9]
+        self.data_intervals = [6, 9]
         self.min_history_ticks = self.data_intervals[-1]
+        self.use_obv = False
+        self.use_emv = False
+        self.use_slope = True
 
     def calculate(self, look_back, wallet):
         """
@@ -23,10 +26,10 @@ class Mosquito(Base):
         """
 
         (dataset_cnt, pairs_count) = self.get_dataset_count(look_back, self.group_by_field)
-        print('dataset_cnt:', dataset_cnt)
 
         # Wait until we have enough data
         if dataset_cnt < self.min_history_ticks:
+            print('dataset_cnt:', dataset_cnt)
             return self.actions
 
         self.actions.clear()
@@ -34,6 +37,9 @@ class Mosquito(Base):
         pairs_names = look_back.pair.unique()
 
         indicators = []  # tuple(pair, interval, slope, ema, obv)
+        idx_slope = 2
+        idx_ema = 3
+        idx_obv = 4
         for pair in pairs_names:
             df = look_back.loc[look_back['pair'] == pair].sort_values('date')
             # Scale data
@@ -52,9 +58,9 @@ class Mosquito(Base):
                 indicators.append((pair, interval, slope, ema, obv))
 
         # Sort indicators
-        slope_sorted = sorted(indicators, key=lambda x: x[2], reverse=True)
-        ema_sorted = sorted(indicators, key=lambda x: x[3], reverse=True)
-        obv_sorted = sorted(indicators, key=lambda x: x[4], reverse=True)
+        slope_sorted = sorted(indicators, key=lambda x: x[idx_slope], reverse=True)
+        ema_sorted = sorted(indicators, key=lambda x: x[idx_ema], reverse=True)
+        obv_sorted = sorted(indicators, key=lambda x: x[idx_obv], reverse=True)
 
         # Get first winner/sorted pair for every interval
         slope_winners = []
@@ -66,23 +72,51 @@ class Mosquito(Base):
             obv_winners.append(obv_sorted[idx][0])
 
         # If all intervals have the same winner let's buy
-        # has_unique_slope_winner = all(x == slope_winners[0] for x in slope_winners)
-        # has_unique_ema_winner = all(x == ema_winners[0] for x in ema_winners)
+        has_unique_slope_winner = all(x == slope_winners[0] for x in slope_winners)
+        has_unique_ema_winner = all(x == ema_winners[0] for x in ema_winners)
         has_unique_obv_winner = all(x == obv_winners[0] for x in obv_winners)
 
-        if has_unique_obv_winner:
-            # Check if the winner is positive
-            winner_value = obv_sorted[0][4]
-            if winner_value <= 0:
-                return self.actions
+        if self.verbosity > 0:
+            print('slope_winners:', slope_winners)
+            print('ema_winners:', ema_winners)
+            print('obv_winners:', obv_winners)
+
+        winner_pair = None
+        winner_value = None
+        if self.use_obv and has_unique_obv_winner:
+            print('has_unique_obv_winner!')
+            winner_value = obv_sorted[0][idx_obv]
+            winner_pair = obv_winners[0]
+
+        if self.use_slope and has_unique_slope_winner:
+            print('has_unique_slope_winner!')
+            winner_value = slope_sorted[0][idx_slope]
+            winner_pair = slope_winners[0]
+
+        if self.use_emv and has_unique_ema_winner:
+            print('has_unique_ema_winner!')
+            winner_value = ema_sorted[0][idx_ema]
             winner_pair = ema_winners[0]
-            close_pair_price = look_back.loc[look_back['pair'] == winner_pair].sort_values('date').close.iloc[0]
-            action = TradeAction(winner_pair,
-                                 TradeState.buy,
-                                 amount=None,
-                                 rate=close_pair_price,
-                                 buy_sell_all=True)
-            self.actions.append(action)
+
+        # ** State check and Create action **
+
+        # If we didn't find anything just return empty actions
+        if winner_pair is None:
+            self.actions.clear()
+            return self.actions
+
+        # If the value is negative, do nothing (return empty actions)
+        if winner_value <= 0:
+            self.actions.clear()
+            return self.actions
+
+        close_pair_price = look_back.loc[look_back['pair'] == winner_pair].sort_values('date').close.iloc[0]
+        action = TradeAction(winner_pair,
+                             TradeState.buy,
+                             amount=None,
+                             rate=close_pair_price,
+                             buy_sell_all=True)
+        self.actions.append(action)
         return self.actions
 
 
