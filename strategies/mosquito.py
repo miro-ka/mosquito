@@ -21,15 +21,15 @@ class Mosquito(Base):
         """
         Main Strategy function, which takes recent history data and returns recommended list of actions
         """
-        actions = []
 
         (dataset_cnt, pairs_count) = self.get_dataset_count(look_back, self.group_by_field)
         print('dataset_cnt:', dataset_cnt)
 
         # Wait until we have enough data
         if dataset_cnt < self.min_history_ticks:
-            return actions
+            return self.actions
 
+        self.actions.clear()
         look_back = look_back.tail(pairs_count * self.min_history_ticks)
         pairs_names = look_back.pair.unique()
 
@@ -74,7 +74,7 @@ class Mosquito(Base):
             # Check if the winner is positive
             winner_value = obv_sorted[0][4]
             if winner_value <= 0:
-                return actions
+                return self.actions
             winner_pair = ema_winners[0]
             close_pair_price = look_back.loc[look_back['pair'] == winner_pair].sort_values('date').close.iloc[0]
             action = TradeAction(winner_pair,
@@ -82,8 +82,8 @@ class Mosquito(Base):
                                  amount=None,
                                  rate=close_pair_price,
                                  buy_sell_all=True)
-            actions.append(action)
-        return actions
+            self.actions.append(action)
+        return self.actions
 
 
 
