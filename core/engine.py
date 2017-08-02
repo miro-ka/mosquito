@@ -32,6 +32,8 @@ class Engine:
     config_strategy_name = None
     actions = None
     prefetch = None
+    first_ticker = None
+    last_valid_ticker = None
 
     def __init__(self, args, config_file):
         # Arguments should override config.ini file, so lets initialize
@@ -114,7 +116,7 @@ class Engine:
             self.plot.draw(self.history,
                            self.trades,
                            self.plot_pair)
-        self.report.write_final_stats(self.history.head(1), self.look_back.tail(1), self.wallet, self.trades)
+        self.report.write_final_stats(self.first_ticker, self.last_valid_ticker, self.wallet, self.trades)
 
     def run(self):
         """
@@ -148,6 +150,9 @@ class Engine:
                     rows_to_delete = buffer_size - self.max_lookback_size
                     self.look_back = self.look_back.ix[rows_to_delete:]
                     self.look_back = self.look_back.reset_index(drop=True)
+                if self.first_ticker is None:
+                    self.first_ticker = self.ticker
+                self.last_valid_ticker = self.ticker
 
                 # Get next actions
                 self.actions = self.strategy.calculate(self.look_back, self.wallet)
