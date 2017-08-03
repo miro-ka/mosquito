@@ -1,32 +1,59 @@
 import time
 import pandas as pd
-from poloniex import Poloniex, PoloniexError
+from bittrex.bittrex import Bittrex
 from core.bots.enums import TradeMode
 from exchanges.base import Base
 from strategies.enums import TradeState
 from termcolor import colored
 
 
-class Polo(Base):
+class BittrexClient(Base):
     """
-    Poloniex interface
+    Bittrex interface
     """
 
-    def __init__(self, polo_args, verbosity=2):
-        super(Polo, self).__init__()
-        api_key = polo_args['api_key']
-        secret = polo_args['secret']
-        self.polo = Poloniex(api_key, secret)
-        self.buy_order_type = polo_args['buy_order_type']
-        self.sell_order_type = polo_args['sell_order_type']
+    def __init__(self, args, verbosity=2):
+        super(BittrexClient, self).__init__()
+        api_key = args['api_key']
+        secret = args['secret']
+        self.bittrex = Bittrex(api_key, secret)
+        # self.buy_order_type = args['buy_order_type']
+        # self.sell_order_type = args['sell_order_type']
         self.verbosity = verbosity
 
+    def get_pairs(self):
+        """
+        Returns ticker pairs for all currencies
+        """
+        markets = self.bittrex.get_market_summaries()
+        res = markets['result']
+        pairs = []
+        for market in res:
+            pair = market['MarketName']
+            pair = pair.replace('-', '_')
+            pairs.append(pair)
+        return pairs
+
+    def return_candles(self, currency_pair, period=False, start=False, end=False):
+        # TODO
+        """
+        Returns candlestick chart data
+        """
+        return self.bittrex.returnChartData(currency_pair, period, start, end)
+
+
+
+
+
+
+
     def get_balances(self):
+        # TODO
         """
         Return available account balances (function returns ONLY currencies > 0)
         """
         try:
-            balances = self.polo.returnBalances()
+            balances = self.bittrex.returnBalances()
             only_non_zeros = {k: float(v) for k, v in balances.items() if float(v) > 0.0}
         except PoloniexError as e:
             print(colored('Got exception (polo.get_balances): ' + str(e), 'red'))
@@ -35,10 +62,11 @@ class Polo(Base):
         return only_non_zeros
 
     def get_symbol_ticker(self, symbol):
+        # TODO
         """
         Returns real-time ticker Data-Frame
         """
-        ticker = self.polo.returnTicker()[symbol]
+        ticker = self.bittrex.returnTicker()[symbol]
         df = pd.DataFrame.from_dict(ticker, orient="index")
         df = df.T
         # We will use 'last' price as closing one
@@ -50,37 +78,28 @@ class Polo(Base):
         return df
 
     def return_ticker(self):
+        # TODO
         """
         Returns ticker for all currencies
         """
-        return self.polo.returnTicker()
+        return self.bittrex.returnTicker()
 
     def cancel_order(self, order_number):
+        # TODO
         """
         Cancels order for given order number
         """
-        return self.polo.cancelOrder(order_number)
+        return self.bittrex.cancelOrder(order_number)
 
     def return_open_orders(self, currency_pair='all'):
+        # TODO
         """
         Returns your open orders
         """
-        return self.polo.returnOpenOrders(currency_pair)
-
-    def get_all_tickers(self):
-        """
-        Returns ticker pairs for all currencies
-        """
-        ticker = self.polo.returnTicker()
-        return ticker
-
-    def return_candles(self, currency_pair, period=False, start=False, end=False):
-        """
-        Returns candlestick chart data
-        """
-        return self.polo.returnChartData(currency_pair, period, start, end)
+        return self.bittrex.returnOpenOrders(currency_pair)
 
     def trade(self, actions, wallet, trade_mode):
+        # TODO
         if trade_mode == TradeMode.backtest:
             return Base.trade(actions, wallet, trade_mode)
         else:
@@ -88,6 +107,7 @@ class Polo(Base):
             return actions
 
     def life_trade(self, actions):
+        # TODO
         """
         Places orders and returns order number
         !!! For now we are NOT handling postOnly type of orders !!!
@@ -118,7 +138,7 @@ class Polo(Base):
             if action.action == TradeState.buy:
                 try:
                     print(colored('setting buy order: ' + str(action.amount) + '' + action.pair, 'green'))
-                    action.order_number = self.polo.buy(action.pair, action.rate, action.amount, self.buy_order_type)
+                    action.order_number = self.bittrex.buy(action.pair, action.rate, action.amount, self.buy_order_type)
                 except PoloniexError as e:
                     print(colored('Got exception: ' + str(e) + 'txn: buy-' + action.pair, 'red'))
                     continue
@@ -131,7 +151,7 @@ class Polo(Base):
             elif action.action == TradeState.sell:
                 try:
                     print(colored('setting sell order: ' + str(action.amount) + '' + action.pair, 'red'))
-                    action.order_number = self.polo.sell(action.pair, action.rate,  action.amount, self.buy_order_type)
+                    action.order_number = self.bittrex.sell(action.pair, action.rate,  action.amount, self.buy_order_type)
                 except PoloniexError as e:
                     print(colored('Got exception: ' + str(e) + 'txn: sell-' + action.pair, 'red'))
                     continue
@@ -144,6 +164,7 @@ class Polo(Base):
 
     @staticmethod
     def get_buy_sell_all_amount(wallet, action, pair, rate):
+        # TODO
         """
         Calculates total amount for ALL assets in wallet
         """

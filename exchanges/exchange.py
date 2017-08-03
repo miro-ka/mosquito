@@ -1,5 +1,6 @@
 import configparser
 from .poloniex.polo import Polo
+from .bittrex.bittrexclient import BittrexClient
 from pymongo import MongoClient
 import pandas as pd
 
@@ -21,11 +22,11 @@ class Exchange:
         self.db = self.initialize_db(config)
         self.ticker = self.db.ticker
 
-    def get_all_tickers(self):
+    def get_pairs(self):
         """
         Returns ticker for all pairs
         """
-        return list(self.exchange.get_all_tickers())
+        return self.exchange.get_pairs()
 
     def get_symbol_ticker(self, symbol):
         """
@@ -57,6 +58,8 @@ class Exchange:
 
         if exchange_name == 'polo':
             return Polo(config['Poloniex'], verbosity)
+        elif exchange_name == 'bittrex':
+            return BittrexClient(config['Bittrex'], verbosity)
         else:
             print('Trying to use not defined exchange!')
             return None

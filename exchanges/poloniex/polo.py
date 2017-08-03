@@ -67,12 +67,12 @@ class Polo(Base):
         """
         return self.polo.returnOpenOrders(currency_pair)
 
-    def get_all_tickers(self):
+    def get_pairs(self):
         """
         Returns ticker pairs for all currencies
         """
         ticker = self.polo.returnTicker()
-        return ticker
+        return list(ticker)
 
     def return_candles(self, currency_pair, period=False, start=False, end=False):
         """

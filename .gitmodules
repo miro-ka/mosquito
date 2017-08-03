@@ -1,6 +1,3 @@
 [submodule "exchanges/poloniex/python-poloniex"]
 	path = exchanges/poloniex/python-poloniex
 	url = https://github.com/s4w3d0ff/python-poloniex.git
-[submodule "exchanges/bittrex/python-bittrex"]
-	path = exchanges/bittrex/python-bittrex
-	url = https://github.com/ericsomdahl/python-bittrex.git

@@ -31,7 +31,7 @@ class Base(ABC):
         self.transaction_fee = float(self.config['Trade']['transaction_fee'])
 
     def process_input_pairs(self, in_pairs):
-        all_pairs = self.exchange.get_all_tickers()
+        all_pairs = self.exchange.get_pairs()
         if in_pairs == 'all':
             print('setting_all_pairs')
             return all_pairs

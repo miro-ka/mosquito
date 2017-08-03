@@ -14,11 +14,11 @@ class Mosquito(Base):
     def __init__(self, args, verbosity=2):
         super(Mosquito, self).__init__(args, verbosity)
         self.name = 'mosquito'
-        self.data_intervals = [6, 9]
+        self.data_intervals = [26]
         self.min_history_ticks = self.data_intervals[-1]
         self.use_obv = False
-        self.use_emv = False
-        self.use_slope = True
+        self.use_ema = True
+        self.use_slope = False
 
     def calculate(self, look_back, wallet):
         """
@@ -45,6 +45,8 @@ class Mosquito(Base):
             # Scale data
             df_close = scale(df['close'].values)
             df_volume = scale(df['volume'].values)
+
+            macd, macdsignal, macdhist = talib.MACD(df_close)
 
             # For every pair get slope of every interval
             for interval in self.data_intervals:
@@ -84,17 +86,17 @@ class Mosquito(Base):
         winner_pair = None
         winner_value = None
         if self.use_obv and has_unique_obv_winner:
-            print('has_unique_obv_winner!')
+            print('!!! Has_unique_obv_winner!')
             winner_value = obv_sorted[0][idx_obv]
             winner_pair = obv_winners[0]
 
         if self.use_slope and has_unique_slope_winner:
-            print('has_unique_slope_winner!')
+            print('!!! Has_unique_slope_winner!')
             winner_value = slope_sorted[0][idx_slope]
             winner_pair = slope_winners[0]
 
-        if self.use_emv and has_unique_ema_winner:
-            print('has_unique_ema_winner!')
+        if self.use_ema and has_unique_ema_winner:
+            print('!!! Has_unique_ema_winner!')
             winner_value = ema_sorted[0][idx_ema]
             winner_pair = ema_winners[0]
 
