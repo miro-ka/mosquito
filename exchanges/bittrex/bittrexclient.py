@@ -30,16 +30,47 @@ class BittrexClient(Base):
         pairs = []
         for market in res:
             pair = market['MarketName']
-            pair = pair.replace('-', '_')
+            # pair = pair.replace('-', '_')
             pairs.append(pair)
         return pairs
 
-    def return_candles(self, currency_pair, period=False, start=False, end=False):
+    def return_candles(self, currency_pair, period=300, start=False, end=False):
         # TODO
         """
         Returns candlestick chart data
         """
-        return self.bittrex.returnChartData(currency_pair, period, start, end)
+        pattern = '%Y-%m-%dT%H:%M:%S'
+        res = self.bittrex.get_ticks(currency_pair, 'fiveMin')
+        tickers = res['result']
+        got_min_epoch_ticker = False
+        out_tickers = []
+        out_ticker = {}
+
+        for ticker in tickers:
+            epoch = int(time.mktime(time.strptime(ticker['T'], pattern)))
+
+            if epoch <= start:
+                got_min_epoch_ticker = True
+
+            # Skip/remove older than wanted tickers
+            if epoch < start:
+                continue
+
+            out_ticker['high'] = ticker['H']
+            out_ticker['low'] = ticker['L']
+            out_ticker['open'] = ticker['O']
+            out_ticker['close'] = ticker['C']
+            out_ticker['volume'] = ticker['V']
+            out_ticker['quoteVolume'] = ticker['BV']
+            out_ticker['date'] = epoch
+            out_ticker['weightedAverage'] = 0.0
+
+            out_tickers.append(out_ticker)
+        if not got_min_epoch_ticker:
+            print('Not able to get all data (data not available) for pair:', currency_pair)
+
+        return out_tickers.copy()
+        # return self.bittrex.returnChartData(currency_pair, period, start, end)
 
 
 

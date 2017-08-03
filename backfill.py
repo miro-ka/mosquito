@@ -60,17 +60,20 @@ def main(args):
             for candle in candles:
                 # Convert strings to number (float or int)
                 for key, value in candle.items():
-                    try:
-                        candle[key] = int(value)
-                    except ValueError:
-                        candle[key] = float(value)
+                    is_already_number = isinstance(value, (int, float, complex))
+                    if not is_already_number:
+                        try:
+                            candle[key] = int(value)
+                        except ValueError:
+                            candle[key] = float(value)
+                new_db_item = candle.copy()
                 # Add identifier
-                candle['exchange'] = exchange_name
-                candle['pair'] = pair
+                new_db_item['exchange'] = exchange_name
+                new_db_item['pair'] = pair
                 unique_id = exchange_name + '-' + pair + '-' + str(candle['date'])
-                candle['id'] = unique_id
+                new_db_item['id'] = unique_id
                 # Store to DB
-                ticker.update_one({'id': unique_id}, {'$set': candle}, upsert=True)
+                ticker.update_one({'id': unique_id}, {'$set': new_db_item}, upsert=True)
 
     # print('Backfill data import done..')
 
