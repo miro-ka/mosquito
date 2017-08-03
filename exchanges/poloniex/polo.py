@@ -5,6 +5,7 @@ from core.bots.enums import TradeMode
 from exchanges.base import Base
 from strategies.enums import TradeState
 from termcolor import colored
+from json import JSONDecodeError
 
 
 class Polo(Base):
@@ -29,7 +30,7 @@ class Polo(Base):
             balances = self.polo.returnBalances()
             only_non_zeros = {k: float(v) for k, v in balances.items() if float(v) > 0.0}
         except PoloniexError as e:
-            print(colored('Got exception (polo.get_balances): ' + str(e), 'red'))
+            print(colored('!!! Got exception (polo.get_balances): ' + str(e), 'red'))
             only_non_zeros = dict()
 
         return only_non_zeros
@@ -78,7 +79,13 @@ class Polo(Base):
         """
         Returns candlestick chart data
         """
-        return self.polo.returnChartData(currency_pair, period, start, end)
+        data = []
+        try:
+            data = self.polo.returnChartData(currency_pair, period, start, end)
+        except (PoloniexError, JSONDecodeError) as e:
+            print()
+            print(colored('!!! Got exception while retrieving polo data:'  + str(e) + ', pair: ' + currency_pair, 'red'))
+        return data
 
     def trade(self, actions, wallet, trade_mode):
         if trade_mode == TradeMode.backtest:

@@ -55,8 +55,9 @@ def main(args):
         for day in reversed(range(1, args.days+1)):
             epoch_from = epoch_now - (day_constant*day)
             epoch_to = epoch_now if day == 1 else epoch_now - (day_constant * (day-1))
+            print('Getting currency data: ' + pair + ', days left: ' + str(day), end='')
             candles = exchange.return_candles(pair, 300, epoch_from, epoch_to)  # by default 5 minutes candles (minimum)
-            print('Getting currency data: ' + pair + ', days left: ' + str(day) + ', got total candles: ' + str(len(candles)))
+            print(' (got total candles: ' + str(len(candles)) + ')')
             for candle in candles:
                 # Convert strings to number (float or int)
                 for key, value in candle.items():
