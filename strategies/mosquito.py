@@ -3,7 +3,10 @@ import talib
 from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState
-from sklearn.preprocessing import scale
+from lib.indicators.macd import macd
+from lib.indicators.percentchange import percent_change
+import math
+import numpy
 
 
 class Mosquito(Base):
@@ -14,11 +17,12 @@ class Mosquito(Base):
     def __init__(self, args, verbosity=2):
         super(Mosquito, self).__init__(args, verbosity)
         self.name = 'mosquito'
-        self.data_intervals = [26]
-        self.min_history_ticks = self.data_intervals[-1]
-        self.use_obv = False
-        self.use_ema = True
-        self.use_slope = False
+        self.min_history_ticks = 26
+        self.previous_obvs1 = {}
+        self.previous_obvs2 = {}
+        self.interval1 = 6
+        self.interval2 = 12
+        self.previous_macds = {}
 
     def calculate(self, look_back, wallet):
         """
@@ -37,81 +41,85 @@ class Mosquito(Base):
         pairs_names = look_back.pair.unique()
 
         indicators = []  # tuple(pair, interval, slope, ema, obv)
-        idx_slope = 2
-        idx_ema = 3
-        idx_obv = 4
         for pair in pairs_names:
             df = look_back.loc[look_back['pair'] == pair].sort_values('date')
-            # Scale data
-            df_close = scale(df['close'].values)
-            df_volume = scale(df['volume'].values)
+            close = df['close'].values
+            volume = df['volume'].values
 
-            macd, macdsignal, macdhist = talib.MACD(df_close)
+            # ************** Calc OBV
+            obv1_now = talib.OBV(close[-self.interval1:], volume[-self.interval1:])[-1]
+            obv2_now = talib.OBV(close[-self.interval2:], volume[-self.interval2:])[-1]
 
-            # For every pair get slope of every interval
-            for interval in self.data_intervals:
-                # Calculate slope/angle
-                slope = talib.LINEARREG_ANGLE(df_close[-interval:], timeperiod=interval)[-1]
-                # Calculate ema
-                ema = talib.EMA(df_close[-interval:], timeperiod=interval)[-1]
-                # Calculate obv
-                obv = talib.OBV(df_close[-interval:], df_volume[-interval:])[-1]
-                # Store data
-                indicators.append((pair, interval, slope, ema, obv))
+            if pair not in self.previous_obvs1 or pair not in self.previous_obvs2:
+                # print('missing previous_obvs, skipping pair: ' + pair)
+                self.previous_obvs1[pair] = obv1_now
+                self.previous_obvs2[pair] = obv2_now
+                continue
 
-        # Sort indicators
-        slope_sorted = sorted(indicators, key=lambda x: x[idx_slope], reverse=True)
-        ema_sorted = sorted(indicators, key=lambda x: x[idx_ema], reverse=True)
-        obv_sorted = sorted(indicators, key=lambda x: x[idx_obv], reverse=True)
+            obv1_prev = self.previous_obvs1[pair]
+            obv2_prev = self.previous_obvs2[pair]
 
-        # Get first winner/sorted pair for every interval
-        slope_winners = []
-        ema_winners = []
-        obv_winners = []
-        for idx, interval in enumerate(self.data_intervals):
-            slope_winners.append(slope_sorted[idx][0])
-            ema_winners.append(ema_sorted[idx][0])
-            obv_winners.append(obv_sorted[idx][0])
+            obv1_perc_change = ((obv1_now - obv1_prev) * 100) / obv1_prev
+            obv2_perc_change = ((obv2_now - obv2_prev) * 100) / obv2_prev
 
-        # If all intervals have the same winner let's buy
-        has_unique_slope_winner = all(x == slope_winners[0] for x in slope_winners)
-        has_unique_ema_winner = all(x == ema_winners[0] for x in ema_winners)
-        has_unique_obv_winner = all(x == obv_winners[0] for x in obv_winners)
+            if self.verbosity > 5:
+                print('obv:')
+                print('\tobv1_now:', obv1_now)
+                print('\tobv2_now:', obv2_now)
+                print('\tobv1_now:', obv1_prev)
+                print('\tobv2_now:', obv2_prev)
+                print('\tobv1_perc_change:', obv1_perc_change)
+                print('\tobv2_perc_change:', obv2_perc_change)
 
-        if self.verbosity > 0:
-            print('slope_winners:', slope_winners)
-            print('ema_winners:', ema_winners)
-            print('obv_winners:', obv_winners)
+            self.previous_obvs1[pair] = obv1_now
+            self.previous_obvs2[pair] = obv2_now
 
-        winner_pair = None
-        winner_value = None
-        if self.use_obv and has_unique_obv_winner:
-            print('!!! Has_unique_obv_winner!')
-            winner_value = obv_sorted[0][idx_obv]
-            winner_pair = obv_winners[0]
+            if obv1_perc_change <= 0 or obv2_perc_change <= 0:
+                # print('Got negative obv, skipping pair: ' + pair)
+                continue
 
-        if self.use_slope and has_unique_slope_winner:
-            print('!!! Has_unique_slope_winner!')
-            winner_value = slope_sorted[0][idx_slope]
-            winner_pair = slope_winners[0]
+            # ************** Get MACD
+            prev_pair_macds = [] if pair not in self.previous_macds else self.previous_macds[pair]
+            macd_value, signal_line = macd(close, numpy.asarray(prev_pair_macds))
+            prev_pair_macds.append(macd_value)
+            prev_pair_macds = prev_pair_macds[-9:]
+            self.previous_macds[pair] = prev_pair_macds
+            if signal_line is None:
+                continue
 
-        if self.use_ema and has_unique_ema_winner:
-            print('!!! Has_unique_ema_winner!')
-            winner_value = ema_sorted[0][idx_ema]
-            winner_pair = ema_winners[0]
+            if self.verbosity > 5:
+                print('macd_value:', macd_value)
+                print('signal_line:', signal_line)
 
-        # ** State check and Create action **
+            # Skip pairs that has down-trending indicator
+            if math.isnan(macd_value) or macd_value < signal_line:
+                # print('Got negative macd, skipping pair: ' + pair)
+                continue
 
-        # If we didn't find anything just return empty actions
-        if winner_pair is None:
-            self.actions.clear()
+            # ************** Calc Perc Change
+            perc_change1 = percent_change(df, n_size=self.interval1)
+            perc_change2 = percent_change(df, n_size=self.interval2)
+            if perc_change1 <= 1.0 or perc_change2 <= 2.0:
+                continue
+
+            perc_change_sum = perc_change1 + perc_change2/2.0
+
+            # ************** Calc EMV
+            ema1 = talib.EMA(close[-self.interval1:], timeperiod=self.interval1)[-1]
+            ema2 = talib.EMA(close[-self.interval2:], timeperiod=self.interval2)[-1]
+            ema_perc_change = ((ema1 - ema2) * 100) / ema2
+
+            indicators.append((pair, ema_perc_change))
+
+        # Sort
+        sorted_indicators = sorted(indicators, key=lambda x: x[1], reverse=True)
+
+        if len(sorted_indicators) <= 0:
             return self.actions
 
-        # If the value is negative, do nothing (return empty actions)
-        if winner_value <= 0:
-            self.actions.clear()
-            return self.actions
-
+        print('sorted_indicators:', sorted_indicators)
+        winner = sorted_indicators[0]
+        winner_pair = winner[0]
         close_pair_price = look_back.loc[look_back['pair'] == winner_pair].sort_values('date').close.iloc[0]
         action = TradeAction(winner_pair,
                              TradeState.buy,

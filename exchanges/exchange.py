@@ -93,7 +93,7 @@ class Exchange:
         Returns offline data from DB
         """
         ticker = pd.DataFrame()
-        print('getting offline ticker for total pairs:' + str(len(pairs)) + ', epoch:', str(epoch))
+        # print('getting offline ticker for total pairs: ' + str(len(pairs)) + ', epoch:', str(epoch))
         for pair in pairs:
             db_doc = self.ticker.find_one({"$and": [{"date": {"$gte": epoch}},
                                           {"pair": pair},

@@ -12,7 +12,7 @@ def percent_change(df, n_size=1):
 
     df_rows = len(df.index)
     if df_rows < n_size:
-        print("PercentChange Error: not enough elements in buffer,.returning 0.0")
+        # print("PercentChange Error: not enough elements in buffer,.returning 0.0")
         return 0.0
 
     el1 = df.tail(1).close.iloc[0]

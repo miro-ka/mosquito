@@ -16,6 +16,7 @@ available at the time mid 2017:
  * **Multi-currency bot** - Be able to monitor and exchange several currencies in one strategy (no need to run 5 same strategies for 5 different currencies).
  * **Easy AI plug** - Possibility to easily plug any of the existing AI/ML libraries (for ex. scikit or keras)
 
+> **Please be AWARE that Mosquito is still in beta and under heavy development. Please use it in Live trading VERY carefully.**
 
 ### Supported Exchanges
 Mosquito currently supports following exchanges:
