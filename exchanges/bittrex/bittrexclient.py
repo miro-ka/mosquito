@@ -34,7 +34,7 @@ class BittrexClient(Base):
             pairs.append(pair)
         return pairs
 
-    def return_candles(self, currency_pair, period=300, start=False, end=False):
+    def return_candles(self, currency_pair, epoch_start, epoch_end, period=300):
         # TODO
         """
         Returns candlestick chart data
@@ -43,32 +43,44 @@ class BittrexClient(Base):
         res = self.bittrex.get_ticks(currency_pair, 'fiveMin')
         tickers = res['result']
         got_min_epoch_ticker = False
-        out_tickers = []
-        out_ticker = {}
+        raw_tickers = []
 
+        # Parse tickers
         for ticker in tickers:
             epoch = int(time.mktime(time.strptime(ticker['T'], pattern)))
 
-            if epoch <= start:
+            if epoch <= epoch_start:
                 got_min_epoch_ticker = True
 
-            # Skip/remove older than wanted tickers
-            if epoch < start:
+            # Skip/remove older than wanted tickers (adding extra hours to be sure that we have the data)
+            if epoch < (epoch_start - 6*3600):
                 continue
 
-            out_ticker['high'] = ticker['H']
-            out_ticker['low'] = ticker['L']
-            out_ticker['open'] = ticker['O']
-            out_ticker['close'] = ticker['C']
-            out_ticker['volume'] = ticker['V']
-            out_ticker['quoteVolume'] = ticker['BV']
-            out_ticker['date'] = epoch
-            out_ticker['weightedAverage'] = 0.0
+            raw_ticker = dict()
+            raw_ticker['high'] = ticker['H']
+            raw_ticker['low'] = ticker['L']
+            raw_ticker['open'] = ticker['O']
+            raw_ticker['close'] = ticker['C']
+            raw_ticker['volume'] = ticker['V']
+            raw_ticker['quoteVolume'] = ticker['BV']
+            raw_ticker['date'] = epoch
+            raw_ticker['weightedAverage'] = 0.0
 
-            out_tickers.append(out_ticker)
+            raw_tickers.append(raw_ticker)
         if not got_min_epoch_ticker:
             print('Not able to get all data (data not available) for pair:', currency_pair)
 
+        # Create/interpolate raw tickers to fit our interval ticker
+        out_tickers = []
+        for ticker_epoch in range(epoch_start, epoch_end, period):
+            items = [element for element in raw_tickers if element['date'] <= ticker_epoch]
+            if len(items) < 0:
+                print(colored('Could not found a ticker for:', currency_pair, ticker_epoch), 'red')
+                continue
+            # Get the last item (should be closest to search epoch)
+            item = items[-1].copy()
+            item['date'] = ticker_epoch
+            out_tickers.append(item)
         return out_tickers.copy()
         # return self.bittrex.returnChartData(currency_pair, period, start, end)
 

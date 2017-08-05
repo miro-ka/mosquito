@@ -75,16 +75,16 @@ class Polo(Base):
         ticker = self.polo.returnTicker()
         return list(ticker)
 
-    def return_candles(self, currency_pair, period=False, start=False, end=False):
+    def return_candles(self, currency_pair, epoch_start, epoch_end, period=False):
         """
         Returns candlestick chart data
         """
         data = []
         try:
-            data = self.polo.returnChartData(currency_pair, period, start, end)
+            data = self.polo.returnChartData(currency_pair, period, epoch_start, epoch_end)
         except (PoloniexError, JSONDecodeError) as e:
             print()
-            print(colored('!!! Got exception while retrieving polo data:'  + str(e) + ', pair: ' + currency_pair, 'red'))
+            print(colored('!!! Got exception while retrieving polo data:' + str(e) + ', pair: ' + currency_pair, 'red'))
         return data
 
     def trade(self, actions, wallet, trade_mode):
