@@ -11,6 +11,7 @@ import numpy
 
 class Mosquito(Base):
     """
+    !!! ONLY IN DEVELOPMENT AND TESTED ONLY IN BACK-TEST !!!
     About: Multi-currency strategy focusing on buying most profitable strategy
     """
 
