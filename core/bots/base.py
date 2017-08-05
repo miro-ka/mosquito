@@ -156,10 +156,10 @@ class Base(ABC):
             # Buy
             if action.action == ts.buy:
                 if currency_balance <= 0:
-                    print('want to buy ' + action.pair + ', not enough money, or everything already bought..')
+                    print('Want to buy ' + action.pair + ', not enough money, or everything already bought..')
                     actions.remove(action)
                     continue
-                print(colored('buying ' + action.pair, 'green'))
+                print(colored('Buying ' + action.pair, 'green'))
                 fee = self.transaction_fee * float(currency_balance) / 100.0
                 # print('txn fee:', fee, ',currency_balance: ', currency_balance, ', after: ', currency_balance-fee)
                 currency_balance -= fee
@@ -172,10 +172,10 @@ class Base(ABC):
             # Sell
             elif action.action == ts.sell:
                 if asset_balance <= 0:
-                    print('want to sell ' + action.pair + ', not enough assets, or everything already sold..')
+                    print('Want to sell ' + action.pair + ', not enough assets, or everything already sold..')
                     actions.remove(action)
                     continue
-                print(colored('selling ' + action.pair, 'red'))
+                print(colored('Selling ' + action.pair, 'yellow'))
                 fee = self.transaction_fee * float(currency_balance) / 100.0
                 # print('txn fee:', fee, ',asset_balance: ', asset_balance, ', after: ', asset_balance-fee)
                 asset_balance -= fee

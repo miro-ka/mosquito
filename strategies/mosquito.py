@@ -44,9 +44,10 @@ class Mosquito(Base):
         for pair in pairs_names:
             df = look_back.loc[look_back['pair'] == pair].sort_values('date')
             close = df['close'].values
-            volume = df['volume'].values
 
             # ************** Calc OBV
+            """
+            volume = df['volume'].values
             obv1_now = talib.OBV(close[-self.interval1:], volume[-self.interval1:])[-1]
             obv2_now = talib.OBV(close[-self.interval2:], volume[-self.interval2:])[-1]
 
@@ -62,7 +63,7 @@ class Mosquito(Base):
             obv1_perc_change = ((obv1_now - obv1_prev) * 100) / obv1_prev
             obv2_perc_change = ((obv2_now - obv2_prev) * 100) / obv2_prev
 
-            if self.verbosity > 5:
+            if self.verbosity > 0:
                 print('obv:')
                 print('\tobv1_now:', obv1_now)
                 print('\tobv2_now:', obv2_now)
@@ -75,8 +76,11 @@ class Mosquito(Base):
             self.previous_obvs2[pair] = obv2_now
 
             if obv1_perc_change <= 0 or obv2_perc_change <= 0:
-                # print('Got negative obv, skipping pair: ' + pair)
+                print('Got negative obv, skipping pair: ' + pair)
                 continue
+
+            obv_perc_change = obv1_perc_change - (obv2_perc_change/2.0)
+            """
 
             # ************** Get MACD
             prev_pair_macds = [] if pair not in self.previous_macds else self.previous_macds[pair]
@@ -87,29 +91,47 @@ class Mosquito(Base):
             if signal_line is None:
                 continue
 
-            if self.verbosity > 5:
+            if self.verbosity > 0:
                 print('macd_value:', macd_value)
                 print('signal_line:', signal_line)
 
             # Skip pairs that has down-trending indicator
             if math.isnan(macd_value) or macd_value < signal_line:
-                # print('Got negative macd, skipping pair: ' + pair)
+                print('Got negative macd, skipping pair: ' + pair)
                 continue
+
+            # ************** Calc RSI
+            rsi = talib.RSI(close[-15:], timeperiod=14)[-1]
+            print('rsi:', rsi)
+            if rsi > 70:
+                print('RSI indicating to overbought, skipping pair: ' + pair)
+                continue
+
+            # ************** Calc SMA
+            sma_interva1 = 6
+            sma_interva2 = 18
+            sma1 = talib.SMA(close[-sma_interva1:], timeperiod=sma_interva1)[-1]
+            sma2 = talib.SMA(close[-sma_interva2:], timeperiod=sma_interva2)[-1]
+            print('sma1:', sma1, 'sma2:', sma2)
+            if sma1 < 0.0 or sma2 < 0.0:
+                continue
+
+            # ************** Calc EMA
+            ema1 = talib.EMA(close[-self.interval1:], timeperiod=self.interval1)[-1]
+            ema2 = talib.EMA(close[-self.interval2:], timeperiod=self.interval2)[-1]
+            print('ema1:', ema1, 'ema2:', ema2)
+            if ema1 < 0.0 or ema2 < 0.0:
+                continue
+            # ema_perc_change = ((ema1 - ema2) * 100) / ema2
 
             # ************** Calc Perc Change
             perc_change1 = percent_change(df, n_size=self.interval1)
             perc_change2 = percent_change(df, n_size=self.interval2)
-            if perc_change1 <= 1.0 or perc_change2 <= 2.0:
+            if perc_change1 <= 0.0 or perc_change2 <= 0.0:
                 continue
-
             perc_change_sum = perc_change1 + perc_change2/2.0
 
-            # ************** Calc EMV
-            ema1 = talib.EMA(close[-self.interval1:], timeperiod=self.interval1)[-1]
-            ema2 = talib.EMA(close[-self.interval2:], timeperiod=self.interval2)[-1]
-            ema_perc_change = ((ema1 - ema2) * 100) / ema2
-
-            indicators.append((pair, ema_perc_change))
+            indicators.append((pair, perc_change_sum))
 
         # Sort
         sorted_indicators = sorted(indicators, key=lambda x: x[1], reverse=True)
@@ -118,6 +140,7 @@ class Mosquito(Base):
             return self.actions
 
         print('sorted_indicators:', sorted_indicators)
+        middle_one = (len(sorted_indicators)-1) / 2
         winner = sorted_indicators[0]
         winner_pair = winner[0]
         close_pair_price = look_back.loc[look_back['pair'] == winner_pair].sort_values('date').close.iloc[0]

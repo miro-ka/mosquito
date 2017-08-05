@@ -100,12 +100,7 @@ class Polo(Base):
         !!! For now we are NOT handling postOnly type of orders !!!
         """
         for action in actions:
-            if self.verbosity > 0:
-                print('Processing live-action: ' + str(action.action) +
-                      ', amount:', str(action.amount) +
-                      ', pair:', action.pair +
-                      ', rate:', str(action.rate) +
-                      ', buy_sell_all:', action.buy_sell_all)
+
             if action.action == TradeState.none:
                 actions.remove(action)
                 continue
@@ -114,6 +109,13 @@ class Polo(Base):
             wallet = self.get_balances()
             if action.buy_sell_all:
                 action.amount = self.get_buy_sell_all_amount(wallet, action.action, action.pair, action.rate)
+
+            if self.verbosity > 0:
+                print('Processing live-action: ' + str(action.action) +
+                      ', amount:', str(action.amount) +
+                      ', pair:', action.pair +
+                      ', rate:', str(action.rate) +
+                      ', buy_sell_all:', action.buy_sell_all)
 
             # If we don't have enough assets, just skip/remove the action
             if action.amount == 0.0:
@@ -124,29 +126,34 @@ class Polo(Base):
             # ** Buy Action **
             if action.action == TradeState.buy:
                 try:
-                    print(colored('setting buy order: ' + str(action.amount) + '' + action.pair, 'green'))
+                    print(colored('Setting buy order: ' + str(action.amount) + '' + action.pair, 'green'))
                     action.order_number = self.polo.buy(action.pair, action.rate, action.amount, self.buy_order_type)
                 except PoloniexError as e:
-                    print(colored('Got exception: ' + str(e) + 'txn: buy-' + action.pair, 'red'))
+                    print(colored('Got exception: ' + str(e) + ' Txn: buy-' + action.pair, 'red'))
                     continue
                 amount_unfilled = action.order_number.get('amountUnfilled')
-                if amount_unfilled == 0.0:
+                if float(amount_unfilled) == 0.0:
                     actions.remove(action)
+                    print(colored('Bought: ' + str(action.amount) + '' + action.pair, 'green'))
                 else:
                     action.amount = amount_unfilled
+                    print(colored('Not filled 100% buy txn. Unfilled amount: ' + str(amount_unfilled) + '' + action.pair, 'red'))
+
             # ** Sell Action **
             elif action.action == TradeState.sell:
                 try:
-                    print(colored('setting sell order: ' + str(action.amount) + '' + action.pair, 'red'))
+                    print(colored('Setting sell order: ' + str(action.amount) + '' + action.pair, 'yellow'))
                     action.order_number = self.polo.sell(action.pair, action.rate,  action.amount, self.buy_order_type)
                 except PoloniexError as e:
-                    print(colored('Got exception: ' + str(e) + 'txn: sell-' + action.pair, 'red'))
+                    print(colored('Got exception: ' + str(e) + ' Txn: sell-' + action.pair, 'red'))
                     continue
                 amount_unfilled = action.order_number.get('amountUnfilled')
-                if amount_unfilled == 0.0:
+                if float(amount_unfilled) == 0.0:
                     actions.remove(action)
+                    print(colored('Sold: ' + str(action.amount) + '' + action.pair, 'yellow'))
                 else:
                     action.amount = amount_unfilled
+                    print(colored('Not filled 100% sell txn. Unfilled amount: ' + str(amount_unfilled) + '' + action.pair, 'red'))
         return actions
 
     @staticmethod

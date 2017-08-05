@@ -1,5 +1,4 @@
 import talib
-import math
 
 
 def macd(close, previous_macds=[], fast_period=12, slow_period=26, signal_period=9):

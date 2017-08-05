@@ -122,7 +122,7 @@ class Report:
         if not pair_tick.empty:
             closing_price = pair_tick['close'].iloc[0]
             return closing_price * value
-        # 3) If we didn't find root find exchange rate to BTC and then to root
+        # 3) If we didn't find root find exchange rate for BTC and then to root
         btc_pair = 'BTC_' + currency
         btc_tick = ticker_data.loc[ticker_data['pair'] == btc_pair]
         if currency != 'BTC' and not btc_tick.empty:

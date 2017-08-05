@@ -16,21 +16,31 @@ class Bumblebee(Base):
         super(Bumblebee, self).__init__(args, verbosity)
         self.name = 'ema'
         self.min_history_ticks = 60  # 300 minute interval
-        self.pair = 'BTC_DGB'
+        self.pair = 'BTC_DOGE'
 
     def calculate(self, look_back, wallet):
         """
         Main strategy logic (the meat of the strategy)
         """
 
-        # self.actions.clear()
-        # new_action = TradeState.buy
-        # action = TradeAction(self.pair, new_action, rate=None, buy_sell_all=True)
-        # self.actions.append(action)
-        # return self.actions
-
         (dataset_cnt, pairs_count) = self.get_dataset_count(look_back, self.group_by_field)
         print('dataset_cnt:', dataset_cnt)
+
+        """
+        # !!!Debug!!!
+        if dataset_cnt < 0:
+            return self.actions
+
+        df = look_back.tail(self.min_history_ticks)
+        df = df[df['pair'] == self.pair]
+        df_last = df.iloc[[-1]]
+        new_action = TradeState.buy
+        rate = pd.to_numeric(df_last['close'], downcast='float').iloc[0]
+        action = TradeAction(self.pair, new_action, rate=rate, buy_sell_all=True)
+        self.actions.append(action)
+        return self.actions
+        # !!!Debug-end!!!
+        """
 
         # Wait until we have enough data
         if dataset_cnt < self.min_history_ticks:
