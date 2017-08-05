@@ -17,6 +17,7 @@ class BittrexClient(Base):
         api_key = args['api_key']
         secret = args['secret']
         self.bittrex = Bittrex(api_key, secret)
+        self.pair_connect_string = '-'
         # self.buy_order_type = args['buy_order_type']
         # self.sell_order_type = args['sell_order_type']
         self.verbosity = verbosity
@@ -35,10 +36,10 @@ class BittrexClient(Base):
         return pairs
 
     def return_candles(self, currency_pair, epoch_start, epoch_end, period=300):
-        # TODO
         """
         Returns candlestick chart data
         """
+        currency_pair = currency_pair.replace('_', self.pair_connect_string)
         pattern = '%Y-%m-%dT%H:%M:%S'
         res = self.bittrex.get_ticks(currency_pair, 'fiveMin')
         tickers = res['result']
@@ -84,19 +85,16 @@ class BittrexClient(Base):
         return out_tickers.copy()
         # return self.bittrex.returnChartData(currency_pair, period, start, end)
 
-
-
-
-
-
-
     def get_balances(self):
-        # TODO
         """
         Return available account balances (function returns ONLY currencies > 0)
         """
+
+        balances = self.bittrex.get_balances()
+        print('balances..')
+
         try:
-            balances = self.bittrex.returnBalances()
+            balances = self.bittrex.get_balance()
             only_non_zeros = {k: float(v) for k, v in balances.items() if float(v) > 0.0}
         except PoloniexError as e:
             print(colored('Got exception (polo.get_balances): ' + str(e), 'red'))
@@ -104,11 +102,19 @@ class BittrexClient(Base):
 
         return only_non_zeros
 
+
+
+
+
+
+
     def get_symbol_ticker(self, symbol):
-        # TODO
         """
         Returns real-time ticker Data-Frame
         """
+        # TODO
+        raise Exception('get_symbol_ticker')
+
         ticker = self.bittrex.returnTicker()[symbol]
         df = pd.DataFrame.from_dict(ticker, orient="index")
         df = df.T
@@ -122,27 +128,36 @@ class BittrexClient(Base):
 
     def return_ticker(self):
         # TODO
+        raise Exception('return_ticker')
+
         """
         Returns ticker for all currencies
         """
         return self.bittrex.returnTicker()
 
     def cancel_order(self, order_number):
-        # TODO
         """
         Cancels order for given order number
         """
+        # TODO
+        raise Exception('cancel_order')
         return self.bittrex.cancelOrder(order_number)
 
     def return_open_orders(self, currency_pair='all'):
-        # TODO
         """
         Returns your open orders
         """
+        # TODO
+        raise Exception('return_open_orders')
         return self.bittrex.returnOpenOrders(currency_pair)
 
     def trade(self, actions, wallet, trade_mode):
+        """
+        Places actual buy/sell orders
+        """
         # TODO
+        raise Exception('trade')
+
         if trade_mode == TradeMode.backtest:
             return Base.trade(actions, wallet, trade_mode)
         else:
@@ -150,11 +165,12 @@ class BittrexClient(Base):
             return actions
 
     def life_trade(self, actions):
-        # TODO
         """
         Places orders and returns order number
-        !!! For now we are NOT handling postOnly type of orders !!!
         """
+        # TODO
+        raise Exception('life_trade')
+
         for action in actions:
             if self.verbosity > 0:
                 print('Processing live-action: ' + str(action.action) +
@@ -207,10 +223,12 @@ class BittrexClient(Base):
 
     @staticmethod
     def get_buy_sell_all_amount(wallet, action, pair, rate):
-        # TODO
         """
         Calculates total amount for ALL assets in wallet
         """
+        # TODO
+        raise Exception('get_buy_sell_all_amount')
+
         if action == TradeState.none:
             return 0.0
 

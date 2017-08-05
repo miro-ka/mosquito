@@ -8,6 +8,7 @@ class Base(ABC):
 
     def __init__(self):
         super(Base, self).__init__()
+        self.pair_connect_string = '_'
 
     @abstractmethod
     def return_open_orders(self, currency_pair='all'):
