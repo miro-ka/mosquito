@@ -147,9 +147,9 @@ class Mosquito(Base):
         close_pair_price = look_back.loc[look_back['pair'] == winner_pair].sort_values('date').close.iloc[0]
         action = TradeAction(winner_pair,
                              TradeState.buy,
-                             amount=None,
+                             amount=(round((0.01 / rate), 8)),
                              rate=close_pair_price,
-                             buy_sell_all=True)
+                             buy_sell_all=False)
         self.actions.append(action)
         return self.actions
 
