@@ -89,67 +89,33 @@ class BittrexClient(Base):
         """
         Return available account balances (function returns ONLY currencies > 0)
         """
+        resp = self.bittrex.get_balances()
+        balances = resp['result']
+        pairs = dict()
+        for item in balances:
+            currency = item['Currency']
+            pairs[currency] = item['Available']
 
-        balances = self.bittrex.get_balances()
-        print('balances..')
-
-        try:
-            balances = self.bittrex.get_balance()
-            only_non_zeros = {k: float(v) for k, v in balances.items() if float(v) > 0.0}
-        except PoloniexError as e:
-            print(colored('Got exception (polo.get_balances): ' + str(e), 'red'))
-            only_non_zeros = dict()
-
-        return only_non_zeros
-
-
-
-
-
-
+        return pairs
 
     def get_symbol_ticker(self, symbol):
         """
         Returns real-time ticker Data-Frame
         """
-        # TODO
-        raise Exception('get_symbol_ticker')
+        market = symbol.replace('_', self.pair_connect_string)
+        ticker = self.bittrex.get_ticker(market)
 
-        ticker = self.bittrex.returnTicker()[symbol]
-        df = pd.DataFrame.from_dict(ticker, orient="index")
+        df = pd.DataFrame.from_dict(ticker['result'], orient="index")
         df = df.T
         # We will use 'last' price as closing one
-        df = df.rename(columns={'last': 'close', 'baseVolume': 'volume'})
-        df['close'] = df['close'].astype(float)
-        df['volume'] = df['volume'].astype(float)
+        df = df.rename(columns={'Last': 'close', 'Ask': 'ask', 'Bid': 'bid'})
+        df['volume'] = None
         df['pair'] = symbol
         df['date'] = int(time.time())
         return df
 
-    def return_ticker(self):
-        # TODO
-        raise Exception('return_ticker')
 
-        """
-        Returns ticker for all currencies
-        """
-        return self.bittrex.returnTicker()
 
-    def cancel_order(self, order_number):
-        """
-        Cancels order for given order number
-        """
-        # TODO
-        raise Exception('cancel_order')
-        return self.bittrex.cancelOrder(order_number)
-
-    def return_open_orders(self, currency_pair='all'):
-        """
-        Returns your open orders
-        """
-        # TODO
-        raise Exception('return_open_orders')
-        return self.bittrex.returnOpenOrders(currency_pair)
 
     def trade(self, actions, wallet, trade_mode):
         """
@@ -220,6 +186,39 @@ class BittrexClient(Base):
                 else:
                     action.amount = amount_unfilled
         return actions
+
+
+
+
+
+
+
+
+
+    def return_ticker(self):
+        # TODO
+        raise Exception('return_ticker')
+
+        """
+        Returns ticker for all currencies
+        """
+        return self.bittrex.returnTicker()
+
+    def cancel_order(self, order_number):
+        """
+        Cancels order for given order number
+        """
+        # TODO
+        raise Exception('cancel_order')
+        return self.bittrex.cancelOrder(order_number)
+
+    def return_open_orders(self, currency_pair='all'):
+        """
+        Returns your open orders
+        """
+        # TODO
+        raise Exception('return_open_orders')
+        return self.bittrex.returnOpenOrders(currency_pair)
 
     @staticmethod
     def get_buy_sell_all_amount(wallet, action, pair, rate):
