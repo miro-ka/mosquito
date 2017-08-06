@@ -22,7 +22,7 @@ available at the time mid 2017:
 Mosquito currently supports following exchanges:
  * **Poloniex** - supporting *fillOrKill* and *immediateOrCancel* trading types. *postOnly* type is not supported. You can 
  read more about trading types [here.](https://github.com/s4w3d0ff/python-poloniex/blob/master/poloniex/__init__.py)
- * **Bittrex** (in development)
+ * **Bittrex** (in development) - supporting *Trade Limit Buy/Sell Orders*
 
 
 ## Requirements

@@ -114,29 +114,42 @@ class BittrexClient(Base):
         df['date'] = int(time.time())
         return df
 
-
-
-
     def trade(self, actions, wallet, trade_mode):
         """
         Places actual buy/sell orders
         """
-        # TODO
-        raise Exception('trade')
-
         if trade_mode == TradeMode.backtest:
             return Base.trade(actions, wallet, trade_mode)
         else:
             actions = self.life_trade(actions)
             return actions
 
+    @staticmethod
+    def get_buy_sell_all_amount(wallet, action, pair, rate):
+        """
+        Calculates total amount for ALL assets in wallet
+        """
+        if action == TradeState.none:
+            return 0.0
+
+        if rate == 0.0:
+            print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + pair, 'red'))
+            return 0.0
+
+        (symbol_1, symbol_2) = tuple(pair.split('_'))
+        amount = 0.0
+        if action == TradeState.buy and symbol_1 in wallet:
+            assets = wallet.get(symbol_1)
+            amount = assets / rate
+        elif action == TradeState.sell and symbol_2 in wallet:
+            assets = wallet.get(symbol_2)
+            amount = assets
+        return amount
+
     def life_trade(self, actions):
         """
         Places orders and returns order number
         """
-        # TODO
-        raise Exception('life_trade')
-
         for action in actions:
             if self.verbosity > 0:
                 print('Processing live-action: ' + str(action.action) +
@@ -161,17 +174,21 @@ class BittrexClient(Base):
 
             # ** Buy Action **
             if action.action == TradeState.buy:
-                try:
-                    print(colored('setting buy order: ' + str(action.amount) + '' + action.pair, 'green'))
-                    action.order_number = self.bittrex.buy(action.pair, action.rate, action.amount, self.buy_order_type)
-                except PoloniexError as e:
-                    print(colored('Got exception: ' + str(e) + 'txn: buy-' + action.pair, 'red'))
+                print(colored('setting buy order: ' + str(action.amount) + '' + action.pair, 'green'))
+                ret = self.bittrex.buy_limit(action.pair, action.rate, action.amount)
+                if not ret['success']:
+                    print(colored('Error: ' + ret['message'] + '. Txn: buy-' + action.pair, 'red'))
                     continue
-                amount_unfilled = action.order_number.get('amountUnfilled')
-                if amount_unfilled == 0.0:
-                    actions.remove(action)
-                else:
-                    action.amount = amount_unfilled
+                print(ret)
+
+                # except PoloniexError as e:
+                #    print(colored('Got exception: ' + str(e) + 'txn: buy-' + action.pair, 'red'))
+                #    continue
+                # amount_unfilled = action.order_number.get('amountUnfilled')
+                # if amount_unfilled == 0.0:
+                #     actions.remove(action)
+                # else:
+                #    action.amount = amount_unfilled
             # ** Sell Action **
             elif action.action == TradeState.sell:
                 try:
@@ -186,8 +203,6 @@ class BittrexClient(Base):
                 else:
                     action.amount = amount_unfilled
         return actions
-
-
 
 
 
@@ -219,29 +234,3 @@ class BittrexClient(Base):
         # TODO
         raise Exception('return_open_orders')
         return self.bittrex.returnOpenOrders(currency_pair)
-
-    @staticmethod
-    def get_buy_sell_all_amount(wallet, action, pair, rate):
-        """
-        Calculates total amount for ALL assets in wallet
-        """
-        # TODO
-        raise Exception('get_buy_sell_all_amount')
-
-        if action == TradeState.none:
-            return 0.0
-
-        if rate == 0.0:
-            print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + pair, 'red'))
-            return 0.0
-
-        (symbol_1, symbol_2) = tuple(pair.split('_'))
-        amount = 0.0
-        if action == TradeState.buy and symbol_1 in wallet:
-            assets = wallet.get(symbol_1)
-            amount = assets/rate
-        elif action == TradeState.sell and symbol_2 in wallet:
-            assets = wallet.get(symbol_2)
-            amount = assets
-
-        return amount
