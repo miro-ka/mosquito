@@ -151,8 +151,7 @@ class BittrexClient(Base):
             actions = self.life_trade(actions)
             return actions
 
-    @staticmethod
-    def get_buy_sell_all_amount(wallet, action, pair, rate):
+    def get_buy_sell_all_amount(self, wallet, action, pair, rate):
         """
         Calculates total amount for ALL assets in wallet
         """
@@ -163,7 +162,7 @@ class BittrexClient(Base):
             print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + pair, 'red'))
             return 0.0
 
-        (symbol_1, symbol_2) = tuple(pair.split('_'))
+        (symbol_1, symbol_2) = tuple(pair.split(self.pair_connect_string))
         amount = 0.0
         if action == TradeState.buy and symbol_1 in wallet:
             assets = wallet.get(symbol_1)
@@ -178,57 +177,47 @@ class BittrexClient(Base):
         Places orders and returns order number
         """
         for action in actions:
+            market = action.pair.replace('_', self.pair_connect_string)
+
+            # Handle buy_sell_all cases
+            wallet = self.get_balances()
+            if action.buy_sell_all:
+                action.amount = self.get_buy_sell_all_amount(wallet, action.action, market, action.rate)
+
             if self.verbosity > 0:
                 print('Processing live-action: ' + str(action.action) +
                       ', amount:', str(action.amount) +
-                      ', pair:', action.pair +
+                      ', pair:', market +
                       ', rate:', str(action.rate) +
                       ', buy_sell_all:', action.buy_sell_all)
             if action.action == TradeState.none:
                 actions.remove(action)
                 continue
 
-            # Handle buy_sell_all cases
-            wallet = self.get_balances()
-            if action.buy_sell_all:
-                action.amount = self.get_buy_sell_all_amount(wallet, action.action, action.pair, action.rate)
-
             # If we don't have enough assets, just skip/remove the action
             if action.amount == 0.0:
-                print(colored('No assets to buy/sell, ...skipping: ' + str(action.amount) + action.pair, 'green'))
+                print(colored('No assets to buy/sell, ...skipping: ' + str(action.amount) + market, 'green'))
                 actions.remove(action)
                 continue
 
             # ** Buy Action **
             if action.action == TradeState.buy:
-                print(colored('setting buy order: ' + str(action.amount) + '' + action.pair, 'green'))
-                ret = self.bittrex.buy_limit(action.pair, action.rate, action.amount)
+                print(colored('setting buy order: ' + str(action.amount) + '' + market, 'green'))
+                ret = self.bittrex.buy_limit(market, action.amount, action.rate)
                 if not ret['success']:
-                    print(colored('Error: ' + ret['message'] + '. Txn: buy-' + action.pair, 'red'))
+                    print(colored('Error: ' + ret['message'] + '. Txn: buy-' + market, 'red'))
                     continue
                 print(ret)
 
-                # except PoloniexError as e:
-                #    print(colored('Got exception: ' + str(e) + 'txn: buy-' + action.pair, 'red'))
-                #    continue
-                # amount_unfilled = action.order_number.get('amountUnfilled')
-                # if amount_unfilled == 0.0:
-                #     actions.remove(action)
-                # else:
-                #    action.amount = amount_unfilled
             # ** Sell Action **
             elif action.action == TradeState.sell:
-                try:
-                    print(colored('setting sell order: ' + str(action.amount) + '' + action.pair, 'red'))
-                    action.order_number = self.bittrex.sell(action.pair, action.rate,  action.amount, self.buy_order_type)
-                except PoloniexError as e:
-                    print(colored('Got exception: ' + str(e) + 'txn: sell-' + action.pair, 'red'))
+                print(colored('setting sell order: ' + str(action.amount) + '' + market, 'yellow'))
+                ret = self.bittrex.sell_limit(market, action.amount, action.rate)
+                if not ret['success']:
+                    print(colored('Error: ' + ret['message'] + '. Txn: sell-' + market, 'red'))
                     continue
-                amount_unfilled = action.order_number.get('amountUnfilled')
-                if amount_unfilled == 0.0:
-                    actions.remove(action)
-                else:
-                    action.amount = amount_unfilled
+                print(ret)
+
         return actions
 
 
