@@ -1,4 +1,4 @@
-import time
+import datetime
 import pandas as pd
 from poloniex import Poloniex, PoloniexError
 from core.bots.enums import TradeMode
@@ -35,7 +35,7 @@ class Polo(Base):
 
         return only_non_zeros
 
-    def get_symbol_ticker(self, symbol):
+    def get_symbol_ticker(self, symbol, candle_size=5):
         """
         Returns real-time ticker Data-Frame
         """
@@ -47,7 +47,7 @@ class Polo(Base):
         df['close'] = df['close'].astype(float)
         df['volume'] = df['volume'].astype(float)
         df['pair'] = symbol
-        df['date'] = int(time.time())
+        df['date'] = int(datetime.datetime.utcnow().timestamp())
         return df
 
     def return_ticker(self):

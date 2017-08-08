@@ -5,6 +5,8 @@ from core.bots.enums import TradeMode
 from exchanges.base import Base
 from strategies.enums import TradeState
 from termcolor import colored
+import datetime
+from datetime import timezone
 
 
 class BittrexClient(Base):
@@ -98,20 +100,45 @@ class BittrexClient(Base):
 
         return pairs
 
-    def get_symbol_ticker(self, symbol):
+    @staticmethod
+    def get_volume_from_history(history, candle_size):
+        """
+        Returns valume for given candle_size
+        :param history: history data
+        :param candle_size: in minutes
+        :return: Calculated volume for given candle_size
+        """
+        volume = 0.0
+        epoch_now = int(time.time())
+        epoch_candle_start = epoch_now - candle_size * 60
+        pattern = '%Y-%m-%dT%H:%M:%S'
+        for item in history:
+            time_string = item['TimeStamp'].split('.', 1)[0]
+            dt = datetime.datetime.strptime(time_string, pattern)
+            item_epoch = dt.replace(tzinfo=timezone.utc).timestamp()
+            if item_epoch >= epoch_candle_start:
+                quantity = item['Quantity']
+                volume += quantity
+        return volume
+
+    def get_symbol_ticker(self, symbol, candle_size=5):
         """
         Returns real-time ticker Data-Frame
+        :candle_size: size in minutes to calculate the interval
         """
         market = symbol.replace('_', self.pair_connect_string)
+
         ticker = self.bittrex.get_ticker(market)
+        history = self.bittrex.get_market_history(market, 100)['result']
+        volume = self.get_volume_from_history(history, candle_size)
 
         df = pd.DataFrame.from_dict(ticker['result'], orient="index")
         df = df.T
         # We will use 'last' price as closing one
         df = df.rename(columns={'Last': 'close', 'Ask': 'ask', 'Bid': 'bid'})
-        df['volume'] = None
+        df['volume'] = volume
         df['pair'] = symbol
-        df['date'] = int(time.time())
+        df['date'] = int(datetime.datetime.utcnow().timestamp())
         return df
 
     def trade(self, actions, wallet, trade_mode):

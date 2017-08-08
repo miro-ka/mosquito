@@ -34,7 +34,7 @@ class Live(Base):
 
         epoch_now = int(time.time())
         for pair in self.pairs:
-            df = self.exchange.get_symbol_ticker(pair)
+            df = self.exchange.get_symbol_ticker(pair, interval)
             if self.ticker_df.empty:
                 self.ticker_df = df.copy()
             else:

@@ -11,6 +11,7 @@ class Exchange:
     """
 
     exchange = None
+    exchange_name = None
 
     def __init__(self, args, config_file, trade_mode):
         self.exchange = self.load_exchange(config_file)
@@ -28,11 +29,11 @@ class Exchange:
         """
         return self.exchange.get_pairs()
 
-    def get_symbol_ticker(self, symbol):
+    def get_symbol_ticker(self, symbol, candle_size=5):
         """
         Returns ticker for given symbol
         """
-        return self.exchange.get_symbol_ticker(symbol)
+        return self.exchange.get_symbol_ticker(symbol, candle_size)
 
     @staticmethod
     def initialize_db(config):
@@ -46,19 +47,18 @@ class Exchange:
         db = client[db]
         return db
 
-    @staticmethod
-    def load_exchange(config_file):
+    def load_exchange(self, config_file):
         """
         Loads exchange files
         """
         config = configparser.ConfigParser()
         config.read(config_file)
         verbosity = int(config['General']['verbosity'])
-        exchange_name = config['Trade']['exchange']
+        self.exchange_name = config['Trade']['exchange']
 
-        if exchange_name == 'polo':
+        if self.exchange_name == 'polo':
             return Polo(config['Poloniex'], verbosity)
-        elif exchange_name == 'bittrex':
+        elif self.exchange_name == 'bittrex':
             return BittrexClient(config['Bittrex'], verbosity)
         else:
             print('Trying to use not defined exchange!')
@@ -97,7 +97,7 @@ class Exchange:
         for pair in pairs:
             db_doc = self.ticker.find_one({"$and": [{"date": {"$gte": epoch}},
                                           {"pair": pair},
-                                          {"exchange": 'polo'}]})
+                                          {"exchange": self.exchange_name}]})
 
             if db_doc is None:
                 print('not data for pair:', pair, ', epoch:', epoch)
