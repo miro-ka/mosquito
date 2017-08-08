@@ -135,7 +135,7 @@ class BittrexClient(Base):
         df = pd.DataFrame.from_dict(ticker['result'], orient="index")
         df = df.T
         # We will use 'last' price as closing one
-        df = df.rename(columns={'Last': 'close', 'Ask': 'ask', 'Bid': 'bid'})
+        df = df.rename(columns={'Last': 'close', 'Ask': 'lowestAsk', 'Bid': 'highestBid'})
         df['volume'] = volume
         df['pair'] = symbol
         df['date'] = int(datetime.datetime.utcnow().timestamp())
@@ -207,6 +207,10 @@ class BittrexClient(Base):
                 if not ret['success']:
                     print(colored('Error: ' + ret['message'] + '. Txn: buy-' + market, 'red'))
                     continue
+                else:
+                    uuid = ret['result']['uuid']
+                    print(colored('Buy order placed (uuid): ' + uuid, 'green'))
+                    # TODO add uuid to a container + check its status
                 print(ret)
 
             # ** Sell Action **
@@ -216,6 +220,10 @@ class BittrexClient(Base):
                 if not ret['success']:
                     print(colored('Error: ' + ret['message'] + '. Txn: sell-' + market, 'red'))
                     continue
+                else:
+                    uuid = ret['result']['uuid']
+                    print(colored('Sell order placed (uuid): ' + uuid, 'green'))
+                    # TODO add uuid to a container + check its status
                 print(ret)
 
         return actions
