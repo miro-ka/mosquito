@@ -24,11 +24,10 @@ class Base(ABC):
         self.args = args
         self.config = self.initialize_config(config_file)
         self.exchange = Exchange(args, config_file, trade_mode)
-        self.transaction_fee = float(self.config['Trade']['transaction_fee'])
+        self.transaction_fee = self.exchange.get_transaction_fee()
         self.ticker_df = pd.DataFrame()
         self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
         self.last_tick_epoch = 0
-        self.transaction_fee = float(self.config['Trade']['transaction_fee'])
 
     def process_input_pairs(self, in_pairs):
         all_pairs = self.exchange.get_pairs()

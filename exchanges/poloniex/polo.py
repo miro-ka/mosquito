@@ -13,13 +13,14 @@ class Polo(Base):
     Poloniex interface
     """
 
-    def __init__(self, polo_args, verbosity=2):
+    def __init__(self, config, verbosity=2):
         super(Polo, self).__init__()
-        api_key = polo_args['api_key']
-        secret = polo_args['secret']
+        api_key = config['api_key']
+        secret = config['secret']
+        self.transaction_fee = float(config['transaction_fee'])
         self.polo = Poloniex(api_key, secret)
-        self.buy_order_type = polo_args['buy_order_type']
-        self.sell_order_type = polo_args['sell_order_type']
+        self.buy_order_type = config['buy_order_type']
+        self.sell_order_type = config['sell_order_type']
         self.verbosity = verbosity
 
     def get_balances(self):
@@ -156,8 +157,7 @@ class Polo(Base):
                     print(colored('Not filled 100% sell txn. Unfilled amount: ' + str(amount_unfilled) + '' + action.pair, 'red'))
         return actions
 
-    @staticmethod
-    def get_buy_sell_all_amount(wallet, action, pair, rate):
+    def get_buy_sell_all_amount(self, wallet, action, pair, rate):
         """
         Calculates total amount for ALL assets in wallet
         """
@@ -177,4 +177,6 @@ class Polo(Base):
             assets = wallet.get(symbol_2)
             amount = assets
 
+        txn_fee_amount = (self.transaction_fee * amount) / 100.0
+        amount -= txn_fee_amount
         return amount

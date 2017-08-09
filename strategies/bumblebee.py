@@ -16,7 +16,7 @@ class Bumblebee(Base):
         super(Bumblebee, self).__init__(args, verbosity)
         self.name = 'ema'
         self.min_history_ticks = 60  # 300 minute interval
-        self.pair = 'BTC_DOGE'
+        self.pair = 'BTC_DGB'
 
     def calculate(self, look_back, wallet):
         """
@@ -26,15 +26,15 @@ class Bumblebee(Base):
         (dataset_cnt, pairs_count) = self.get_dataset_count(look_back, self.group_by_field)
         print('dataset_cnt:', dataset_cnt)
 
-        """
         # !!!Debug!!!
+        """
         if dataset_cnt < 0:
             return self.actions
 
         df = look_back.tail(self.min_history_ticks)
         df = df[df['pair'] == self.pair]
         df_last = df.iloc[[-1]]
-        new_action = TradeState.buy
+        new_action = TradeState.sell
         rate = pd.to_numeric(df_last['close'], downcast='float').iloc[0]
         action = TradeAction(self.pair, new_action, rate=rate, buy_sell_all=True)
         self.actions.append(action)
@@ -92,7 +92,7 @@ class Bumblebee(Base):
             else:
                 rate = pd.to_numeric(df_last['close'], downcast='float').iloc[0]
         elif new_action == TradeState.sell:
-            if 'lowestAsk' in df_last:
+            if 'highestBid' in df_last:
                 rate = pd.to_numeric(df_last['highestBid'], downcast='float').iloc[0]
             else:
                 rate = pd.to_numeric(df_last['close'], downcast='float')

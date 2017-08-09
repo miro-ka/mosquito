@@ -23,6 +23,12 @@ class Exchange:
         self.db = self.initialize_db(config)
         self.ticker = self.db.ticker
 
+    def get_transaction_fee(self):
+        """
+        Returns exchanges transaction fee
+        """
+        return self.exchange.get_transaction_fee()
+
     def get_pairs(self):
         """
         Returns ticker for all pairs

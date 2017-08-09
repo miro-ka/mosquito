@@ -16,15 +16,13 @@ class BittrexClient(Base):
 
     open_orders = []
 
-    def __init__(self, cfg, verbosity=2):
+    def __init__(self, config, verbosity=2):
         super(BittrexClient, self).__init__()
-        api_key = cfg['api_key']
-        secret = cfg['secret']
-        self.transaction_fee = float(cfg['transaction_fee'])
+        api_key = config['api_key']
+        secret = config['secret']
+        self.transaction_fee = float(config['transaction_fee'])
         self.bittrex = Bittrex(api_key, secret)
         self.pair_connect_string = '-'
-        # self.buy_order_type = args['buy_order_type']
-        # self.sell_order_type = args['sell_order_type']
         self.verbosity = verbosity
 
     def get_pairs(self):
@@ -234,7 +232,6 @@ class BittrexClient(Base):
                     self.open_orders.append(uuid)
                     print(colored('Sell order placed (uuid): ' + uuid, 'green'))
                 print(ret)
-
         return actions
 
     def cancel_order(self, order_number):

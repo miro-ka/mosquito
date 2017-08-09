@@ -6,6 +6,8 @@ class Base(ABC):
     Base class for all exchanges
     """
 
+    transaction_fee = 0.0
+
     def __init__(self):
         super(Base, self).__init__()
         self.pair_connect_string = '_'
@@ -16,6 +18,12 @@ class Base(ABC):
         Returns your open orders
         """
         pass
+
+    def get_transaction_fee(self):
+        """
+        Returns exchanges transaction fee
+        """
+        return self.transaction_fee
 
     @abstractmethod
     def cancel_order(self, order_number):
