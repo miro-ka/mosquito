@@ -43,10 +43,22 @@ def main(args):
         return
 
     # Get list of all currencies
+    all_pairs = exchange.get_pairs()
     if args.all:
-        pairs = exchange.get_pairs()
+        pairs = all_pairs
     elif args.pair is not None:
-        pairs = [args.pair]
+        tmp_pairs = [args.pair]
+        pairs = []
+        # Handle * suffix pairs
+        for pair in tmp_pairs:
+            if '*' in pair:
+                prefix = pair.replace('*', '')
+                pairs_list = [p for p in all_pairs if prefix in p]
+                pairs.extend(pairs_list)
+                # remove duplicates
+                pairs = list(set(pairs))
+            else:
+                pairs.append(pair)
 
     # Get the candlestick data
     epoch_now = int(time.time())
@@ -82,7 +94,7 @@ def main(args):
 if __name__ == "__main__":
     # Parse input
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pair", help="Pair to backfill. For ex. [BTC_ETH]")
+    parser.add_argument("--pair", help="Pair to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_* prefixed pairs]")
     parser.add_argument("--all", help="Backfill data for ALL currencies", action='store_true')
     parser.add_argument("--days", help="Number of days to backfill", required=True, type=int)
     in_args = parser.parse_args()

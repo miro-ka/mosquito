@@ -54,6 +54,38 @@ Mosquito currently supports following exchanges:
 ## Backfill
 Backfill gets history data from exchange and stores them to mongodb. Data can be after that used for testing your simulation strategies.
 
+usage: backfill.py [-h] [--pair PAIR] [--all] --days DAYS
+
+```
+optional arguments:
+  -h, --help   show this help message and exit
+  --pair PAIR  Pair to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_*
+               prefixed pairs]
+  --all        Backfill data for ALL currencies
+  --days DAYS  Number of days to backfill
+```
+  
+
+Example 1) Load historical data for BTC_ETH pair for the last 5 days:
+```
+python3 backfill --days 5 --pair BTC_USD
+```
+
+Example 2) Load historical data for ALL pairs for the last 2 days
+```
+python3 backfill --days 3 --all
+```
+
+Example 3) Load historical data for all pairs starting with BTC_ for the last day
+```
+python3 backfill --days 1 --pairs BTC_*
+```
+
+
+
+## Trading
+This is the main module that handles passed strategy and places buy/sell orders. 
+
 ```
 usage: mosquito.py [-h] [--backtest] [--paper] [--live] [--strategy STRATEGY] [--plot]
 
@@ -66,20 +98,6 @@ optional arguments:
   --plot               Generate a candle stick plot at simulation end
 
 ```
-
-Example below load historical data for BTC_ETH pair for the last 5 days
-```
-python3 backfill --days 5 --pair BTC_USD
-```
-
-Example below load historical data for ALL pairs for the last 2 days
-```
-python3 backfill --days 3 --all
-```
-
-
-## Trading
-This is the main module that handles passed strategy and places buy/sell orders. 
 
 Currently Trading supports following modes:
  * **Backtest** - fast simulation mode using past data and placing fictive buy/sell orders.
