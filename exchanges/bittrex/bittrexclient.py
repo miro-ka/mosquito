@@ -14,10 +14,13 @@ class BittrexClient(Base):
     Bittrex interface
     """
 
-    def __init__(self, args, verbosity=2):
+    open_orders = []
+
+    def __init__(self, cfg, verbosity=2):
         super(BittrexClient, self).__init__()
-        api_key = args['api_key']
-        secret = args['secret']
+        api_key = cfg['api_key']
+        secret = cfg['secret']
+        self.transaction_fee = float(cfg['transaction_fee'])
         self.bittrex = Bittrex(api_key, secret)
         self.pair_connect_string = '-'
         # self.buy_order_type = args['buy_order_type']
@@ -103,7 +106,7 @@ class BittrexClient(Base):
     @staticmethod
     def get_volume_from_history(history, candle_size):
         """
-        Returns valume for given candle_size
+        Returns volume for given candle_size
         :param history: history data
         :param candle_size: in minutes
         :return: Calculated volume for given candle_size
@@ -170,6 +173,12 @@ class BittrexClient(Base):
         elif action == TradeState.sell and symbol_2 in wallet:
             assets = wallet.get(symbol_2)
             amount = assets
+
+        if amount <= 0.0:
+            return 0.0
+
+        txn_fee_amount = (self.transaction_fee * amount) / 100.0
+        amount -= txn_fee_amount
         return amount
 
     def life_trade(self, actions):
@@ -209,8 +218,8 @@ class BittrexClient(Base):
                     continue
                 else:
                     uuid = ret['result']['uuid']
+                    self.open_orders.append(uuid)
                     print(colored('Buy order placed (uuid): ' + uuid, 'green'))
-                    # TODO add uuid to a container + check its status
                 print(ret)
 
             # ** Sell Action **
@@ -222,39 +231,20 @@ class BittrexClient(Base):
                     continue
                 else:
                     uuid = ret['result']['uuid']
+                    self.open_orders.append(uuid)
                     print(colored('Sell order placed (uuid): ' + uuid, 'green'))
-                    # TODO add uuid to a container + check its status
                 print(ret)
 
         return actions
-
-
-
-
-
-
-
-    def return_ticker(self):
-        # TODO
-        raise Exception('return_ticker')
-
-        """
-        Returns ticker for all currencies
-        """
-        return self.bittrex.returnTicker()
 
     def cancel_order(self, order_number):
         """
         Cancels order for given order number
         """
-        # TODO
-        raise Exception('cancel_order')
-        return self.bittrex.cancelOrder(order_number)
+        return self.bittrex.cancel(order_number)
 
-    def return_open_orders(self, currency_pair='all'):
+    def return_open_orders(self, currency_pair=''):
         """
-        Returns your open orders
+        Returns open orders
         """
-        # TODO
-        raise Exception('return_open_orders')
-        return self.bittrex.returnOpenOrders(currency_pair)
+        return self.bittrex.get_open_orders(currency_pair)
