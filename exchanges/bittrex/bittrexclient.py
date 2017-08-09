@@ -49,6 +49,10 @@ class BittrexClient(Base):
         got_min_epoch_ticker = False
         raw_tickers = []
 
+        if tickers is None:
+            print(colored('\n! Got empty tickers for pair: ' + currency_pair, 'red'))
+            return dict()
+
         # Parse tickers
         for ticker in tickers:
             epoch = int(time.mktime(time.strptime(ticker['T'], pattern)))
@@ -72,14 +76,14 @@ class BittrexClient(Base):
 
             raw_tickers.append(raw_ticker)
         if not got_min_epoch_ticker:
-            print('Not able to get all data (data not available) for pair:', currency_pair)
+            print(colored('Not able to get all data (data not available) for pair: ' + currency_pair, 'red'))
 
         # Create/interpolate raw tickers to fit our interval ticker
         out_tickers = []
         for ticker_epoch in range(epoch_start, epoch_end, period):
             items = [element for element in raw_tickers if element['date'] <= ticker_epoch]
             if len(items) < 0:
-                print(colored('Could not found a ticker for:', currency_pair, ticker_epoch), 'red')
+                print(colored('Could not found a ticker for:' + currency_pair + ', epoch:' + str(ticker_epoch), 'red'))
                 continue
             # Get the last item (should be closest to search epoch)
             item = items[-1].copy()
