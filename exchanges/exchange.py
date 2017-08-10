@@ -3,6 +3,7 @@ from .poloniex.polo import Polo
 from .bittrex.bittrexclient import BittrexClient
 from pymongo import MongoClient
 import pandas as pd
+from termcolor import colored
 
 
 class Exchange:
@@ -106,7 +107,7 @@ class Exchange:
                                           {"exchange": self.exchange_name}]})
 
             if db_doc is None:
-                print('not data for pair:', pair, ', epoch:', epoch)
+                print(colored('No offline data for pair: ' + pair + ', epoch:' + str(epoch), 'red'))
                 continue
 
             dict_keys = list(db_doc.keys())

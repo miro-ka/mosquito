@@ -67,7 +67,7 @@ class Report:
                                                                  self.initial_closing_prices)
         # print('ticker_data....', ticker_data)
         date_time = datetime.fromtimestamp(ticker_data['date'][0]).strftime('%c') + ','
-        current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f') + ','
+        current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f')
         # Wallet
         wallet_text = self.get_wallet_text(wallet.current_balance)
         # Balance
