@@ -45,6 +45,10 @@ class BittrexClient(Base):
         currency_pair = currency_pair.replace('_', self.pair_delimiter)
         pattern = '%Y-%m-%dT%H:%M:%S'
         res = self.bittrex.get_ticks(currency_pair, 'fiveMin')
+        if res is None:
+            print(colored('\n! Got empty result for pair: ' + currency_pair, 'red'))
+            return dict()
+
         tickers = res['result']
         got_min_epoch_ticker = False
         raw_tickers = []
