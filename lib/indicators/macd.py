@@ -15,18 +15,19 @@ def macd(close, previous_macds=[], fast_period=12, slow_period=26, signal_period
               ' passed: ' + str(dataset_size))
         return None, None
 
-    ema_slow = talib.EMA(close, timeperiod=slow_period)[-1]
-    ema_fast = talib.EMA(close[-fast_period:], timeperiod=fast_period)[-1]
+    try:
+        ema_slow = talib.EMA(close, timeperiod=slow_period)[-1]
+        ema_fast = talib.EMA(close[-fast_period:], timeperiod=fast_period)[-1]
+        macd_value = ema_fast - ema_slow
 
-    macd_value = ema_fast - ema_slow
-    # if math.isnan(macd_value):
-    #    print('Macd got nan:', close)
-
-    # print('previous_macds:', previous_macds)
-    if len(previous_macds) < signal_period:
-        signal_line = None
-    else:
-        signal_line = talib.EMA(previous_macds[-signal_period:], timeperiod=signal_period)[-1]
+        # print('previous_macds:', previous_macds)
+        if len(previous_macds) < signal_period:
+            signal_line = None
+        else:
+            signal_line = talib.EMA(previous_macds[-signal_period:], timeperiod=signal_period)[-1]
+    except Exception as e:
+        print('Got Exception in macd.py. Details: ' + str(e) + '. Data: ' + signal_period)
+        return None, None
 
     return macd_value, signal_line
 
