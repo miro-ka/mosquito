@@ -9,6 +9,12 @@ def macd(close, previous_macds=[], fast_period=12, slow_period=26, signal_period
         - macd
         - macd_line
     """
+    dataset_size = close.size
+    if dataset_size < slow_period-1:
+        print('Error in macd.py: passed not enough data! Required: ' + str(slow_period) +
+              ' passed: ' + str(dataset_size))
+        return None, None
+
     ema_slow = talib.EMA(close, timeperiod=slow_period)[-1]
     ema_fast = talib.EMA(close[-fast_period:], timeperiod=fast_period)[-1]
 
