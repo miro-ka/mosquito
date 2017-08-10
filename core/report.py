@@ -120,22 +120,24 @@ class Report:
         # 1) If currency is root one, just return it
         if currency == root_currency:
             return value
+
         # 2) If we have exchange rate towards root_currency, return that one
-        pair = root_currency + '_' + currency
+        pair = root_currency + self.pair_delimiter + currency
         pair_tick = ticker_data.loc[ticker_data.pair == pair]
         # pair_tick = ticker_data.loc[ticker_data['pair'] == pair]
         if not pair_tick.empty:
             closing_price = pair_tick['close'].iloc[0]
             return closing_price * value
-        # 3) If we didn't find root find exchange rate for BTC and then to root
-        btc_pair = 'BTC' + self.pair_delimiter + currency
-        btc_tick = ticker_data.loc[ticker_data['pair'] == btc_pair]
-        if currency != 'BTC' and not btc_tick.empty:
-            # If we have found it, get roots exchange value
-            closing_price = btc_tick['close'].iloc[0]
-            btc_value = closing_price * value
-            rate_value = self.get_exchange_rate_value('BTC', ticker_data, btc_value, root_currency)
-            return rate_value
+
+        # 2) If we didn't find root-currency try to find currency-pair ticker
+        pair = currency + self.pair_delimiter + root_currency
+        pair_tick = ticker_data.loc[ticker_data.pair == pair]
+        # pair_tick = ticker_data.loc[ticker_data['pair'] == pair]
+        if not pair_tick.empty:
+            closing_price = pair_tick['close'].iloc[0]
+            if closing_price == 0.0:
+                return 0.0
+            return value/closing_price
 
         if self.verbosity > 0:
             print("Couldn't find exchange rate for:", currency)

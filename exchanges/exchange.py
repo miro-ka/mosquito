@@ -113,7 +113,7 @@ class Exchange:
                                           {"exchange": self.exchange_name}]})
 
             if db_doc is None:
-                print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch), 'red'))
+                print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch), 'yellow'))
                 continue
 
             dict_keys = list(db_doc.keys())
