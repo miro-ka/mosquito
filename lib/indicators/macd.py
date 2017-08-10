@@ -26,7 +26,7 @@ def macd(close, previous_macds=[], fast_period=12, slow_period=26, signal_period
         else:
             signal_line = talib.EMA(previous_macds[-signal_period:], timeperiod=signal_period)[-1]
     except Exception as e:
-        print('Got Exception in macd.py. Details: ' + str(e) + '. Data: ' + signal_period)
+        print('Got Exception in macd.py. Details: ' + str(e) + '. Data: ' + str(previous_macds))
         return None, None
 
     return macd_value, signal_line
