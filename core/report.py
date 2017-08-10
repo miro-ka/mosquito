@@ -13,12 +13,17 @@ class Report:
     initial_balance = 0.0
     verbosity = 1
 
-    def __init__(self, initial_wallet, pairs, root_report_currency):
+    def __init__(self,
+                 initial_wallet,
+                 pairs,
+                 root_report_currency,
+                 pair_delimiter):
         self.initial_wallet = initial_wallet
         self.pairs = pairs
         self.initial_closing_prices = pd.DataFrame()
         self.root_report_currency = root_report_currency
         self.sim_start_epoch = int(time.time())
+        self.pair_delimiter = pair_delimiter
 
     def set_verbosity(self, verbosity):
         self.verbosity = verbosity
@@ -123,7 +128,7 @@ class Report:
             closing_price = pair_tick['close'].iloc[0]
             return closing_price * value
         # 3) If we didn't find root find exchange rate for BTC and then to root
-        btc_pair = 'BTC_' + currency
+        btc_pair = 'BTC' + self.pair_delimiter + currency
         btc_tick = ticker_data.loc[ticker_data['pair'] == btc_pair]
         if currency != 'BTC' and not btc_tick.empty:
             # If we have found it, get roots exchange value

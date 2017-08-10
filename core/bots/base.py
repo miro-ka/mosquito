@@ -8,6 +8,7 @@ from backfill import main as backfill
 from argparse import Namespace
 import math
 from exchanges.exchange import Exchange
+import re
 
 
 class Base(ABC):
@@ -27,7 +28,14 @@ class Base(ABC):
         self.transaction_fee = self.exchange.get_transaction_fee()
         self.ticker_df = pd.DataFrame()
         self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
+        self.pair_delimiter = self.exchange.get_pair_delimiter()
         self.last_tick_epoch = 0
+
+    def get_pair_delimiter(self):
+        """
+        Returns exchanges pair delimiter
+        """
+        return self.pair_delimiter
 
     def process_input_pairs(self, in_pairs):
         all_pairs = self.exchange.get_pairs()
@@ -121,7 +129,7 @@ class Base(ABC):
                 for asset, amount in assets.items():
                     if amount == 0.0:
                         continue
-                    pair = 'BTC_' + asset
+                    pair = 'BTC' + self.pair_delimiter + asset
                     # If we have the same pair that we want to buy, lets not sell it
                     if pair == action.pair:
                         continue
@@ -141,7 +149,7 @@ class Base(ABC):
                     wallet[root_symbol] = currency + earned_balance
                     wallet[asset] = 0.0
 
-            (currency_symbol, asset_symbol) = tuple(action.pair.split('_'))
+            (currency_symbol, asset_symbol) = tuple(re.split('[-_]', action.pair))
             # Get pairs current closing price
             ticker = self.ticker_df.loc[self.ticker_df['pair'] == action.pair]
             close_price = ticker['close'].iloc[0]

@@ -69,7 +69,8 @@ class Engine:
         # Initialization
         self.report = Report(self.wallet.initial_balance,
                              self.pairs,
-                             self.root_report_currency)
+                             self.root_report_currency,
+                             self.bot.get_pair_delimiter())
         self.report.set_verbosity(self.verbosity)
         self.plot = Plot()
 

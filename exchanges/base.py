@@ -7,10 +7,11 @@ class Base(ABC):
     """
 
     transaction_fee = 0.0
+    pair_delimiter = '_'
 
     def __init__(self):
         super(Base, self).__init__()
-        self.pair_connect_string = '_'
+        self.pair_delimiter = '_'
 
     @abstractmethod
     def return_open_orders(self, currency_pair='all'):
@@ -18,6 +19,12 @@ class Base(ABC):
         Returns your open orders
         """
         pass
+
+    def get_pair_delimiter(self):
+        """
+        Returns exchanges pair delimiter
+        """
+        return self.pair_delimiter
 
     def get_transaction_fee(self):
         """

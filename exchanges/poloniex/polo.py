@@ -22,6 +22,7 @@ class Polo(Base):
         self.buy_order_type = config['buy_order_type']
         self.sell_order_type = config['sell_order_type']
         self.verbosity = verbosity
+        self.pair_delimiter = '_'
 
     def get_balances(self):
         """

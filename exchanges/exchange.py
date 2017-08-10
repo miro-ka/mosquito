@@ -24,6 +24,12 @@ class Exchange:
         self.db = self.initialize_db(config)
         self.ticker = self.db.ticker
 
+    def get_pair_delimiter(self):
+        """
+        Returns exchanges pair delimiter
+        """
+        return self.exchange.get_pair_delimiter()
+
     def get_transaction_fee(self):
         """
         Returns exchanges transaction fee
@@ -107,7 +113,7 @@ class Exchange:
                                           {"exchange": self.exchange_name}]})
 
             if db_doc is None:
-                print(colored('No offline data for pair: ' + pair + ', epoch:' + str(epoch), 'red'))
+                print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch), 'red'))
                 continue
 
             dict_keys = list(db_doc.keys())

@@ -22,7 +22,7 @@ class BittrexClient(Base):
         secret = config['secret']
         self.transaction_fee = float(config['transaction_fee'])
         self.bittrex = Bittrex(api_key, secret)
-        self.pair_connect_string = '-'
+        self.pair_delimiter = '-'
         self.verbosity = verbosity
 
     def get_pairs(self):
@@ -42,7 +42,7 @@ class BittrexClient(Base):
         """
         Returns candlestick chart data
         """
-        currency_pair = currency_pair.replace('_', self.pair_connect_string)
+        currency_pair = currency_pair.replace('_', self.pair_delimiter)
         pattern = '%Y-%m-%dT%H:%M:%S'
         res = self.bittrex.get_ticks(currency_pair, 'fiveMin')
         tickers = res['result']
@@ -131,7 +131,7 @@ class BittrexClient(Base):
         Returns real-time ticker Data-Frame
         :candle_size: size in minutes to calculate the interval
         """
-        market = symbol.replace('_', self.pair_connect_string)
+        market = symbol.replace('_', self.pair_delimiter)
 
         ticker = self.bittrex.get_ticker(market)
         history = self.bittrex.get_market_history(market, 100)['result']
@@ -167,7 +167,7 @@ class BittrexClient(Base):
             print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + pair, 'red'))
             return 0.0
 
-        (symbol_1, symbol_2) = tuple(pair.split(self.pair_connect_string))
+        (symbol_1, symbol_2) = tuple(pair.split(self.pair_delimiter))
         amount = 0.0
         if action == TradeState.buy and symbol_1 in wallet:
             assets = wallet.get(symbol_1)
@@ -188,7 +188,7 @@ class BittrexClient(Base):
         Places orders and returns order number
         """
         for action in actions:
-            market = action.pair.replace('_', self.pair_connect_string)
+            market = action.pair.replace('_', self.pair_delimiter)
 
             # Handle buy_sell_all cases
             wallet = self.get_balances()
