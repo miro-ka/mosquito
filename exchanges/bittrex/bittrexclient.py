@@ -7,6 +7,8 @@ from strategies.enums import TradeState
 from termcolor import colored
 import datetime
 from datetime import timezone
+from dateutil.tz import *
+from dateutil.parser import *
 
 
 class BittrexClient(Base):
@@ -30,6 +32,10 @@ class BittrexClient(Base):
         Returns ticker pairs for all currencies
         """
         markets = self.bittrex.get_market_summaries()
+        if markets is None:
+            print(colored('\n! Got empty markets', 'red'))
+            return None
+
         res = markets['result']
         pairs = []
         for market in res:
@@ -43,7 +49,6 @@ class BittrexClient(Base):
         Returns candlestick chart data
         """
         currency_pair = currency_pair.replace('_', self.pair_delimiter)
-        pattern = '%Y-%m-%dT%H:%M:%S'
         res = self.bittrex.get_ticks(currency_pair, 'fiveMin')
         if res is None:
             print(colored('\n! Got empty result for pair: ' + currency_pair, 'red'))
@@ -59,7 +64,9 @@ class BittrexClient(Base):
 
         # Parse tickers
         for ticker in tickers:
-            epoch = int(time.mktime(time.strptime(ticker['T'], pattern)))
+            naive_dt = parse(ticker['T'])
+            utc_dt = naive_dt.replace(tzinfo=tzutc())
+            epoch = int(utc_dt.timestamp())
 
             if epoch <= epoch_start:
                 got_min_epoch_ticker = True
@@ -160,33 +167,6 @@ class BittrexClient(Base):
             actions = self.life_trade(actions)
             return actions
 
-    def get_buy_sell_all_amount(self, wallet, action, pair, rate):
-        """
-        Calculates total amount for ALL assets in wallet
-        """
-        if action == TradeState.none:
-            return 0.0
-
-        if rate == 0.0:
-            print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + pair, 'red'))
-            return 0.0
-
-        (symbol_1, symbol_2) = tuple(pair.split(self.pair_delimiter))
-        amount = 0.0
-        if action == TradeState.buy and symbol_1 in wallet:
-            assets = wallet.get(symbol_1)
-            amount = assets / rate
-        elif action == TradeState.sell and symbol_2 in wallet:
-            assets = wallet.get(symbol_2)
-            amount = assets
-
-        if amount <= 0.0:
-            return 0.0
-
-        txn_fee_amount = (self.transaction_fee * amount) / 100.0
-        amount -= txn_fee_amount
-        return amount
-
     def life_trade(self, actions):
         """
         Places orders and returns order number
@@ -197,7 +177,7 @@ class BittrexClient(Base):
             # Handle buy_sell_all cases
             wallet = self.get_balances()
             if action.buy_sell_all:
-                action.amount = self.get_buy_sell_all_amount(wallet, action.action, market, action.rate)
+                action.amount = self.get_buy_sell_all_amount(wallet, action)
 
             if self.verbosity > 0:
                 print('Processing live-action: ' + str(action.action) +

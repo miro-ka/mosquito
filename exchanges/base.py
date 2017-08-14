@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from strategies.enums import TradeState
+from termcolor import colored
 
 
 class Base(ABC):
@@ -52,3 +54,30 @@ class Base(ABC):
 
             # In simulation we are just buying straight currency
         return wallet
+
+    def get_buy_sell_all_amount(self, wallet, action):
+        """
+        Calculates total amount for ALL assets in wallet
+        """
+        if action.action == TradeState.none:
+            return 0.0
+
+        if action.rate == 0.0:
+            print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + action.pair, 'red'))
+            return 0.0
+
+        (symbol_1, symbol_2) = tuple(action.pair.split(self.pair_delimiter))
+        amount = 0.0
+        if action.action == TradeState.buy and symbol_1 in wallet:
+            assets = wallet.get(symbol_1)
+            amount = assets / action.rate
+        elif action.action == TradeState.sell and symbol_2 in wallet:
+            assets = wallet.get(symbol_2)
+            amount = assets
+
+        if amount <= 0.0:
+            return 0.0
+
+        txn_fee_amount = (self.transaction_fee * amount) / 100.0
+        amount -= txn_fee_amount
+        return amount

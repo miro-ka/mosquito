@@ -127,7 +127,7 @@ class Engine:
             print(colored('The bots type is NOT specified. You need to choose one action (--sim, --paper, --trade)', 'red'))
             sys.exit()
 
-        print(colored('Starting simulation: ' + str(self.trade_mode) + ', strategy: ' + self.config_strategy_name, 'yellow'))
+        print(colored('Starting simulation: ' + str(self.trade_mode) + ', Strategy: ' + self.config_strategy_name, 'yellow'))
 
         # Prefetch Buffer Data (if enabled in config)
         if self.prefetch:

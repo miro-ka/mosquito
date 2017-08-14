@@ -110,7 +110,7 @@ class Polo(Base):
             # Handle buy_sell_all cases
             wallet = self.get_balances()
             if action.buy_sell_all:
-                action.amount = self.get_buy_sell_all_amount(wallet, action.action, action.pair, action.rate)
+                action.amount = self.get_buy_sell_all_amount(wallet, action)
 
             if self.verbosity > 0:
                 print('Processing live-action: ' + str(action.action) +
@@ -158,26 +158,3 @@ class Polo(Base):
                     print(colored('Not filled 100% sell txn. Unfilled amount: ' + str(amount_unfilled) + '' + action.pair, 'red'))
         return actions
 
-    def get_buy_sell_all_amount(self, wallet, action, pair, rate):
-        """
-        Calculates total amount for ALL assets in wallet
-        """
-        if action == TradeState.none:
-            return 0.0
-
-        if rate == 0.0:
-            print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + pair, 'red'))
-            return 0.0
-
-        (symbol_1, symbol_2) = tuple(pair.split('_'))
-        amount = 0.0
-        if action == TradeState.buy and symbol_1 in wallet:
-            assets = wallet.get(symbol_1)
-            amount = assets/rate
-        elif action == TradeState.sell and symbol_2 in wallet:
-            assets = wallet.get(symbol_2)
-            amount = assets
-
-        txn_fee_amount = (self.transaction_fee * amount) / 100.0
-        amount -= txn_fee_amount
-        return amount

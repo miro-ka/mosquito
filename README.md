@@ -1,6 +1,6 @@
 <img src="https://user-images.githubusercontent.com/1301154/28501904-86816828-6fe6-11e7-81a0-73c7d6afe5d5.png" width="480">
 
-Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms, inspired by [zenbot](https://github.com/carlos8f/zenbot)
+Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms, inspired by [zenbot.](https://github.com/carlos8f/zenbot)
 
 [![Build Status](https://travis-ci.org/miti0/mosquito.svg?branch=master)](https://travis-ci.org/miti0/mosquito)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d037c01ffa2441118ae709efeaae34b1)](https://www.codacy.com/app/miti0/mosquito?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=miti0/mosquito&amp;utm_campaign=Badge_Grade)

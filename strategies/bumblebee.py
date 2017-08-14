@@ -4,7 +4,7 @@ from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState
 import pandas as pd
-from lib.indicators.percentchange import percent_change
+from lib.indicators.ropc import ropc
 
 
 class Bumblebee(Base):
@@ -74,7 +74,7 @@ class Bumblebee(Base):
         new_action = TradeState.none
 
         # Calculate perc. change for 'hand-brake
-        perc_change = percent_change(look_back, 2)
+        perc_change = ropc(close, 2)
         print('perc_change:', perc_change)
 
         if obv >= 20:

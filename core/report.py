@@ -2,6 +2,7 @@ from termcolor import colored
 import pandas as pd
 import time
 from datetime import datetime
+from dateutil.tz import *
 
 
 class Report:
@@ -70,8 +71,11 @@ class Report:
             self.initialize_start_price(ticker_data)
             self.initial_balance = self.initialize_start_balance(self.initial_wallet,
                                                                  self.initial_closing_prices)
-        # print('ticker_data....', ticker_data)
-        date_time = datetime.fromtimestamp(ticker_data['date'][0]).strftime('%c') + ','
+        epoch_dt = ticker_data['date'][0]
+        utc_dt = datetime.fromtimestamp(epoch_dt, tz=tzutc())
+        local_dt = utc_dt.astimezone(tzlocal())
+
+        date_time = 'Local timestamp: ' + local_dt.strftime('%c') + ','
         current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f')
         # Wallet
         wallet_text = self.get_wallet_text(wallet.current_balance)

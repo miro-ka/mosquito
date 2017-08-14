@@ -4,7 +4,7 @@ from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState
 from lib.indicators.macd import macd
-from lib.indicators.percentchange import percent_change
+from lib.indicators.ropc import ropc
 import math
 import numpy
 
@@ -19,11 +19,11 @@ class Mosquito(Base):
         super(Mosquito, self).__init__(args, verbosity)
         self.name = 'mosquito'
         self.min_history_ticks = 26
-        self.previous_obvs1 = {}
-        self.previous_obvs2 = {}
-        self.interval1 = 6
-        self.interval2 = 12
+        self.previous_obv = {}
+        self.obv_interval = 3
         self.previous_macds = {}
+        self.active_pair = None
+        self.prev_pair_adx = {}
 
     def calculate(self, look_back, wallet):
         """
@@ -41,47 +41,38 @@ class Mosquito(Base):
         look_back = look_back.tail(pairs_count * self.min_history_ticks)
         pairs_names = look_back.pair.unique()
 
-        indicators = []  # tuple(pair, interval, slope, ema, obv)
+        indicators = []
         for pair in pairs_names:
             df = look_back.loc[look_back['pair'] == pair].sort_values('date')
+            # Check if the dataset has required buffer size
+            df_size = len(df.index)
+            if df_size < self.min_history_ticks:
+                continue
+
             close = df['close'].values
+            volume = df['volume'].values
 
             # ************** Calc OBV
-            """
-            volume = df['volume'].values
-            obv1_now = talib.OBV(close[-self.interval1:], volume[-self.interval1:])[-1]
-            obv2_now = talib.OBV(close[-self.interval2:], volume[-self.interval2:])[-1]
+            obv_now = talib.OBV(close[-self.obv_interval:], volume[-self.obv_interval:])[-1]
 
-            if pair not in self.previous_obvs1 or pair not in self.previous_obvs2:
+            buffer_ready = True
+            if pair not in self.previous_obv:
                 # print('missing previous_obvs, skipping pair: ' + pair)
-                self.previous_obvs1[pair] = obv1_now
-                self.previous_obvs2[pair] = obv2_now
-                continue
+                self.previous_obv[pair] = obv_now
+                buffer_ready = False
 
-            obv1_prev = self.previous_obvs1[pair]
-            obv2_prev = self.previous_obvs2[pair]
+            self.previous_obv[pair] = obv_now
+            if self.previous_obv[pair] > obv_now > 0:
+                print('OBV is down-trending, skipping pair: ' + pair)
 
-            obv1_perc_change = ((obv1_now - obv1_prev) * 100) / obv1_prev
-            obv2_perc_change = ((obv2_now - obv2_prev) * 100) / obv2_prev
-
-            if self.verbosity > 0:
-                print('obv:')
-                print('\tobv1_now:', obv1_now)
-                print('\tobv2_now:', obv2_now)
-                print('\tobv1_now:', obv1_prev)
-                print('\tobv2_now:', obv2_prev)
-                print('\tobv1_perc_change:', obv1_perc_change)
-                print('\tobv2_perc_change:', obv2_perc_change)
-
-            self.previous_obvs1[pair] = obv1_now
-            self.previous_obvs2[pair] = obv2_now
-
-            if obv1_perc_change <= 0 or obv2_perc_change <= 0:
-                print('Got negative obv, skipping pair: ' + pair)
-                continue
-
-            obv_perc_change = obv1_perc_change - (obv2_perc_change/2.0)
-            """
+            # ************** Get ADX
+            high = df['high'].values
+            low = df['low'].values
+            adx = talib.ADX(high, low, close, timeperiod=3)
+            adx = adx[-1]
+            if pair not in self.prev_pair_adx:
+                self.prev_pair_adx[pair] = adx
+                buffer_ready = False
 
             # ************** Get MACD
             prev_pair_macds = [] if pair not in self.previous_macds else self.previous_macds[pair]
@@ -90,60 +81,71 @@ class Mosquito(Base):
             prev_pair_macds = prev_pair_macds[-9:]
             self.previous_macds[pair] = prev_pair_macds
             if signal_line is None:
+                buffer_ready = False
+
+            # If we don't have all data in our buffer, just skip the pair
+            if not buffer_ready:
                 continue
 
-            if self.verbosity > 0:
+            # Add conditions
+            # ADX
+            if adx < self.prev_pair_adx[pair]:
+                self.prev_pair_adx[pair] = adx
+                continue
+            self.prev_pair_adx[pair] = adx
+
+            # MACD - Skip pairs that has down-trending indicator
+            if self.verbosity > 5:
                 print('macd_value:', macd_value)
                 print('signal_line:', signal_line)
-
-            # Skip pairs that has down-trending indicator
-            if math.isnan(macd_value) or macd_value < signal_line:
-                print('Got negative macd, skipping pair: ' + pair)
-                continue
-
-            # ************** Calc RSI
-            rsi = talib.RSI(close[-15:], timeperiod=14)[-1]
-            print('rsi:', rsi)
-            if rsi > 70:
-                print('RSI indicating to overbought, skipping pair: ' + pair)
-                continue
-
-            # ************** Calc SMA
-            sma_interva1 = 6
-            sma_interva2 = 18
-            sma1 = talib.SMA(close[-sma_interva1:], timeperiod=sma_interva1)[-1]
-            sma2 = talib.SMA(close[-sma_interva2:], timeperiod=sma_interva2)[-1]
-            print('sma1:', sma1, 'sma2:', sma2)
-            if sma1 < 0.0 or sma2 < 0.0:
+            if math.isnan(macd_value) or 0 > macd_value < signal_line:
+                # print('Got negative macd, skipping pair: ' + pair)
                 continue
 
             # ************** Calc EMA
-            ema1 = talib.EMA(close[-self.interval1:], timeperiod=self.interval1)[-1]
-            ema2 = talib.EMA(close[-self.interval2:], timeperiod=self.interval2)[-1]
-            print('ema1:', ema1, 'ema2:', ema2)
-            if ema1 < 0.0 or ema2 < 0.0:
+            ema_interval1 = 25
+            # ema_interval2 = 9
+            ema1 = talib.EMA(close[-ema_interval1:], timeperiod=ema_interval1)[-1]
+            # ema2 = talib.EMA(close[-ema_interval2:], timeperiod=ema_interval2)[-1]
+            # print('ema1:', ema1, 'ema2:', ema2)
+            if ema1 < 0.0:  # or ema2 < 0.0:
                 continue
-            # ema_perc_change = ((ema1 - ema2) * 100) / ema2
 
-            # ************** Calc Perc Change
-            perc_change1 = percent_change(df, n_size=self.interval1)
-            perc_change2 = percent_change(df, n_size=self.interval2)
-            if perc_change1 <= 0.0 or perc_change2 <= 0.0:
+            # ************** ROPC
+            ropc_interval = 5
+            ropc_res = ropc(close[-ropc_interval:], timeperiod=ropc_interval)
+            if ropc_res < 0.0:
                 continue
-            perc_change_sum = perc_change1 + perc_change2/2.0
 
-            indicators.append((pair, perc_change_sum))
+            indicators.append((pair, ropc_res))
 
-        # Sort
-        sorted_indicators = sorted(indicators, key=lambda x: x[1], reverse=True)
-
-        if len(sorted_indicators) <= 0:
+        # Handle case when no indicators have up-trend
+        if len(indicators) <= 0:
+            if self.active_pair is None:
+                return self.actions
+            # If no pair has up-trend sell the active_pair
+            close_pair_price = look_back.loc[look_back['pair'] == self.active_pair].sort_values('date').close.iloc[0]
+            action = TradeAction(self.active_pair,
+                                 TradeState.sell,
+                                 amount=None,
+                                 rate=close_pair_price,
+                                 buy_sell_all=True)
+            # TODO: here we have to be sure that the action was successful
+            self.active_pair = None
+            self.actions.append(action)
             return self.actions
 
-        print('sorted_indicators:', sorted_indicators)
-        middle_one = (len(sorted_indicators)-1) / 2
+        # If active_pair is still up-trending keep it
+        if self.active_pair is not None:
+            contains_active_pair = [item for item in indicators if item[0] == self.active_pair]
+            if len(contains_active_pair) > 0:
+                return self.actions
+
+        # Handle new up-trending pairs
+        sorted_indicators = sorted(indicators, key=lambda x: x[1], reverse=True)
         winner = sorted_indicators[0]
         winner_pair = winner[0]
+        self.active_pair = winner_pair
         close_pair_price = look_back.loc[look_back['pair'] == winner_pair].sort_values('date').close.iloc[0]
         action = TradeAction(winner_pair,
                              TradeState.buy,
@@ -151,6 +153,7 @@ class Mosquito(Base):
                              rate=close_pair_price,
                              buy_sell_all=True)
         self.actions.append(action)
+        print('sorted_indicators:', len(sorted_indicators), 'items:', sorted_indicators)
         return self.actions
 
 

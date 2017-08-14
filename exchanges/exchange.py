@@ -21,6 +21,7 @@ class Exchange:
         # if self.trade_mode == TradeMode.backtest:
         config = configparser.ConfigParser()
         config.read(config_file)
+        self.verbosity = int(config['General']['verbosity'])
         self.db = self.initialize_db(config)
         self.ticker = self.db.ticker
 
@@ -113,7 +114,8 @@ class Exchange:
                                           {"exchange": self.exchange_name}]})
 
             if db_doc is None:
-                print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch), 'yellow'))
+                if self.verbosity >= 3:
+                    print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch), 'yellow'))
                 continue
 
             dict_keys = list(db_doc.keys())

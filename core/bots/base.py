@@ -9,6 +9,7 @@ from argparse import Namespace
 import math
 from exchanges.exchange import Exchange
 import re
+from strategies.enums import TradeState
 
 
 class Base(ABC):
@@ -106,6 +107,35 @@ class Base(ABC):
         """
         return self.balance
 
+    def sell_all_assets(self, trades, wallet, pair_to_hold):
+        """
+        Sells all available assets in wallet
+        """
+        assets = wallet.copy()
+        del assets['BTC']
+        for asset, amount in assets.items():
+            if amount == 0.0:
+                continue
+            pair = 'BTC' + self.pair_delimiter + asset
+            # If we have the same pair that we want to buy, lets not sell it
+            if pair == pair_to_hold:
+                continue
+            ticker = self.ticker_df.loc[self.ticker_df['pair'] == pair]
+            if ticker.empty:
+                print('No currency data for pair: ' + pair + ', skipping')
+                continue
+            close_price = ticker['close'].iloc[0]
+            fee = self.transaction_fee * float(amount) / 100.0
+            print('txn fee:', fee, ', balance before: ', amount, ', after: ', amount - fee)
+            amount -= fee
+            earned_balance = close_price * amount
+            root_symbol = 'BTC'
+            currency = wallet[root_symbol]
+            # Store trade history
+            trades.loc[len(trades)] = [ticker['date'].iloc[0], pair, close_price, 'sell']
+            wallet[root_symbol] = currency + earned_balance
+            wallet[asset] = 0.0
+
     def trade(self, actions, wallet, trades, force_sell=True):
         """
         force_sell: Sells ALL assets before buying new one
@@ -118,41 +148,19 @@ class Base(ABC):
             return actions
 
         for action in actions:
-            # None
+            # If action is None, just skip it
             if action.action == ts.none:
                 actions.remove(action)
                 continue
+
             # If we are forcing_sell, we will first sell all our assets
             if force_sell:
-                assets = wallet.copy()
-                del assets['BTC']
-                for asset, amount in assets.items():
-                    if amount == 0.0:
-                        continue
-                    pair = 'BTC' + self.pair_delimiter + asset
-                    # If we have the same pair that we want to buy, lets not sell it
-                    if pair == action.pair:
-                        continue
-                    ticker = self.ticker_df.loc[self.ticker_df['pair'] == pair]
-                    if ticker.empty:
-                        print('No currency data for pair: ' + pair + ', skipping')
-                        continue
-                    close_price = ticker['close'].iloc[0]
-                    fee = self.transaction_fee*float(amount)/100.0
-                    print('txn fee:', fee, ', balance before: ', amount, ', after: ', amount-fee)
-                    amount -= fee
-                    earned_balance = close_price * amount
-                    root_symbol = 'BTC'
-                    currency = wallet[root_symbol]
-                    # Store trade history
-                    trades.loc[len(trades)] = [ticker['date'].iloc[0], pair, close_price, 'sell']
-                    wallet[root_symbol] = currency + earned_balance
-                    wallet[asset] = 0.0
+                self.sell_all_assets(trades, wallet, action.pair)
 
-            (currency_symbol, asset_symbol) = tuple(re.split('[-_]', action.pair))
             # Get pairs current closing price
+            (currency_symbol, asset_symbol) = tuple(re.split('[-_]', action.pair))
             ticker = self.ticker_df.loc[self.ticker_df['pair'] == action.pair]
-            close_price = ticker['close'].iloc[0]
+            close_price = action.rate
 
             currency_balance = asset_balance = 0.0
             if currency_symbol in wallet:
@@ -160,37 +168,61 @@ class Base(ABC):
             if asset_symbol in wallet:
                 asset_balance = wallet[asset_symbol]
 
-            # Buy
+            if action.buy_sell_all:
+                action.amount = self.get_buy_sell_all_amount(wallet, action)
+
+            fee = self.transaction_fee * float(action.amount) / 100.0
+            # *** Buy ***
             if action.action == ts.buy:
                 if currency_balance <= 0:
                     print('Want to buy ' + action.pair + ', not enough money, or everything already bought..')
                     actions.remove(action)
                     continue
-                print(colored('Buying ' + action.pair, 'green'))
-                fee = self.transaction_fee * float(currency_balance) / 100.0
-                # print('txn fee:', fee, ',currency_balance: ', currency_balance, ', after: ', currency_balance-fee)
-                currency_balance -= fee
-                wallet[asset_symbol] = asset_balance + (currency_balance / close_price)
-                wallet[currency_symbol] = 0.0
+                print(colored('Bought: ' + str(action.amount) + ', pair: ' + action.pair + ', price: ' + str(close_price), 'green'))
+                wallet[asset_symbol] = asset_balance + action.amount - fee
+                wallet[currency_symbol] = currency_balance - (action.amount*action.rate)
                 # Append trade
                 trades.loc[len(trades)] = [ticker['date'].iloc[0], action.pair, close_price, 'buy']
                 actions.remove(action)
                 continue
-            # Sell
+
+            # *** Sell ***
             elif action.action == ts.sell:
                 if asset_balance <= 0:
                     print('Want to sell ' + action.pair + ', not enough assets, or everything already sold..')
                     actions.remove(action)
                     continue
-                print(colored('Selling ' + action.pair, 'yellow'))
-                fee = self.transaction_fee * float(currency_balance) / 100.0
-                # print('txn fee:', fee, ',asset_balance: ', asset_balance, ', after: ', asset_balance-fee)
-                asset_balance -= fee
-                wallet[currency_symbol] = currency_balance + (asset_balance * close_price)
-                wallet[asset_symbol] = 0.0
+                print(colored('Sold: ' + str(action.amount) + '' + action.pair + ', price: ' + str(close_price), 'yellow'))
+                wallet[currency_symbol] = currency_balance + ((action.amount-fee)*action.rate)
+                wallet[asset_symbol] = asset_balance - action.amount
                 # Append trade
                 trades.loc[len(trades)] = [ticker['date'].iloc[0], action.pair, close_price, 'sell']
                 actions.remove(action)
                 continue
         self.balance = wallet
         return actions
+
+    def get_buy_sell_all_amount(self, wallet, action):
+        """
+        Calculates total amount for ALL assets in wallet
+        """
+        if action.action == TradeState.none:
+            return 0.0
+
+        if action.rate == 0.0:
+            print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + action.pair, 'red'))
+            return 0.0
+
+        (symbol_1, symbol_2) = tuple(action.pair.split(self.pair_delimiter))
+        amount = 0.0
+        if action.action == TradeState.buy and symbol_1 in wallet:
+            assets = wallet.get(symbol_1)
+            amount = assets / action.rate
+        elif action.action == TradeState.sell and symbol_2 in wallet:
+            assets = wallet.get(symbol_2)
+            amount = assets
+
+        if amount <= 0.0:
+            return 0.0
+
+        return amount
