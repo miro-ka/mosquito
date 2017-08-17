@@ -119,6 +119,21 @@ class Engine:
                            self.plot_pair)
         self.report.write_final_stats(self.first_ticker, self.last_valid_ticker, self.wallet, self.trades)
 
+    @staticmethod
+    def validate_ticker(df):
+        """
+        Validates if the given dataframe contains mandatory fields
+        """
+        columns_to_check = ['close', 'volume']
+        df_column_names = list(df)
+        if not set(columns_to_check).issubset(df_column_names):
+            return False
+        nan_columns = df.columns[df.isnull().any()].tolist()
+        nans = [i for i in nan_columns if i in columns_to_check]
+        if len(nans) > 0:
+            return False
+        return True
+
     def run(self):
         """
         This is the main simulation loop
@@ -136,11 +151,16 @@ class Engine:
 
         try:
             while True:
-                # Get next ticker set and save it to our container
+                # Get next ticker
                 self.ticker = self.bot.get_next(self.interval)
                 if self.ticker.empty:
                     print("No more data,..simulation done,. quitting")
                     exit(0)
+
+                # Check if ticker is valid
+                if not self.validate_ticker(self.ticker):
+                    print(colored('Received invalid ticker, will have to skip it! Details:\n' + str(self.ticker), 'red'))
+                    continue
 
                 # Save ticker to buffer
                 self.history = self.history.append(self.ticker, ignore_index=True)

@@ -65,15 +65,6 @@ class Mosquito(Base):
             if self.previous_obv[pair] > obv_now > 0:
                 print('OBV is down-trending, skipping pair: ' + pair)
 
-            # ************** Get ADX
-            high = df['high'].values
-            low = df['low'].values
-            adx = talib.ADX(high, low, close, timeperiod=3)
-            adx = adx[-1]
-            if pair not in self.prev_pair_adx:
-                self.prev_pair_adx[pair] = adx
-                buffer_ready = False
-
             # ************** Get MACD
             prev_pair_macds = [] if pair not in self.previous_macds else self.previous_macds[pair]
             macd_value, signal_line = macd(close, numpy.asarray(prev_pair_macds))
@@ -87,13 +78,7 @@ class Mosquito(Base):
             if not buffer_ready:
                 continue
 
-            # Add conditions
-            # ADX
-            if adx < self.prev_pair_adx[pair]:
-                self.prev_pair_adx[pair] = adx
-                continue
-            self.prev_pair_adx[pair] = adx
-
+            # *** Add conditions ***
             # MACD - Skip pairs that has down-trending indicator
             if self.verbosity > 5:
                 print('macd_value:', macd_value)
@@ -103,21 +88,20 @@ class Mosquito(Base):
                 continue
 
             # ************** Calc EMA
-            ema_interval1 = 25
-            # ema_interval2 = 9
-            ema1 = talib.EMA(close[-ema_interval1:], timeperiod=ema_interval1)[-1]
-            # ema2 = talib.EMA(close[-ema_interval2:], timeperiod=ema_interval2)[-1]
-            # print('ema1:', ema1, 'ema2:', ema2)
-            if ema1 < 0.0:  # or ema2 < 0.0:
+            sma_interval_short = 5
+            sma_interval_long = 15
+            sma_short = talib.SMA(close[-sma_interval_short:], timeperiod=sma_interval_short)[-1]
+            sma_long = talib.SMA(close[-sma_interval_long:], timeperiod=sma_interval_long)[-1]
+            if sma_short <= sma_long:  # If we are below death cross, skip pair
                 continue
 
             # ************** ROPC
             ropc_interval = 5
             ropc_res = ropc(close[-ropc_interval:], timeperiod=ropc_interval)
-            if ropc_res < 0.0:
+            if ropc_res < 1.0:
                 continue
 
-            indicators.append((pair, ropc_res))
+            indicators.append((pair, sma_short))
 
         # Handle case when no indicators have up-trend
         if len(indicators) <= 0:

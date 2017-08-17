@@ -191,7 +191,7 @@ class BittrexClient(Base):
 
             # If we don't have enough assets, just skip/remove the action
             if action.amount == 0.0:
-                print(colored('No assets to buy/sell, ...skipping: ' + str(action.amount) + market, 'green'))
+                print(colored('No assets to buy/sell, ...skipping: ' + str(action.amount) + ' ' + market, 'green'))
                 actions.remove(action)
                 continue
 

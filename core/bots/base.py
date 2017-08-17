@@ -28,6 +28,7 @@ class Base(ABC):
         self.exchange = Exchange(args, config_file, trade_mode)
         self.transaction_fee = self.exchange.get_transaction_fee()
         self.ticker_df = pd.DataFrame()
+        self.verbosity = int(self.config['General']['verbosity'])
         self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
         self.pair_delimiter = self.exchange.get_pair_delimiter()
         self.last_tick_epoch = 0
@@ -127,6 +128,7 @@ class Base(ABC):
             close_price = ticker['close'].iloc[0]
             fee = self.transaction_fee * float(amount) / 100.0
             print('txn fee:', fee, ', balance before: ', amount, ', after: ', amount - fee)
+            print(colored('Sold: ' + str(amount) + ', pair: ' + pair + ', price: ' + str(close_price), 'yellow'))
             amount -= fee
             earned_balance = close_price * amount
             root_symbol = 'BTC'

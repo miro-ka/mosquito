@@ -26,20 +26,25 @@ class Live(Base):
             next_ticker_time = (self.last_tick_epoch + interval * 60)
             delay_second = epoch_now - next_ticker_time
             if delay_second < 0:
-                print('going to sleep for: ', abs(delay_second), ' seconds.')
+                print('Going to sleep for: ', abs(delay_second), ' seconds.')
                 time.sleep(abs(delay_second))
 
         if not self.ticker_df.empty:
             self.ticker_df.drop(self.ticker_df.index, inplace=True)
 
+        print('Fetching data for ' + str(len(self.pairs)) + ' ticker/tickers.', end='', flush=True)
+
         epoch_now = int(time.time())
+
         for pair in self.pairs:
             df = self.exchange.get_symbol_ticker(pair, interval)
             if self.ticker_df.empty:
                 self.ticker_df = df.copy()
             else:
                 self.ticker_df = self.ticker_df.append(df, ignore_index=True)
+            print('.', end='', flush=True)
 
+        print('..done')
         self.last_tick_epoch = epoch_now
         return self.ticker_df
 

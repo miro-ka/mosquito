@@ -24,7 +24,7 @@ class Paper(Base):
             next_ticker_time = (self.last_tick_epoch + interval*60)
             delay_second = epoch_now - next_ticker_time
             if delay_second < 0:
-                print('going to sleep for: ', abs(delay_second), ' seconds.')
+                print('Going to sleep for: ', abs(delay_second), ' seconds.')
                 time.sleep(abs(delay_second))
 
         if not self.ticker_df.empty:
