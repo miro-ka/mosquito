@@ -6,7 +6,7 @@ from exchanges.base import Base
 from strategies.enums import TradeState
 from termcolor import colored
 from json import JSONDecodeError
-
+import time
 
 class Polo(Base):
     """
@@ -23,6 +23,9 @@ class Polo(Base):
         self.sell_order_type = config['sell_order_type']
         self.verbosity = verbosity
         self.pair_delimiter = '_'
+        self.tickers_cache_refresh_interval = 50  # If the ticker request is within the interval, get data from cache
+        self.last_tickers_fetch_epoch = 0  #
+        self.last_tickers_cache = None  # Cache for storing immediate tickers
 
     def get_balances(self):
         """
@@ -39,10 +42,27 @@ class Polo(Base):
 
     def get_symbol_ticker(self, symbol, candle_size=5):
         """
-        Returns real-time ticker Data-Frame
+        Returns real-time ticker Data-Frame for given symbol/pair
+        Info: Currently Poloniex returns tickers for ALL pairs. To speed the queries and avoid
+              unnecessary API calls, this method implements temporary cache
         """
-        ticker = self.polo.returnTicker()[symbol]
-        df = pd.DataFrame.from_dict(ticker, orient="index")
+        epoch_now = int(time.time())
+        if epoch_now < (self.last_tickers_fetch_epoch + self.tickers_cache_refresh_interval):
+            # If the ticker request is within cache_fetch_interval, try to get data from cache
+            pair_ticker = self.last_tickers_cache[symbol].copy()
+        else:
+            # If cache is too old fetch data from Poloniex API
+            try:
+                ticker = self.polo.returnTicker()
+                pair_ticker = ticker[symbol]
+                self.last_tickers_fetch_epoch = int(time.time())
+                self.last_tickers_cache = ticker.copy()
+            except (PoloniexError | JSONDecodeError) as e:
+                print(colored('!!! Got exception in get_symbol_ticker. Details: ' + str(e), 'red'))
+                pair_ticker = self.last_tickers_cache[symbol].copy()
+                pair_ticker = dict.fromkeys(pair_ticker, None)
+
+        df = pd.DataFrame.from_dict(pair_ticker, orient="index")
         df = df.T
         # We will use 'last' price as closing one
         df = df.rename(columns={'last': 'close', 'baseVolume': 'volume'})
