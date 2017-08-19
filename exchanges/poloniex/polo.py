@@ -8,6 +8,7 @@ from termcolor import colored
 from json import JSONDecodeError
 import time
 
+
 class Polo(Base):
     """
     Poloniex interface

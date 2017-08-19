@@ -1,6 +1,7 @@
 from .base import Base
 from core.bots.enums import TradeMode
 import time
+import configparser
 
 
 class Paper(Base):
@@ -11,8 +12,13 @@ class Paper(Base):
     mode = TradeMode.paper
     ticker_df = None
 
-    def __init__(self, args, config_file):
+    def __init__(self, args, config_file, wallet):
         super(Paper, self).__init__(args, config_file, self.mode)
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        self.use_real_wallet = config.getboolean('Paper', 'use_real_wallet')
+        if not self.use_real_wallet:
+            self.balance = wallet
 
     def get_next(self, interval):
         """
@@ -45,7 +51,10 @@ class Paper(Base):
         """
         Returns wallet balance
         """
-        return self.exchange.get_balances()
+        if self.use_real_wallet:
+            return self.exchange.get_balances()
+        else:
+            return self.balance
 
     def trade(self, actions, wallet, trades, force_sell=True):
         """

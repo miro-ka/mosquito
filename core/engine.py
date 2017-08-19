@@ -48,10 +48,10 @@ class Engine:
         trade_columns = ['date', 'pair', 'close_price', 'action']
         self.trades = pd.DataFrame(columns=trade_columns, index=None)
         if args.backtest:
-            self.bot = Backtest(args, config_file)
+            self.bot = Backtest(args, config_file, self.wallet.initial_balance)
             self.trade_mode = TradeMode.backtest
         elif args.paper:
-            self.bot = Paper(args, config_file)
+            self.bot = Paper(args, config_file, self.wallet.initial_balance)
             self.trade_mode = TradeMode.paper
             self.wallet.initial_balance = self.bot.get_balance()
             self.wallet.current_balance = self.bot.get_balance()
