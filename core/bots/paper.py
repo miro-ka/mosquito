@@ -18,7 +18,7 @@ class Paper(Base):
         config.read(config_file)
         self.use_real_wallet = config.getboolean('Paper', 'use_real_wallet')
         if not self.use_real_wallet:
-            self.balance = wallet
+            self.balance = wallet.copy()
 
     def get_next(self, interval):
         """
@@ -54,7 +54,7 @@ class Paper(Base):
         if self.use_real_wallet:
             return self.exchange.get_balances()
         else:
-            return self.balance
+            return self.balance.copy()
 
     def trade(self, actions, wallet, trades, force_sell=True):
         """
