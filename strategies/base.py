@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from .enums import TradeState as ts
-import pandas as pd
 from strategies.enums import TradeState
 
 
@@ -46,15 +45,19 @@ class Base(ABC):
         """
         Returns price based on on the given action and dataset.
         """
+
+        print('get_price df' + str(df))
+        print('get_price df pair' + str(df.loc[df['pair'] == pair].sort_values('date')))
+
         pair_df = df.loc[df['pair'] == pair].sort_values('date').iloc[-1]
 
         if trade_action == TradeState.buy:
             if 'lowestAsk' in pair_df:
-                return pair_df.get('lowestAsk')
+                return float(pair_df.get('lowestAsk'))
             else:
                 return pair_df.get('close')
         elif trade_action == TradeState.sell:
             if 'highestBid' in pair_df:
-                return pair_df.get('highestBid')
+                return float(pair_df.get('highestBid'))
             else:
                 return pair_df.get('close')

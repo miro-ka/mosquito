@@ -34,6 +34,19 @@ class Mosquito(Base):
 
         (dataset_cnt, pairs_count) = self.get_dataset_count(look_back, self.group_by_field)
 
+
+
+        close_pair_price = self.get_price(TradeState.buy, look_back, 'BTC_ETH')
+        action = TradeAction('BTC_ETH',
+                             TradeState.buy,
+                             amount=None,
+                             rate=close_pair_price,
+                             buy_sell_mode=self.buy_sell_mode)
+
+        self.actions.append(action)
+        return self.actions
+
+
         # Wait until we have enough data
         if dataset_cnt < self.min_history_ticks:
             print('dataset_cnt:', dataset_cnt)
