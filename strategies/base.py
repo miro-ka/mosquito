@@ -47,23 +47,31 @@ class Base(ABC):
         Returns price based on on the given action and dataset.
         """
 
-        print('get_price df: ' + str(df))
+        print('get_price df is empty: ' + str(df.empty))
         print('pair: ' + pair)
         print('trade_action: ' + str(trade_action))
         print('get_price df pair: ' + str(df.loc[df['pair'] == pair].sort_values('date')))
 
         if df.empty:
-            print(colored('get_price got empty dataframe, skipping!', 'red'))
+            print(colored('get_price got empty dataframe (pair): ' + pair + ', skipping!', 'red'))
             return 0.0
-        pair_df = df.loc[df['pair'] == pair].sort_values('date').iloc[-1]
+
+        pair_df = df.loc[df['pair'] == pair].sort_values('date')
+        if pair_df.empty:
+            print(colored('get_price got empty dataframe for pair: ' + pair + ', skipping!', 'red'))
+            return 0.0
+
+        pair_df = pair_df.iloc[-1]
 
         if trade_action == TradeState.buy:
             if 'lowestAsk' in pair_df:
                 return float(pair_df.get('lowestAsk'))
             else:
-                return pair_df.get('close')
+                return float(pair_df.get('close'))
         elif trade_action == TradeState.sell:
             if 'highestBid' in pair_df:
                 return float(pair_df.get('highestBid'))
             else:
-                return pair_df.get('close')
+                return float(pair_df.get('close'))
+        else:
+            return 0.0
