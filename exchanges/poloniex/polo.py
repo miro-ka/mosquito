@@ -7,6 +7,7 @@ from strategies.enums import TradeState
 from termcolor import colored
 from json import JSONDecodeError
 import time
+from core.bots.enums import BuySellMode
 
 
 class Polo(Base):
@@ -15,13 +16,13 @@ class Polo(Base):
     """
 
     def __init__(self, config, verbosity=2):
-        super(Polo, self).__init__()
-        api_key = config['api_key']
-        secret = config['secret']
-        self.transaction_fee = float(config['transaction_fee'])
+        super(Polo, self).__init__(config)
+        api_key = config['Poloniex']['api_key']
+        secret = config['Poloniex']['secret']
+        self.transaction_fee = float(config['Poloniex']['transaction_fee'])
         self.polo = Poloniex(api_key, secret)
-        self.buy_order_type = config['buy_order_type']
-        self.sell_order_type = config['sell_order_type']
+        self.buy_order_type = config['Poloniex']['buy_order_type']
+        self.sell_order_type = config['Poloniex']['sell_order_type']
         self.verbosity = verbosity
         self.pair_delimiter = '_'
         self.tickers_cache_refresh_interval = 50  # If the ticker request is within the interval, get data from cache
@@ -128,17 +129,19 @@ class Polo(Base):
                 actions.remove(action)
                 continue
 
-            # Handle buy_sell_all cases
+            # Handle buy_sell mode
             wallet = self.get_balances()
-            if action.buy_sell_all:
+            if action.buy_sell_mode == BuySellMode.all:
                 action.amount = self.get_buy_sell_all_amount(wallet, action)
+            elif action.buy_sell_mode == BuySellMode.fixed:
+                action.amount = self.get_fixed_trade_amount(wallet, action)
 
             if self.verbosity > 0:
                 print('Processing live-action: ' + str(action.action) +
                       ', amount:', str(action.amount) +
                       ', pair:', action.pair +
                       ', rate:', str(action.rate) +
-                      ', buy_sell_all:', action.buy_sell_all)
+                      ', buy_sell_mode:', action.buy_sell_mode)
 
             # If we don't have enough assets, just skip/remove the action
             if action.amount == 0.0:

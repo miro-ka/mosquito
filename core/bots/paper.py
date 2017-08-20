@@ -60,4 +60,4 @@ class Paper(Base):
         """
         Simulate currency buy/sell (places fictive buy/sell orders)
         """
-        return super(Paper, self).trade(actions, wallet, trades, force_sell=False)
+        return super(Paper, self).trade(actions, wallet, trades, force_sell=True)

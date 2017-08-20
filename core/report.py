@@ -76,7 +76,7 @@ class Report:
         local_dt = utc_dt.astimezone(tzlocal())
 
         date_time = 'Local timestamp: ' + local_dt.strftime('%c') + ','
-        current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f')
+        # current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f')
         # Wallet
         wallet_text = self.get_wallet_text(wallet.current_balance)
         # Balance
@@ -86,10 +86,10 @@ class Report:
         bh = self.calc_buy_and_hold(ticker_data, wallet.initial_balance)
         bh_text = self.get_color_text('b&h: ', bh)
         print(date_time,
-              current_close,
-              wallet_text,
               balance_text,
-              bh_text)
+              bh_text,
+              wallet_text
+              )
 
         return 0
 

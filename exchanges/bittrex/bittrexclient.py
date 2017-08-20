@@ -9,6 +9,7 @@ import datetime
 from datetime import timezone
 from dateutil.tz import *
 from dateutil.parser import *
+from core.bots.enums import BuySellMode
 
 
 class BittrexClient(Base):
@@ -19,10 +20,10 @@ class BittrexClient(Base):
     open_orders = []
 
     def __init__(self, config, verbosity=2):
-        super(BittrexClient, self).__init__()
-        api_key = config['api_key']
-        secret = config['secret']
-        self.transaction_fee = float(config['transaction_fee'])
+        super(BittrexClient, self).__init__(config)
+        api_key = config['Bittrex']['api_key']
+        secret = config['Bittrex']['secret']
+        self.transaction_fee = float(config['Bittrex']['transaction_fee'])
         self.bittrex = Bittrex(api_key, secret)
         self.pair_delimiter = '-'
         self.verbosity = verbosity
@@ -174,17 +175,19 @@ class BittrexClient(Base):
         for action in actions:
             market = action.pair.replace('_', self.pair_delimiter)
 
-            # Handle buy_sell_all cases
+            # Handle buy/sell mode
             wallet = self.get_balances()
-            if action.buy_sell_all:
+            if action.buy_sell_mode == BuySellMode.all:
                 action.amount = self.get_buy_sell_all_amount(wallet, action)
+            elif action.buy_sell_mode == BuySellMode.fixed:
+                action.amount = self.get_fixed_trade_amount(wallet, action)
 
             if self.verbosity > 0:
                 print('Processing live-action: ' + str(action.action) +
                       ', amount:', str(action.amount) +
                       ', pair:', market +
                       ', rate:', str(action.rate) +
-                      ', buy_sell_all:', action.buy_sell_all)
+                      ', buy_sell_mode:', action.buy_sell_mode)
             if action.action == TradeState.none:
                 actions.remove(action)
                 continue

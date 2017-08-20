@@ -35,9 +35,9 @@ def main(args):
 
     # Init exchange
     if exchange_name == 'polo':
-        exchange = Polo(config['Poloniex'])
+        exchange = Polo(config)
     elif exchange_name == 'bittrex':
-        exchange = BittrexClient(config['Bittrex'])
+        exchange = BittrexClient(config)
     else:
         print('Invalid exchange name in config.ini file!')
         return

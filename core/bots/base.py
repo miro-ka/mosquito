@@ -10,6 +10,7 @@ import math
 from exchanges.exchange import Exchange
 import re
 from strategies.enums import TradeState
+from core.bots.enums import BuySellMode
 
 
 class Base(ABC):
@@ -30,6 +31,7 @@ class Base(ABC):
         self.ticker_df = pd.DataFrame()
         self.verbosity = int(self.config['General']['verbosity'])
         self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
+        self.fixed_trade_amount = float(self.config['Trade']['fixed_trade_amount'])
         self.pair_delimiter = self.exchange.get_pair_delimiter()
         self.last_tick_epoch = 0
 
@@ -106,6 +108,8 @@ class Base(ABC):
         """
         Returns current balance
         """
+        # Remove all items with zero amount
+        self.balance = {k: v for k, v in self.balance.items() if v != 0}
         return self.balance
 
     def sell_all_assets(self, trades, wallet, pair_to_hold):
@@ -170,8 +174,10 @@ class Base(ABC):
             if asset_symbol in wallet:
                 asset_balance = wallet[asset_symbol]
 
-            if action.buy_sell_all:
+            if action.buy_sell_mode == BuySellMode.all:
                 action.amount = self.get_buy_sell_all_amount(wallet, action)
+            elif action.buy_sell_mode == BuySellMode.fixed:
+                action.amount = self.get_fixed_trade_amount(wallet, action)
 
             fee = self.transaction_fee * float(action.amount) / 100.0
             # *** Buy ***
@@ -226,5 +232,28 @@ class Base(ABC):
 
         if amount <= 0.0:
             return 0.0
+        return amount
 
+    def get_fixed_trade_amount(self, wallet, action):
+        """
+        Calculates fixed trade amount given action
+        """
+        if action.action == TradeState.none:
+            return 0.0
+
+        if action.rate == 0.0:
+            print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + action.pair, 'red'))
+            return 0.0
+
+        (symbol_1, symbol_2) = tuple(action.pair.split(self.pair_delimiter))
+        amount = 0.0
+        if action.action == TradeState.buy and symbol_1 in wallet:
+            assets = self.fixed_trade_amount
+            amount = assets / action.rate
+        elif action.action == TradeState.sell and symbol_2 in wallet:
+            assets = wallet.get(symbol_2)
+            amount = assets
+
+        if amount <= 0.0:
+            return 0.0
         return amount

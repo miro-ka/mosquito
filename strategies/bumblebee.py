@@ -5,6 +5,7 @@ from .base import Base
 from .enums import TradeState
 import pandas as pd
 from lib.indicators.ropc import ropc
+from core.bots.enums import BuySellMode
 
 
 class Bumblebee(Base):
@@ -12,8 +13,8 @@ class Bumblebee(Base):
     Bumblebee strategy
     About: Strategy dealing with ONLY 1 pair
     """
-    def __init__(self, args, verbosity=2):
-        super(Bumblebee, self).__init__(args, verbosity)
+    def __init__(self, args, verbosity=2, pair_delimiter='_'):
+        super(Bumblebee, self).__init__(args, verbosity, pair_delimiter)
         self.name = 'ema'
         self.min_history_ticks = 60  # 300 minute interval
         self.pair = 'BTC_DGB'
@@ -36,7 +37,7 @@ class Bumblebee(Base):
         df_last = df.iloc[[-1]]
         new_action = TradeState.sell
         rate = pd.to_numeric(df_last['close'], downcast='float').iloc[0]
-        action = TradeAction(self.pair, new_action, rate=rate, buy_sell_all=True)
+        action = TradeAction(self.pair, new_action, rate=rate, buy_sell_mode=BuySellMode.all)
         self.actions.append(action)
         return self.actions
         # !!!Debug-end!!!
@@ -97,7 +98,7 @@ class Bumblebee(Base):
             else:
                 rate = pd.to_numeric(df_last['close'], downcast='float')
 
-        action = TradeAction(self.pair, new_action, rate=rate, buy_sell_all=True)
+        action = TradeAction(self.pair, new_action, rate=rate, buy_sell_mode=BuySellMode.all)
         self.actions.append(action)
         return self.actions
 
