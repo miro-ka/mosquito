@@ -46,6 +46,7 @@ class Mosquito(Base):
         self.sync_active_pairs(wallet.current_balance)
 
         positive_pairs = []
+        got_all_buffers = True
         for pair in pairs_names:
             df = look_back.loc[look_back['pair'] == pair].sort_values('date')
             # Check if the dataset has required buffer size
@@ -80,6 +81,7 @@ class Mosquito(Base):
 
             # If we don't have all data in our buffer, just skip the pair
             if not buffer_ready:
+                got_all_buffers = False
                 continue
 
             # *** Add conditions ***
@@ -106,6 +108,10 @@ class Mosquito(Base):
                 continue
 
             positive_pairs.append((pair, sma_short))
+
+        # If we didn't get all buffers just return empty actions
+        if not got_all_buffers:
+            return self.actions
 
         # Handle all the pairs that have not been selected (are not up-trending)
         positive_pair_names = [(i[0]).split(self.pair_delimiter, 1)[-1] for i in positive_pairs]

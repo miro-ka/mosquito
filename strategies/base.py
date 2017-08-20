@@ -47,41 +47,32 @@ class Base(ABC):
         Returns price based on on the given action and dataset.
         """
 
-        print('get_price df is empty: ' + str(df.empty))
-        print('pair: ' + pair)
-        print('trade_action: ' + str(trade_action))
-        print('get_price df pair: ' + str(df.loc[df['pair'] == pair].sort_values('date')))
-
         if df.empty:
-            print(colored('get_price got empty dataframe (pair): ' + pair + ', skipping!', 'red'))
+            print(colored('get_price: got empty dataframe (pair): ' + pair + ', skipping!', 'red'))
             return 0.0
 
         pair_df = df.loc[df['pair'] == pair].sort_values('date')
         if pair_df.empty:
-            print(colored('get_price got empty dataframe for pair: ' + pair + ', skipping!', 'red'))
+            print(colored('get_price: got empty dataframe for pair: ' + pair + ', skipping!', 'red'))
             return 0.0
 
         pair_df = pair_df.iloc[-1]
-
-        price = 0.0
+        close_price = float(pair_df.get('close'))
+        price = None
 
         if trade_action == TradeState.buy:
             if 'lowestAsk' in pair_df:
                 price = float(pair_df.get('lowestAsk'))
-            else:
-                price = float(pair_df.get('close'))
         elif trade_action == TradeState.sell:
             if 'highestBid' in pair_df:
                 price = float(pair_df.get('highestBid'))
-            else:
-                price = float(pair_df.get('close'))
-        else:
-            price = 0.0
 
         # Check if we don't have nan
-        if price != price:
-            print(colored('got Nan price for pair: ' + pair + '. Dataframe: ' + str(pair_df), 'red'))
-            return 0.0
-
+        if not price or price != price:
+            if close_price != close_price:
+                print(colored('got Nan price for pair: ' + pair + '. Dataframe: ' + str(pair_df), 'red'))
+                return 0.0
+            else:
+                return close_price
 
         return price
