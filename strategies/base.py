@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from .enums import TradeState as ts
 from strategies.enums import TradeState
+from termcolor import colored
 
 
 class Base(ABC):
@@ -46,9 +47,14 @@ class Base(ABC):
         Returns price based on on the given action and dataset.
         """
 
-        print('get_price df' + str(df))
-        print('get_price df pair' + str(df.loc[df['pair'] == pair].sort_values('date')))
+        print('get_price df: ' + str(df))
+        print('pair: ' + pair)
+        print('trade_action: ' + str(trade_action))
+        print('get_price df pair: ' + str(df.loc[df['pair'] == pair].sort_values('date')))
 
+        if df.empty:
+            print(colored('get_price got empty dataframe, skipping!', 'red'))
+            return 0.0
         pair_df = df.loc[df['pair'] == pair].sort_values('date').iloc[-1]
 
         if trade_action == TradeState.buy:
