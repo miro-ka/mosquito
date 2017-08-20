@@ -63,15 +63,25 @@ class Base(ABC):
 
         pair_df = pair_df.iloc[-1]
 
+        price = 0.0
+
         if trade_action == TradeState.buy:
             if 'lowestAsk' in pair_df:
-                return float(pair_df.get('lowestAsk'))
+                price = float(pair_df.get('lowestAsk'))
             else:
-                return float(pair_df.get('close'))
+                price = float(pair_df.get('close'))
         elif trade_action == TradeState.sell:
             if 'highestBid' in pair_df:
-                return float(pair_df.get('highestBid'))
+                price = float(pair_df.get('highestBid'))
             else:
-                return float(pair_df.get('close'))
+                price = float(pair_df.get('close'))
         else:
+            price = 0.0
+
+        # Check if we don't have nan
+        if price != price:
+            print(colored('got Nan price for pair: ' + pair + '. Dataframe: ' + str(pair_df), 'red'))
             return 0.0
+
+
+        return price
