@@ -43,7 +43,7 @@ class Plot:
         df_trades['date'] = df_trades['date'].dt.tz_localize('UTC').dt.tz_convert(local_tz)
         df_trades = df_trades.set_index(['date'])
 
-        plotly.offline.init_notebook_mode()
+        # plotly.offline.init_notebook_mode()
 
         trace = go.Candlestick(x=df_index,
                                open=df.open,
