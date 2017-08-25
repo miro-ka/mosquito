@@ -15,9 +15,9 @@ class Bumblebee(Base):
     """
     def __init__(self, args, verbosity=2, pair_delimiter='_'):
         super(Bumblebee, self).__init__(args, verbosity, pair_delimiter)
-        self.name = 'ema'
+        self.name = 'bumblebee'
         self.min_history_ticks = 60  # 300 minute interval
-        self.pair = 'BTC_DGB'
+        self.pair = 'BTC-DOGE'
 
     def calculate(self, look_back, wallet):
         """
@@ -96,7 +96,7 @@ class Bumblebee(Base):
             if 'highestBid' in df_last:
                 rate = pd.to_numeric(df_last['highestBid'], downcast='float').iloc[0]
             else:
-                rate = pd.to_numeric(df_last['close'], downcast='float')
+                rate = pd.to_numeric(df_last['close'], downcast='float').iloc[0]
 
         action = TradeAction(self.pair, new_action, rate=rate, buy_sell_mode=BuySellMode.all)
         self.actions.append(action)
