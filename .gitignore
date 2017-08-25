@@ -4,12 +4,14 @@ core/bots/__pycache__/
 
 __pycache__/
 images/mosquito_imgs.zip
+images/mosquito_imgs/
+images/rendered_plain.png
 config.ini
 .idea/
 exchanges/__pycache__/
 exchanges/poloniex/__pycache__/
 strategies/__pycache__/
-
+images/rendered_plain_small.png
 
 config.bumblebee.ini
 config.mosquito.ini

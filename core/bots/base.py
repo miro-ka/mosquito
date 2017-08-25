@@ -166,6 +166,11 @@ class Base(ABC):
             # Get pairs current closing price
             (currency_symbol, asset_symbol) = tuple(re.split('[-_]', action.pair))
             ticker = self.ticker_df.loc[self.ticker_df['pair'] == action.pair]
+
+            if len(ticker.index) == 0:
+                print('Could not find pairs ticker, skipping trade')
+                continue
+
             close_price = action.rate
 
             currency_balance = asset_balance = 0.0

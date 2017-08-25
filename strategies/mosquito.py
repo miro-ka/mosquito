@@ -42,7 +42,6 @@ class Mosquito(Base):
         self.actions.clear()
         look_back = look_back.tail(pairs_count * self.min_history_ticks)
         pairs_names = look_back.pair.unique()
-
         self.sync_active_pairs(wallet.current_balance)
 
         positive_pairs = []
@@ -56,6 +55,30 @@ class Mosquito(Base):
 
             close = df['close'].values
             volume = df['volume'].values
+            pairs_close = self.get_price(TradeState.buy, look_back, pair)
+
+            # ************** Calc EMA20
+            ema20_period = 20
+            ema20 = talib.EMA(close[-ema20_period:], timeperiod=ema20_period)[-1]
+            close_pair_price = self.get_price(TradeState.buy, look_back, pair)
+            if close_pair_price <= ema20:
+                continue
+
+            # ************** Calc EMA20
+            rsi = talib.RSI(close[-15:], timeperiod=14)[-1]
+            if rsi > 20:
+                continue
+
+            # ************** Calc EMA
+            ema_interval_short = 6
+            ema_interval_long = 25
+            ema_short = talib.EMA(close[-ema_interval_short:], timeperiod=ema_interval_short)[-1]
+            ema_long = talib.EMA(close[-ema_interval_long:], timeperiod=ema_interval_long)[-1]
+            if ema_short <= ema_long:  # If we are below death cross, skip pair
+                continue
+
+
+            """
 
             # ************** Calc OBV
             obv_now = talib.OBV(close[-self.obv_interval:], volume[-self.obv_interval:])[-1]
@@ -107,7 +130,9 @@ class Mosquito(Base):
             if ropc_res < 1.0:
                 continue
 
-            positive_pairs.append((pair, sma_short))
+
+            """
+            positive_pairs.append((pair, 0.0))
 
         # If we didn't get all buffers just return empty actions
         if not got_all_buffers:
@@ -134,7 +159,13 @@ class Mosquito(Base):
         # Handle positive pairs
         # Sort indicators
         sorted_positives = sorted(positive_pairs, key=lambda x: x[1], reverse=True)
+
         print('sorted_indicators:', len(sorted_positives), 'items:', sorted_positives)
+
+        # Take only first 3 pairs
+        # if len(sorted_positives) > 3:
+        #    sorted_positives = sorted_positives[:3]
+
         for (positive_pair, _) in sorted_positives:
             # Check if we have already bought the currency. If yes, just skip it
             if positive_pair in self.active_pairs:

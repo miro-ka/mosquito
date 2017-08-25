@@ -144,7 +144,8 @@ class Report:
             return value/closing_price
 
         if self.verbosity > 0:
-            print("Couldn't find exchange rate for:", currency)
+            print(colored("Couldn't find exchange rate for:" + currency + '. Report data invalid!', 'red'))
+
         return 0.0
 
     def calc_balance(self, ticker_data, wallet_balance):
