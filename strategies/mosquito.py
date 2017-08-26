@@ -54,17 +54,16 @@ class Mosquito(Base):
                 continue
 
             close = df['close'].values
-            volume = df['volume'].values
-            pairs_close = self.get_price(TradeState.buy, look_back, pair)
+            # volume = df['volume'].values
+            close_price = self.get_price(TradeState.none, look_back, pair)
 
             # ************** Calc EMA20
             ema20_period = 20
             ema20 = talib.EMA(close[-ema20_period:], timeperiod=ema20_period)[-1]
-            close_pair_price = self.get_price(TradeState.buy, look_back, pair)
-            if close_pair_price <= ema20:
+            if close_price <= ema20:
                 continue
 
-            # ************** Calc EMA20
+            # ************** Calc RSI
             rsi = talib.RSI(close[-15:], timeperiod=14)[-1]
             if rsi > 20:
                 continue
@@ -79,7 +78,6 @@ class Mosquito(Base):
 
 
             """
-
             # ************** Calc OBV
             obv_now = talib.OBV(close[-self.obv_interval:], volume[-self.obv_interval:])[-1]
 
@@ -129,8 +127,6 @@ class Mosquito(Base):
             ropc_res = ropc(close[-ropc_interval:], timeperiod=ropc_interval)
             if ropc_res < 1.0:
                 continue
-
-
             """
             positive_pairs.append((pair, 0.0))
 
