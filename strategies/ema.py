@@ -6,15 +6,15 @@ from .enums import TradeState
 from core.bots.enums import BuySellMode
 
 
-class Bumblebee(Base):
+class Ema(Base):
     """
-    Bumblebee strategy
-    About: Combination of OBV and EMA indicators
+    Ema strategy
+    About: Buy when close_price > ema20, sell when close_price < ema20 and below death_cross
     """
     def __init__(self, args, verbosity=2, pair_delimiter='_'):
-        super(Bumblebee, self).__init__(args, verbosity, pair_delimiter)
-        self.name = 'bumblebee'
-        self.min_history_ticks = 20  # 300 minute interval
+        super(Ema, self).__init__(args, verbosity, pair_delimiter)
+        self.name = 'Ema'
+        self.min_history_ticks = 30
         self.pair = 'BTC_ETH'
         self.buy_sell_mode = BuySellMode.all
 
@@ -30,30 +30,29 @@ class Bumblebee(Base):
             return self.actions
 
         self.actions.clear()
-        # Calculate indicators
 
+        # Calculate indicators
         df = look_back.tail(self.min_history_ticks)
         close = df['close'].values
-        volume = df['volume'].values
-        new_action = TradeState.none
-        close_price = self.get_price(TradeState.none, look_back, self.pair)
 
-        # ************** OBV (On Balance Volume)
-        obv = talib.OBV(close, volume)[-1]
-        print('obv:', obv)
-        if obv >= 100.0:
+        # ************** Calc EMA20
+        ema20_period = 25
+        ema20 = talib.EMA(close[-ema20_period:], timeperiod=ema20_period)[-1]
+        close_price = self.get_price(TradeState.none, df.tail(), self.pair)
+
+        print('close_price:', close_price, 'ema:', ema20)
+        if close_price <= ema20:
+            new_action = TradeState.sell
+        else:
             new_action = TradeState.buy
-        elif obv < 100.0:
-            new_action = TradeState.sell
 
-        # ************** Calc EMA
-        ema_period = 6
-        ema = talib.EMA(close[-ema_period:], timeperiod=ema_period)[-1]
-        if close_price <= ema:
+        # ************** Calc EMA Death Cross
+        ema_interval_short = 6
+        ema_interval_long = 25
+        ema_short = talib.EMA(close[-ema_interval_short:], timeperiod=ema_interval_short)[-1]
+        ema_long = talib.EMA(close[-ema_interval_long:], timeperiod=ema_interval_long)[-1]
+        if ema_short <= ema_long:  # If we are below death cross, sell
             new_action = TradeState.sell
-
-        if new_action == TradeState.none:
-            return self.actions
 
         trade_price = self.get_price(new_action, df.tail(), self.pair)
 

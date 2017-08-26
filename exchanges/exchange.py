@@ -71,9 +71,9 @@ class Exchange:
         self.exchange_name = config['Trade']['exchange']
 
         if self.exchange_name == 'polo':
-            return Polo(config['Poloniex'], verbosity)
+            return Polo(config, verbosity)
         elif self.exchange_name == 'bittrex':
-            return BittrexClient(config['Bittrex'], verbosity)
+            return BittrexClient(config, verbosity)
         else:
             print('Trying to use not defined exchange!')
             return None

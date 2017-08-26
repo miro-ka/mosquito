@@ -17,7 +17,7 @@ class Backtest(Base):
     sim_end = None
     sim_hours = None
 
-    def __init__(self, args, config_file):
+    def __init__(self, args, config_file, wallet):
         super(Backtest, self).__init__(args, config_file, self.mode)
         self.counter = 0
         if self.config['Backtest']['from']:
@@ -28,6 +28,7 @@ class Backtest(Base):
             self.sim_hours = int(self.config['Backtest']['hours'])
         self.sim_epoch_start = self.get_sim_epoch_start(self.sim_hours, self.sim_start)
         self.current_epoch = self.sim_epoch_start
+        self.balance = wallet
 
     @staticmethod
     def get_sim_epoch_start(sim_hours, sim_start):
@@ -51,5 +52,5 @@ class Backtest(Base):
         """
         Simulate currency buy/sell (places fictive buy/sell orders)
         """
-        return super(Backtest, self).trade(actions, wallet, trades, force_sell=True)
+        return super(Backtest, self).trade(actions, wallet, trades, force_sell=False)
 

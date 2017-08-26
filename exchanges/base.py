@@ -11,9 +11,10 @@ class Base(ABC):
     transaction_fee = 0.0
     pair_delimiter = '_'
 
-    def __init__(self):
+    def __init__(self, config):
         super(Base, self).__init__()
         self.pair_delimiter = '_'
+        self.fixed_trade_amount = float(config['Trade']['fixed_trade_amount'])
 
     @abstractmethod
     def return_open_orders(self, currency_pair='all'):
@@ -80,4 +81,28 @@ class Base(ABC):
 
         txn_fee_amount = (self.transaction_fee * amount) / 100.0
         amount -= txn_fee_amount
+        return amount
+
+    def get_fixed_trade_amount(self, wallet, action):
+        """
+        Calculates fixed trade amount given action
+        """
+        if action.action == TradeState.none:
+            return 0.0
+
+        if action.rate == 0.0:
+            print(colored('Got zero rate!. Can not calc. buy_sell_amount for pair: ' + action.pair, 'red'))
+            return 0.0
+
+        (symbol_1, symbol_2) = tuple(action.pair.split(self.pair_delimiter))
+        amount = 0.0
+        if action.action == TradeState.buy and symbol_1 in wallet:
+            assets = self.fixed_trade_amount
+            amount = assets / action.rate
+        elif action.action == TradeState.sell and symbol_2 in wallet:
+            assets = wallet.get(symbol_2)
+            amount = assets
+
+        if amount <= 0.0:
+            return 0.0
         return amount

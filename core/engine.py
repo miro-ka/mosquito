@@ -42,16 +42,15 @@ class Engine:
         self.args = args
         self.config = config_file
         strategy_class = self.load_strategy(args.strategy, self.config_strategy_name)
-        self.strategy = strategy_class(args, self.verbosity)
         self.wallet = Wallet(config_file)
         self.history = pd.DataFrame()
         trade_columns = ['date', 'pair', 'close_price', 'action']
         self.trades = pd.DataFrame(columns=trade_columns, index=None)
         if args.backtest:
-            self.bot = Backtest(args, config_file)
+            self.bot = Backtest(args, config_file, self.wallet.initial_balance.copy())
             self.trade_mode = TradeMode.backtest
         elif args.paper:
-            self.bot = Paper(args, config_file)
+            self.bot = Paper(args, config_file, self.wallet.initial_balance.copy())
             self.trade_mode = TradeMode.paper
             self.wallet.initial_balance = self.bot.get_balance()
             self.wallet.current_balance = self.bot.get_balance()
@@ -60,6 +59,7 @@ class Engine:
             self.trade_mode = TradeMode.live
             self.wallet.initial_balance = self.bot.get_balance()
             self.wallet.current_balance = self.bot.get_balance()
+        self.strategy = strategy_class(args, self.verbosity, self.bot.get_pair_delimiter())
         self.pairs = self.bot.get_pairs()
         self.look_back = pd.DataFrame()
         self.max_lookback_size = int(self.buffer_size*(60/self.interval)*len(self.pairs))
@@ -167,7 +167,7 @@ class Engine:
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
                 buffer_size = len(self.look_back.index)
                 if buffer_size > self.max_lookback_size:
-                    print('max memory exceeded, cleaning/cutting buffer')
+                    print('Max memory exceeded, cleaning/cutting buffer')
                     rows_to_delete = buffer_size - self.max_lookback_size
                     self.look_back = self.look_back.ix[rows_to_delete:]
                     self.look_back = self.look_back.reset_index(drop=True)

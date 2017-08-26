@@ -76,7 +76,7 @@ class Report:
         local_dt = utc_dt.astimezone(tzlocal())
 
         date_time = 'Local timestamp: ' + local_dt.strftime('%c') + ','
-        current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f')
+        # current_close = 'close:' + format(ticker_data.iloc[0]['close'], '2f')
         # Wallet
         wallet_text = self.get_wallet_text(wallet.current_balance)
         # Balance
@@ -86,10 +86,10 @@ class Report:
         bh = self.calc_buy_and_hold(ticker_data, wallet.initial_balance)
         bh_text = self.get_color_text('b&h: ', bh)
         print(date_time,
-              current_close,
-              wallet_text,
               balance_text,
-              bh_text)
+              bh_text,
+              wallet_text
+              )
 
         return 0
 
@@ -144,7 +144,8 @@ class Report:
             return value/closing_price
 
         if self.verbosity > 0:
-            print("Couldn't find exchange rate for:", currency)
+            print(colored("Couldn't find exchange rate for:" + currency + '. Report data invalid!', 'red'))
+
         return 0.0
 
     def calc_balance(self, ticker_data, wallet_balance):
