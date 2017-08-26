@@ -1,0 +1,18 @@
+certifi==2017.7.27.1
+chardet==3.0.4
+idna==2.6
+numpy==1.13.1
+pandas==0.20.3
+git+https://github.com/s4w3d0ff/python-poloniex#egg=poloniex
+pymongo==3.5.1
+git+https://github.com/miti0/python-bittrex#egg=python-bittrex
+plotly==2.0.15
+python-dateutil==2.6.1
+pytz==2017.2
+requests==2.18.4
+six==1.10.0
+# see instruction here for ta-lib dependencies https://github.com/mrjbq7/ta-lib
+ta-lib==0.4.10
+termcolor==1.1.0
+tzlocal==1.4
+urllib3==1.22
