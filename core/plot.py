@@ -16,7 +16,7 @@ class Plot:
         pass
 
     @staticmethod
-    def draw(df, df_trades, pair):
+    def draw(df, df_trades, pair, plot_title):
         """
         Candle-stick plot
         """
@@ -75,7 +75,7 @@ class Plot:
             annotations.append(d)
 
         layout = go.Layout(
-            title='Simulation result',
+            title=plot_title,
             autosize=True,
             showlegend=True,
             annotations=annotations

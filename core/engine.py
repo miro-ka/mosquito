@@ -114,9 +114,13 @@ class Engine:
         """
         print('shutting down and writing final statistics!')
         if self.args.plot:
+            plot_title = 'Simulation: ' + str(self.trade_mode) + ' Strategy: ' + self.config_strategy_name + \
+                         ' Pair: ' + str(self.pairs)
+
             self.plot.draw(self.history,
                            self.trades,
-                           self.plot_pair)
+                           self.plot_pair,
+                           plot_title)
         self.report.write_final_stats(self.first_ticker, self.last_valid_ticker, self.wallet, self.trades)
 
     @staticmethod
