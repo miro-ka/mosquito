@@ -113,15 +113,17 @@ class Engine:
         Last function called when the simulation is finished
         """
         print('shutting down and writing final statistics!')
+        strategy_info = self.report.write_final_stats(self.first_ticker,
+                                                      self.last_valid_ticker,
+                                                      self.wallet, self.trades)
         if self.args.plot:
-            plot_title = 'Simulation: ' + str(self.trade_mode) + ' Strategy: ' + self.config_strategy_name + \
-                         ' Pair: ' + str(self.pairs)
-
+            plot_title = ['Simulation: ' + str(self.trade_mode) + ' Strategy: ' + self.config_strategy_name + ', Pair: '
+                          + str(self.pairs)]
+            strategy_info = plot_title + strategy_info
             self.plot.draw(self.history,
                            self.trades,
                            self.plot_pair,
-                           plot_title)
-        self.report.write_final_stats(self.first_ticker, self.last_valid_ticker, self.wallet, self.trades)
+                           strategy_info)
 
     @staticmethod
     def validate_ticker(df):

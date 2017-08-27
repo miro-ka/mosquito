@@ -39,9 +39,17 @@ class Report:
         print('****************************************************')
         print('*           Final simulation report:               *')
         print('****************************************************')
-        print('Wallet at Start:', self.get_wallet_text(wallet.initial_balance))
-        print('Wallet at End:', self.get_wallet_text(wallet.current_balance))
+        complete_report = []
+        wallet_start_text = 'Wallet at Start:' + self.get_wallet_text(wallet.initial_balance)
+        print(wallet_start_text)
+        # complete_report.append(wallet_start_text)
+        wallet_end_text = 'Wallet at End:' + self.get_wallet_text(wallet.current_balance)
+        print(wallet_end_text)
+        # complete_report.append(wallet_end_text)
         print(self.get_color_text('Strategy result: ', curr_bal_percent))
+        strategy_result = 'Strategy result: ' + str(round(curr_bal_percent, 2)) + '%, ' + 'Buy & Hold: ' + \
+                          str(round(buy_and_hold, 2)) + '%'
+        complete_report.append(strategy_result)
         print(self.get_color_text('Buy & Hold: ', buy_and_hold))
         print(self.get_color_text('Strategy vs Buy & Hold: ', curr_bal_percent-buy_and_hold))
         # Get real sim time values
@@ -51,6 +59,8 @@ class Report:
         hours, minutes = divmod(minutes, 60)
         days, hours = divmod(hours, 24)
         print('Total txn:', len(trades))
+        complete_report.append('Total txn: ' + str(len(trades)) + ' in ' + str(days) + ' days ' + str(hours) + ' hours and '
+                               + str(minutes) + ' minutes')
         print('Simulated (data time):', days, 'days,', hours, 'hours and', minutes, 'minutes')
         txn_per_hour = len(trades)/((sim_end-sim_start)/3600.0)
         print('Transactions per hour:', round(txn_per_hour, 2))
@@ -61,6 +71,7 @@ class Report:
         hours, minutes = divmod(minutes, 60)
         days, hours = divmod(hours, 24)
         print('Simulation run time:',  hours, 'hours', minutes, 'minutes and', seconds, 'seconds')
+        return complete_report
 
     def calc_stats(self, ticker_data, wallet):
         """

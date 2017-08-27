@@ -16,7 +16,7 @@ class Plot:
         pass
 
     @staticmethod
-    def draw(df, df_trades, pair, plot_title):
+    def draw(df, df_trades, pair, strategy_info):
         """
         Candle-stick plot
         """
@@ -52,18 +52,6 @@ class Plot:
                                close=df.close)
         data = [trace]
 
-        """
-        # Save to file
-        chart = offline.plot({'data': data,
-                      'layout': {'title': 'Green Simulation Plot', 'autosize':True}},
-                     filename='green-plot.html', validate=False, auto_open=True,
-                     output_type='div', show_link='False', include_plotlyjs="False", link_text="")
-
-        html_file = open("plot.html", "w")
-        html_file.write(chart)
-        html_file.close()
-        """
-
         # Create buy/sell annotations
         annotations = []
         for index, row in df_trades.iterrows():
@@ -74,10 +62,21 @@ class Plot:
                      bordercolor='#c7c7c7')
             annotations.append(d)
 
+        # Unpack the report string
+        title = ''
+        for item in strategy_info:
+            s = str(item)
+            title = title + '<BR>' + s
+
         layout = go.Layout(
-            title=plot_title,
+            title=title,
+            titlefont=dict(
+                # family='Courier New, monospace',
+                size=14,
+                color='#606060'
+            ),
             autosize=True,
-            showlegend=True,
+            showlegend=False,
             annotations=annotations
         )
 
