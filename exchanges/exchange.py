@@ -2,6 +2,7 @@ import configparser
 from .poloniex.polo import Polo
 from .bittrex.bittrexclient import BittrexClient
 from pymongo import MongoClient
+from core.bots.enums import TradeMode
 import pandas as pd
 from termcolor import colored
 
@@ -14,11 +15,10 @@ class Exchange:
     exchange = None
     exchange_name = None
 
-    def __init__(self, args, config_file, trade_mode):
+    def __init__(self, args, config_file, trade_mode=TradeMode.backtest):
         self.exchange = self.load_exchange(config_file)
         self.args = args
         self.trade_mode = trade_mode
-        # if self.trade_mode == TradeMode.backtest:
         config = configparser.ConfigParser()
         config.read(config_file)
         self.verbosity = int(config['General']['verbosity'])

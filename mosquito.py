@@ -26,11 +26,11 @@ if __name__ == "__main__":
     parser.add_argument("--strategy", help="Name of strategy to be run (if not set, the default one will be used")
     parser.add_argument("--plot", help="Generate a candle stick plot at simulation end", action='store_true')
 
-    args = parser.parse_args()
+    parsed_args = parser.parse_args()
 
-    if not has_mandatory_fields(args):
+    if not has_mandatory_fields(parsed_args):
         print("Missing trade mode argument (backtest, paper or live). See --help for more details.")
         exit(0)
 
-    main(args)
+    main(parsed_args)
 
