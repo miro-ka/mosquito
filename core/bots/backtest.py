@@ -2,6 +2,7 @@ from .base import Base
 import time
 import pandas as pd
 from core.bots.enums import TradeMode
+import configargparse
 
 
 DAY = 3600
@@ -11,21 +12,26 @@ class Backtest(Base):
     """
     Main class for Backtest trading
     """
+    arg_parser = configargparse.get_argument_parser()
+    arg_parser.add('--backtest_from', help='Backtest epoch start datetime')
+    arg_parser.add("--backtest_to", help='Backtest epoch end datetime')
+    arg_parser.add("--backtest_hours", help='Number of history days the simulation should start from')
 
     mode = TradeMode.backtest
     sim_start = None
     sim_end = None
     sim_hours = None
 
-    def __init__(self, args, config_file, wallet):
-        super(Backtest, self).__init__(args, config_file, self.mode)
+    def __init__(self, wallet):
+        args = self.arg_parser.parse_known_args()[0]
+        super(Backtest, self).__init__(self.mode)
         self.counter = 0
-        if self.config['Backtest']['from']:
-            self.sim_start = int(self.config['Backtest']['from'])
-        if self.config['Backtest']['to']:
-            self.sim_end = int(self.config['Backtest']['to'])
-        if self.config['Backtest']['hours']:
-            self.sim_hours = int(self.config['Backtest']['hours'])
+        if args.backtest_from:
+            self.sim_start = int(args.backtest_from)
+        if args.backtest_to:
+            self.sim_end = int(args.backtest_to)
+        if args.backtest_hours:
+            self.sim_hours = int(args.backtest_hours)
         self.sim_epoch_start = self.get_sim_epoch_start(self.sim_hours, self.sim_start)
         self.current_epoch = self.sim_epoch_start
         self.balance = wallet

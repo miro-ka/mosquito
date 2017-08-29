@@ -11,8 +11,8 @@ class Ema(Base):
     Ema strategy
     About: Buy when close_price > ema20, sell when close_price < ema20 and below death_cross
     """
-    def __init__(self, args, verbosity=2, pair_delimiter='_'):
-        super(Ema, self).__init__(args, verbosity, pair_delimiter)
+    def __init__(self, verbosity=2, pair_delimiter='_'):
+        super(Ema, self).__init__(verbosity, pair_delimiter)
         self.name = 'Ema'
         self.min_history_ticks = 30
         self.pair = 'BTC_ETH'

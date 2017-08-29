@@ -7,6 +7,7 @@ images/mosquito_imgs.zip
 images/mosquito_imgs/
 images/rendered_plain.png
 config.ini
+mosquito.ini
 .idea/
 exchanges/__pycache__/
 exchanges/poloniex/__pycache__/

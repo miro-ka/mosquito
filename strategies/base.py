@@ -12,11 +12,10 @@ class Base(ABC):
     action_request = ts.none
     actions = []
 
-    def __init__(self, args, verbosity=2, pair_delimiter='_'):
+    def __init__(self, verbosity=2, pair_delimiter='_'):
         super(Base, self).__init__()
         self.pair_delimiter = pair_delimiter
         self.verbosity = verbosity
-        self.args = args
         self.min_history_ticks = 5
         self.group_by_field = 'pair'
 

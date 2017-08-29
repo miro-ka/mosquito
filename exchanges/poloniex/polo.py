@@ -8,21 +8,29 @@ from termcolor import colored
 from json import JSONDecodeError
 import time
 from core.bots.enums import BuySellMode
+import configargparse
 
 
 class Polo(Base):
     """
     Poloniex interface
     """
+    arg_parser = configargparse.get_argument_parser()
+    arg_parser.add('--polo_api_key', help='Poloniex API key')
+    arg_parser.add("--polo_secret", help='Poloniex secret key')
+    arg_parser.add("--polo_txn_fee", help='Poloniex txn. fee')
+    arg_parser.add("--polo_buy_order", help='Poloniex buy order type')
+    arg_parser.add("--polo_sell_order", help='Poloniex sell order type')
 
-    def __init__(self, config, verbosity=2):
-        super(Polo, self).__init__(config)
-        api_key = config['Poloniex']['api_key']
-        secret = config['Poloniex']['secret']
-        self.transaction_fee = float(config['Poloniex']['transaction_fee'])
+    def __init__(self, verbosity=2):
+        args = self.arg_parser.parse_known_args()[0]
+        super(Polo, self).__init__()
+        api_key = args.polo_api_key
+        secret = args.polo_secret
+        self.transaction_fee = float(args.polo_txn_fee)
         self.polo = Poloniex(api_key, secret)
-        self.buy_order_type = config['Poloniex']['buy_order_type']
-        self.sell_order_type = config['Poloniex']['sell_order_type']
+        self.buy_order_type = args.polo_buy_order
+        self.sell_order_type = args.polo_sell_order
         self.verbosity = verbosity
         self.pair_delimiter = '_'
         self.tickers_cache_refresh_interval = 50  # If the ticker request is within the interval, get data from cache

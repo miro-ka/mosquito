@@ -1,5 +1,5 @@
 import sys
-import configparser
+import configargparse
 from importlib import import_module
 import pandas as pd
 from core.bots.paper import Paper
@@ -12,10 +12,33 @@ from core.report import Report
 from core.wallet import Wallet
 
 
+#if not has_mandatory_fields(args):
+#    print("Missing trade mode argument (backtest, paper or live). See --help for more details.")
+#    exit(0)
+
+
 class Engine:
     """
     Main class for Simulation Engine (main class where all is happening
     """
+
+    arg_parser = configargparse.get_argument_parser()
+    arg_parser.add('-c', '--config', is_config_file=True, help='config file path', default='mosquito.ini')
+    arg_parser.add('--backtest', help='Simulate your strategy on history ticker data', action='store_true')
+    arg_parser.add("--paper", help="Simulate your strategy on real ticker", action='store_true')
+    arg_parser.add("--live", help="REAL trading mode", action='store_true')
+    arg_parser.add("--strategy", help="Name of strategy to be run (if not set, the default one will be used")
+    arg_parser.add("--plot", help="Generate a candle stick plot at simulation end", action='store_true')
+    arg_parser.add("--interval", help="Simulation interval", default=5)
+    arg_parser.add("--root_report_currency", help="Root currency used in final plot")
+    arg_parser.add("--buffer_size", help="Buffer size", default=24)
+    arg_parser.add("--prefetch", help="Prefetch data from history DB",  action='store_true')
+    arg_parser.add("--plot_pair", help="Plot pair")
+    arg_parser.add("--all", help="Include all currencies/tickers")
+    arg_parser.add("--days", help="Days to pre-fill")
+
+
+
     buffer_size = None
     interval = None
     pairs = None
@@ -35,31 +58,30 @@ class Engine:
     first_ticker = None
     last_valid_ticker = None
 
-    def __init__(self, args, config_file):
-        # Arguments should override config.ini file, so lets initialize
-        # them only after config file parsing
-        self.parse_config(config_file)
-        self.args = args
-        self.config = config_file
-        strategy_class = self.load_strategy(args.strategy, self.config_strategy_name)
-        self.wallet = Wallet(config_file)
+    def __init__(self):
+        self.args = self.arg_parser.parse_known_args()[0]
+        self.parse_config()
+        strategy_class = self.load_strategy(self.args.strategy, self.config_strategy_name)
+        self.wallet = Wallet()
         self.history = pd.DataFrame()
         trade_columns = ['date', 'pair', 'close_price', 'action']
         self.trades = pd.DataFrame(columns=trade_columns, index=None)
-        if args.backtest:
-            self.bot = Backtest(args, config_file, self.wallet.initial_balance.copy())
+        if self.args.backtest:
+            self.bot = Backtest(self.wallet.initial_balance.copy())
             self.trade_mode = TradeMode.backtest
-        elif args.paper:
+        elif self.args.paper:
+            # TODO
             self.bot = Paper(args, config_file, self.wallet.initial_balance.copy())
             self.trade_mode = TradeMode.paper
             self.wallet.initial_balance = self.bot.get_balance()
             self.wallet.current_balance = self.bot.get_balance()
-        elif args.live:
+        elif self.args.live:
+            # TODO
             self.bot = Live(args, config_file)
             self.trade_mode = TradeMode.live
             self.wallet.initial_balance = self.bot.get_balance()
             self.wallet.current_balance = self.bot.get_balance()
-        self.strategy = strategy_class(args, self.verbosity, self.bot.get_pair_delimiter())
+        self.strategy = strategy_class(self.verbosity, self.bot.get_pair_delimiter())
         self.pairs = self.bot.get_pairs()
         self.look_back = pd.DataFrame()
         self.max_lookback_size = int(self.buffer_size*(60/self.interval)*len(self.pairs))
@@ -90,23 +112,21 @@ class Engine:
         strategy_class = getattr(mod, strategy_name.capitalize())
         return strategy_class
 
-    def parse_config(self, config_file):
+    def parse_config(self):
         """
         Parsing of config.ini file
         """
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        self.root_report_currency = config['Trade']['root_report_currency']
-        self.buffer_size = config['Trade']['buffer_size']
-        self.prefetch = config.getboolean('Trade', 'prefetch')
+        self.root_report_currency = self.args.root_report_currency
+        self.buffer_size = self.args.buffer_size
+        self.prefetch = self.args.prefetch
         if self.buffer_size != '':
             self.buffer_size = int(self.buffer_size)
-        self.interval = config['Trade']['interval']
+        self.interval = self.args.interval
         if self.interval != '':
             self.interval = int(self.interval)
-        self.config_strategy_name = config['Trade']['strategy']
-        self.plot_pair = config['Report']['plot_pair']
-        self.verbosity = int(config['General']['verbosity'])
+        self.config_strategy_name = self.args.strategy
+        self.plot_pair = self.args.plot_pair
+        self.verbosity = int(self.args.verbosity)
 
     def on_simulation_done(self):
         """

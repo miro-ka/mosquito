@@ -1,9 +1,8 @@
 from pymongo import MongoClient, ASCENDING
 from exchanges.poloniex.polo import Polo
 from exchanges.bittrex.bittrexclient import BittrexClient
-import configparser
+import configargparse
 import time
-import argparse
 
 
 def main(args):
@@ -14,18 +13,13 @@ def main(args):
     2) Loads data for all currently supported currencies for specific days (from now)
        backfill --all --days[]
     """
-
-    client = MongoClient('localhost', 27017)
-    db = client.mosquito
     day_constant = 86400
 
     # Parse config
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    db = config['MongoDB']['db']
-    port = int(config['MongoDB']['port'])
-    url = config['MongoDB']['url']
-    exchange_name = config['Trade']['exchange']
+    db = args.db
+    port = int(args.db_port)
+    url = args.db_url
+    exchange_name = args.exchange
 
     # Init DB
     client = MongoClient(url, port)
@@ -35,9 +29,9 @@ def main(args):
 
     # Init exchange
     if exchange_name == 'polo':
-        exchange = Polo(config)
+        exchange = Polo()
     elif exchange_name == 'bittrex':
-        exchange = BittrexClient(config)
+        exchange = BittrexClient()
     else:
         print('Invalid exchange name in config.ini file!')
         return
@@ -46,8 +40,8 @@ def main(args):
     all_pairs = exchange.get_pairs()
     if args.all:
         pairs = all_pairs
-    elif args.pair is not None:
-        tmp_pairs = [args.pair]
+    elif args.pairs is not None:
+        tmp_pairs = [args.pairs]
         pairs = []
         # Handle * suffix pairs
         for pair in tmp_pairs:
@@ -64,7 +58,7 @@ def main(args):
     epoch_now = int(time.time())
 
     for pair in pairs:
-        for day in reversed(range(1, args.days+1)):
+        for day in reversed(range(1, int(args.days)+1)):
             epoch_from = epoch_now - (day_constant*day)
             epoch_to = epoch_now if day == 1 else epoch_now - (day_constant * (day-1))
             print('Getting currency data: ' + pair + ', days left: ' + str(day), end='')
@@ -92,11 +86,15 @@ def main(args):
 
 
 if __name__ == "__main__":
-    # Parse input
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--pair", help="Pair to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_* prefixed pairs]")
-    parser.add_argument("--all", help="Backfill data for ALL currencies", action='store_true')
-    parser.add_argument("--days", help="Number of days to backfill", required=True, type=int)
-    in_args = parser.parse_args()
+    arg_parser = configargparse.get_argument_parser()
+    arg_parser.add('-c', '--config', is_config_file=True, help='config file path', default='mosquito.ini')
+    arg_parser.add('--pairs', help='Pairs to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_* prefixed pairs]')
+    arg_parser.add("--all", help='Backfill data for ALL currencies', action='store_true')
+    arg_parser.add("--days", help="Number of days to backfill", required=True, type=int)
+    arg_parser.add('--exchange', help='Exchange')
+    arg_parser.add('--db_url', help='Mongo db url')
+    arg_parser.add('--db_port', help='Mongo db port')
+    arg_parser.add('--db', help='Mongo db')
+    options = arg_parser.parse_known_args()[0]
 
-    main(in_args)
+    main(options)

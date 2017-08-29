@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
-import configparser
+import configargparse
 import pandas as pd
 from termcolor import colored
 from strategies.enums import TradeState as ts
 import time
 from backfill import main as backfill
-from argparse import Namespace
 import math
 from exchanges.exchange import Exchange
 import re
@@ -21,17 +20,17 @@ class Base(ABC):
     pairs = []
     exchange = None
     balance = None
+    arg_parser = configargparse.get_argument_parser()
 
-    def __init__(self, args, config_file, trade_mode):
+    def __init__(self, trade_mode):
         super(Base, self).__init__()
-        self.args = args
-        self.config = self.initialize_config(config_file)
-        self.exchange = Exchange(args, config_file, trade_mode)
+        self.args = self.arg_parser.parse_known_args()[0]
+        self.exchange = Exchange(trade_mode)
         self.transaction_fee = self.exchange.get_transaction_fee()
         self.ticker_df = pd.DataFrame()
-        self.verbosity = int(self.config['General']['verbosity'])
-        self.pairs = self.process_input_pairs(self.config['Trade']['pairs'])
-        self.fixed_trade_amount = float(self.config['Trade']['fixed_trade_amount'])
+        self.verbosity = int(self.args.verbosity)
+        self.pairs = self.process_input_pairs(self.args.pairs)
+        self.fixed_trade_amount = float(self.args.fixed_trade_amount)
         self.pair_delimiter = self.exchange.get_pair_delimiter()
         self.last_tick_epoch = 0
 
@@ -68,8 +67,7 @@ class Base(ABC):
         prefetch_days = math.ceil(prefetch_epoch_size / 86400)
         # Prefetch/Backfill data
         for pair in self.pairs:
-            args = Namespace(pair=pair, days=prefetch_days, all=False)
-            backfill(args)
+            backfill(self.args)
         # Load data to our ticker buffer
         prefetch_epoch_size = ticker_interval * min_ticker_size * 60
         epoch_now = int(time.time())

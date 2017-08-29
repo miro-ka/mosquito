@@ -1,13 +1,7 @@
-import click
 from exchanges.exchange import Exchange
+import time
 
 
-@click.command()
-@click.option('--exchange', default='polo', help='Exchange (Default Poloniex)')
-@click.option('--pairs', default='BTC_*', help='Included pairs: * for all or prefix_* for prefix group (default BTC_*)')
-@click.option('--days', default=30, required=False, help='Number of history days, the dataset should be generated')
-@click.option('--ticker', default=5, required=False, help='Ticker size in minutes')
-@click.option('--features', help='Path to input features list file')
 class Blueprint:
     """
     Main module for generating and handling datasets for AI
@@ -15,10 +9,22 @@ class Blueprint:
 
     exchange = None
 
-    def __init__(self, exchange, pairs, days, ticker, features):
+    def __init__(self, cfg):
+        """
+        self.ticker_size = cfg.ticker_size
+        self.features = cfg.load_features(features)
+        self.start_time = int(time.time()) - days*86400
         self.exchange = Exchange(None, 'config.ini')
-        v = self.exchange.get_pairs()
+        """
         pass
+
+    @staticmethod
+    def load_features(features_path):
+        """
+        Loads features list file and returns its content
+        """
+        # TODO load features list
+        return []
 
     def run(self):
         """

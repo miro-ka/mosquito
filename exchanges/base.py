@@ -1,20 +1,24 @@
 from abc import ABC, abstractmethod
 from strategies.enums import TradeState
 from termcolor import colored
+import configargparse
 
 
 class Base(ABC):
     """
     Base class for all exchanges
     """
+    arg_parser = configargparse.get_argument_parser()
+    arg_parser.add('--fixed_trade_amount', help='Fixed trade amount')
 
     transaction_fee = 0.0
     pair_delimiter = '_'
 
-    def __init__(self, config):
+    def __init__(self):
         super(Base, self).__init__()
+        args = self.arg_parser.parse_known_args()[0]
         self.pair_delimiter = '_'
-        self.fixed_trade_amount = float(config['Trade']['fixed_trade_amount'])
+        self.fixed_trade_amount = float(args.fixed_trade_amount)
 
     @abstractmethod
     def return_open_orders(self, currency_pair='all'):

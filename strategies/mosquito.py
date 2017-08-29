@@ -3,10 +3,6 @@ import talib
 from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState
-from lib.indicators.macd import macd
-from lib.indicators.ropc import ropc
-import math
-import numpy
 from core.bots.enums import BuySellMode
 
 

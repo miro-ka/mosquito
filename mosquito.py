@@ -1,11 +1,9 @@
-import argparse
-
+import configargparse
 from core.engine import Engine
 
 
-def main(args):
-
-    engine = Engine(args, 'config.ini')
+def main():
+    engine = Engine()
     engine.run()
 
 
@@ -18,19 +16,12 @@ def has_mandatory_fields(args):
     return True
 
 if __name__ == "__main__":
-    # Parse input
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--backtest", help="Simulate your strategy on history ticker data", action='store_true')
-    parser.add_argument("--paper", help="Simulate your strategy on real ticker", action='store_true')
-    parser.add_argument("--live", help="REAL trading mode", action='store_true')
-    parser.add_argument("--strategy", help="Name of strategy to be run (if not set, the default one will be used")
-    parser.add_argument("--plot", help="Generate a candle stick plot at simulation end", action='store_true')
+    arg_parser = configargparse.get_argument_parser()
+    arg_parser.add('-c', '--config', is_config_file=True, help='config file path', default='mosquito.ini')
+    arg_parser.add('-v', '--verbosity', help='Verbosity', default=2)
+    arg_parser.add('--strategy', help='Strategy')
+    arg_parser.add('--fixed_trade_amount', help='Fixed trade amount')
+    args = arg_parser.parse_known_args()
 
-    parsed_args = parser.parse_args()
-
-    if not has_mandatory_fields(parsed_args):
-        print("Missing trade mode argument (backtest, paper or live). See --help for more details.")
-        exit(0)
-
-    main(parsed_args)
+    main()
 

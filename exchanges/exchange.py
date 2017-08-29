@@ -1,4 +1,4 @@
-import configparser
+import configargparse
 from .poloniex.polo import Polo
 from .bittrex.bittrexclient import BittrexClient
 from pymongo import MongoClient
@@ -14,15 +14,19 @@ class Exchange:
 
     exchange = None
     exchange_name = None
+    arg_parser = configargparse.get_argument_parser()
+    arg_parser.add('--exchange', help='Exchange')
+    arg_parser.add('--db_url', help='Mongo db url')
+    arg_parser.add('--db_port', help='Mongo db port')
+    arg_parser.add('--db', help='Mongo db')
+    arg_parser.add('--pairs', help='Pairs')
 
-    def __init__(self, args, config_file, trade_mode=TradeMode.backtest):
-        self.exchange = self.load_exchange(config_file)
-        self.args = args
+    def __init__(self, trade_mode=TradeMode.backtest):
+        self.args = self.arg_parser.parse_known_args()[0]
+        self.exchange = self.load_exchange()
         self.trade_mode = trade_mode
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        self.verbosity = int(config['General']['verbosity'])
-        self.db = self.initialize_db(config)
+        self.verbosity = int(self.args.verbosity)
+        self.db = self.initialize_db()
         self.ticker = self.db.ticker
 
     def get_pair_delimiter(self):
@@ -49,31 +53,29 @@ class Exchange:
         """
         return self.exchange.get_symbol_ticker(symbol, candle_size)
 
-    @staticmethod
-    def initialize_db(config):
+    def initialize_db(self):
         """
         DB Initialization
         """
-        db = config['MongoDB']['db']
-        port = int(config['MongoDB']['port'])
-        url = config['MongoDB']['url']
+        db = self.args.db
+        port = int(self.args.db_port)
+        url = self.args.db_url
         client = MongoClient(url, port)
         db = client[db]
         return db
 
-    def load_exchange(self, config_file):
+    def load_exchange(self):
         """
         Loads exchange files
         """
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        verbosity = int(config['General']['verbosity'])
-        self.exchange_name = config['Trade']['exchange']
+        verbosity = int(self.args.verbosity)
+        self.exchange_name = self.args.exchange
 
         if self.exchange_name == 'polo':
-            return Polo(config, verbosity)
+            return Polo(verbosity)
         elif self.exchange_name == 'bittrex':
-            return BittrexClient(config, verbosity)
+            # TODO
+            return BittrexClient(verbosity)
         else:
             print('Trying to use not defined exchange!')
             return None
