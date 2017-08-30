@@ -12,21 +12,12 @@ from core.report import Report
 from core.wallet import Wallet
 
 
-#if not has_mandatory_fields(args):
-#    print("Missing trade mode argument (backtest, paper or live). See --help for more details.")
-#    exit(0)
-
-
 class Engine:
     """
     Main class for Simulation Engine (main class where all is happening
     """
 
     arg_parser = configargparse.get_argument_parser()
-    arg_parser.add('-c', '--config', is_config_file=True, help='config file path', default='mosquito.ini')
-    arg_parser.add('--backtest', help='Simulate your strategy on history ticker data', action='store_true')
-    arg_parser.add("--paper", help="Simulate your strategy on real ticker", action='store_true')
-    arg_parser.add("--live", help="REAL trading mode", action='store_true')
     arg_parser.add("--strategy", help="Name of strategy to be run (if not set, the default one will be used")
     arg_parser.add("--plot", help="Generate a candle stick plot at simulation end", action='store_true')
     arg_parser.add("--interval", help="Simulation interval", default=5)
