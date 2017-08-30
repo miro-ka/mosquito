@@ -60,12 +60,12 @@ Mosquito currently supports following exchanges:
 ## Backfill
 Backfill gets history data from exchange and stores them to mongodb. Data can be after that used for testing your simulation strategies.
 
-usage: backfill.py [-h] [--pair PAIR] [--all] --days DAYS
+usage: backfill.py [-h] [--pairs PAIRS] [--all] --days DAYS
 
 ```
 optional arguments:
   -h, --help   show this help message and exit
-  --pairs PAIR Pair to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_*
+  --pairs PAIRS PairS to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_*
                prefixed pairs]
   --all        Backfill data for ALL currencies
   --days DAYS  Number of days to backfill
