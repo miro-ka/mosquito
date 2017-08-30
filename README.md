@@ -8,8 +8,8 @@ Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms,
 
 
 ## About
-Mosquito is a crypto currency trading bot writen in Python, with main focus on modularity, 
-so it is straight forward to plug-in new exchange. 
+Mosquito is a crypto currency trading bot written in Python, with main focus on modularity,
+so it is straight forward to plug-in new exchange.
 
 The idea to build a new bot came because of I was missing following easy-access features in all of available bots
 available at the time mid 2017:
@@ -20,7 +20,7 @@ available at the time mid 2017:
 
 ### Supported Exchanges
 Mosquito currently supports following exchanges:
- * **Poloniex** - supporting *fillOrKill* and *immediateOrCancel* trading types. *postOnly* type is not supported. You can 
+ * **Poloniex** - supporting *fillOrKill* and *immediateOrCancel* trading types. *postOnly* type is not supported. You can
  read more about trading types [here.](https://github.com/s4w3d0ff/python-poloniex/blob/master/poloniex/__init__.py)
  * **Bittrex** - supporting *Trade Limit Buy/Sell Orders*
 
@@ -44,11 +44,17 @@ Mosquito currently supports following exchanges:
  git clone https://github.com/miti0/mosquito.git
  ```
  2. install mongodb & required python packages
- 
- 3. set-up config.ini (if you want to use sample config, just rename config.sample.ini to config.ini)
- 
+
+ 3. set-up mosquito.ini (if you want to use sample config, just rename mosquito.sample.ini to mosquito.ini)
+
  3. Run desired command (full list of commands below)
- 
+
+ All parameters in the program can be overridden with input arguments.
+ You can get list of all available arguments with:
+
+```
+ python3 mosquito.py --help
+```
 
 
 ## Backfill
@@ -59,16 +65,16 @@ usage: backfill.py [-h] [--pair PAIR] [--all] --days DAYS
 ```
 optional arguments:
   -h, --help   show this help message and exit
-  --pair PAIR  Pair to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_*
+  --pairs PAIR Pair to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_*
                prefixed pairs]
   --all        Backfill data for ALL currencies
   --days DAYS  Number of days to backfill
 ```
-  
+
 
 Example 1) Load historical data for BTC_ETH pair for the last 5 days:
 ```
-python3 backfill --days 5 --pair BTC_USD
+python3 backfill --days 5 --pairs BTC_USD
 ```
 
 Example 2) Load historical data for ALL pairs for the last 2 days
@@ -84,18 +90,68 @@ python3 backfill --days 1 --pairs BTC_*
 
 
 ## Trading
-This is the main module that handles passed strategy and places buy/sell orders. 
+This is the main module that handles passed strategy and places buy/sell orders.
+
+ Architecture and logic of mosquito is made so, that it should be easy to set and tune all strategy parameters with program arguments. Below is a list of main arguments that can be either configured via the mosquito.ini config file or by passing the value/values as argument.
 
 ```
-usage: mosquito.py [-h] [--backtest] [--paper] [--live] [--strategy STRATEGY] [--plot]
-
-optional arguments:
-  -h, --help           show this help message and exit
-  --backtest           Simulate your strategy on history ticker data
-  --paper              Simulate your strategy on real ticker
-  --live               REAL trading mode
-  --strategy STRATEGY  Name of strategy to be run (if not set, the default one will be used
-  --plot               Generate a candle stick plot at simulation end
+-h, --help            show this help message and exit
+ --polo_api_key POLO_API_KEY
+                       Poloniex API key (default: None)
+ --polo_secret POLO_SECRET
+                       Poloniex secret key (default: None)
+ --polo_txn_fee POLO_TXN_FEE
+                       Poloniex txn. fee (default: None)
+ --polo_buy_order POLO_BUY_ORDER
+                       Poloniex buy order type (default: None)
+ --polo_sell_order POLO_SELL_ORDER
+                       Poloniex sell order type (default: None)
+ --bittrex_api_key BITTREX_API_KEY
+                       Bittrex API key (default: None)
+ --bittrex_secret BITTREX_SECRET
+                       Bittrex secret key (default: None)
+ --bittrex_txn_fee BITTREX_TXN_FEE
+                       Bittrex txn. fee (default: None)
+ --exchange EXCHANGE   Exchange (default: None)
+ --db_url DB_URL       Mongo db url (default: None)
+ --db_port DB_PORT     Mongo db port (default: None)
+ --db DB               Mongo db (default: None)
+ --pairs PAIRS         Pairs (default: None)
+ --use_real_wallet     Use/not use fictive wallet (only for paper simulation)
+                       (default: False)
+ --backtest_from BACKTEST_FROM
+                       Backtest epoch start datetime (default: None)
+ --backtest_to BACKTEST_TO
+                       Backtest epoch end datetime (default: None)
+ --backtest_hours BACKTEST_HOURS
+                       Number of history days the simulation should start
+                       from (default: None)
+ --wallet_currency WALLET_CURRENCY
+                       Wallet currency (separated by comma) (default: None)
+ --wallet_amount WALLET_AMOUNT
+                       Wallet amount (separated by comma) (default: None)
+ --backtest            Simulate your strategy on history ticker data
+                       (default: False)
+ --paper               Simulate your strategy on real ticker (default: False)
+ --live                REAL trading mode (default: False)
+ --plot                Generate a candle stick plot at simulation end
+                       (default: False)
+ --interval INTERVAL   Simulation interval (default: 5)
+ --root_report_currency ROOT_REPORT_CURRENCY
+                       Root currency used in final plot (default: None)
+ --buffer_size BUFFER_SIZE
+                       Buffer size (default: 24)
+ --prefetch            Prefetch data from history DB (default: False)
+ --plot_pair PLOT_PAIR
+                       Plot pair (default: None)
+ --all ALL             Include all currencies/tickers (default: None)
+ --days DAYS           Days to pre-fill (default: None)
+ -c CONFIG, --config CONFIG
+                       config file path (default: mosquito.ini)
+ -v, --verbosity       Verbosity (default: False)
+ --strategy STRATEGY   Strategy (default: None)
+ --fixed_trade_amount FIXED_TRADE_AMOUNT
+                       Fixed trade amount (default: None)
 
 ```
 
@@ -104,12 +160,12 @@ Currently Trading supports following modes:
  * **Paper** - mode simulating live ticker with placing fictive buy/sell orders.
  * **Live** - live trading with placing REAL buy/sell orders.
 
-> Backtest and Paper trading are using immediate buy/sell orders by using the last ticker 
+> Backtest and Paper trading are using immediate buy/sell orders by using the last ticker
 closing price. This results to NOT 100% accurate strategy results, what you should be aware of.
 
 
 ### Backtest
-Fast simulation mode using past data and placing fictive buy/sell orders. Simulation configuration is done via 
+Fast simulation mode using past data and placing fictive buy/sell orders. Simulation configuration is done via
 *config.ini* file (some of the parameters can be overridden with command line arguments).
 
 Below is an example of running a backtest together with final buy/sell plot generated at the end of the simulation.
@@ -120,7 +176,7 @@ python3 mosquito.py --backtest --plot
 
 
 ### Paper
-Trading mode that simulates live ticker with placing fictive buy/sell orders. Simulation configuration is done via 
+Trading mode that simulates live ticker with placing fictive buy/sell orders. Simulation configuration is done via
 *config.ini* file (some of the parameters can be overridden with command line arguments).
 
 Below is an example of running a backtest together with final buy/sell plot generated at the end of the simulation.
@@ -141,10 +197,10 @@ python3 mosquito.py --live
 
 
 ## Plot and Statistics
-Mosquito has a simple plot utility for visualizing current pair combined with trading history. 
+Mosquito has a simple plot utility for visualizing current pair combined with trading history.
 Visualization uses external library [plotly](https://plot.ly/). Below You can see an example visualizing ticker price plot, together with simulated buy/sell orders.
 
-<img src="https://user-images.githubusercontent.com/1301154/28573699-70c6d14c-7119-11e7-8bb6-06c53908066d.png">
+<img src="https://user-images.githubusercontent.com/1301154/29753922-68696196-8b7b-11e7-9fc6-c2d7c1e9b42f.png">
 
 Below is an example of Final Simulation Report summary:
 ```
@@ -160,12 +216,11 @@ Total txn: 10
 Simulated (data time): 0 days, 4 hours and 55 minutes
 Transactions per hour: 2.03
 Simulation run time: 0 hours 1 minutes and 13 seconds
-Created new window in existing browser session.
 ```
 
 
 ## Donate
-If you would like to support the project in other way than code-contributing, you can donate Mosquito development on 
+If you would like to support the project in other way than code-contributing, you can donate Mosquito development on
 following Bitcoin address:
 
 16v94untkyuTXyE4euWzDA5r4vKd996CP8
