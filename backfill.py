@@ -90,11 +90,12 @@ if __name__ == "__main__":
     arg_parser.add('-c', '--config', is_config_file=True, help='config file path', default='mosquito.ini')
     arg_parser.add('--pairs', help='Pairs to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_* prefixed pairs]')
     arg_parser.add("--all", help='Backfill data for ALL currencies', action='store_true')
-    arg_parser.add("--days", help="Number of days to backfill", required=True, type=int)
+    arg_parser.add("--days", help="Number of days to backfill", required=True, type=int, default=1)
     arg_parser.add('--exchange', help='Exchange')
     arg_parser.add('--db_url', help='Mongo db url')
     arg_parser.add('--db_port', help='Mongo db port')
     arg_parser.add('--db', help='Mongo db')
+    arg_parser.add('-v', '--verbosity', help='Verbosity', action='store_true')
     options = arg_parser.parse_known_args()[0]
 
     main(options)

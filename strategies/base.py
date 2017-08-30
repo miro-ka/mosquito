@@ -2,20 +2,21 @@ from abc import ABC, abstractmethod
 from .enums import TradeState as ts
 from strategies.enums import TradeState
 from termcolor import colored
+import configargparse
 
 
 class Base(ABC):
     """
     Base class for all strategies
     """
-
+    arg_parser = configargparse.get_argument_parser()
     action_request = ts.none
     actions = []
 
-    def __init__(self, verbosity=2, pair_delimiter='_'):
+    def __init__(self):
         super(Base, self).__init__()
-        self.pair_delimiter = pair_delimiter
-        self.verbosity = verbosity
+        args = self.arg_parser.parse_known_args()[0]
+        self.verbosity = args.verbosity
         self.min_history_ticks = 5
         self.group_by_field = 'pair'
 
@@ -24,6 +25,17 @@ class Base(ABC):
         Returns min_history_ticks
         """
         return self.min_history_ticks
+
+    @staticmethod
+    def get_delimiter(df):
+        if df.empty:
+            print('Error: get_delimiter! Got empty df!')
+        pair = df.iloc[-1].pair
+        return '_' if '_' in pair else '-'
+
+    @staticmethod
+    def parse_pairs(pairs):
+        return [x.strip() for x in pairs.split(',')]
 
     @staticmethod
     def get_dataset_count(df, group_by_field):

@@ -28,7 +28,7 @@ class Base(ABC):
         self.exchange = Exchange(trade_mode)
         self.transaction_fee = self.exchange.get_transaction_fee()
         self.ticker_df = pd.DataFrame()
-        self.verbosity = int(self.args.verbosity)
+        self.verbosity = self.args.verbosity
         self.pairs = self.process_input_pairs(self.args.pairs)
         self.fixed_trade_amount = float(self.args.fixed_trade_amount)
         self.pair_delimiter = self.exchange.get_pair_delimiter()
@@ -66,8 +66,12 @@ class Base(ABC):
         prefetch_epoch_size = ticker_interval * min_ticker_size * 60
         prefetch_days = math.ceil(prefetch_epoch_size / 86400)
         # Prefetch/Backfill data
+        self.args.days = prefetch_days
+        orig_pair = self.args.pairs
         for pair in self.pairs:
+            self.args.pairs = pair
             backfill(self.args)
+        self.args.pairs = orig_pair
         # Load data to our ticker buffer
         prefetch_epoch_size = ticker_interval * min_ticker_size * 60
         epoch_now = int(time.time())
@@ -80,12 +84,6 @@ class Base(ABC):
             prefetch_epoch += (ticker_interval * 60)
         print('Fetching done..')
         return df
-
-    @staticmethod
-    def initialize_config(config_file):
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        return config
 
     def get_pairs(self):
         """

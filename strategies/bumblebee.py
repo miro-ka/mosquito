@@ -1,5 +1,5 @@
 import talib
-
+import configargparse
 from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState
@@ -11,11 +11,14 @@ class Bumblebee(Base):
     Bumblebee strategy
     About: Combination of OBV and EMA indicators
     """
-    def __init__(self, args, verbosity=2, pair_delimiter='_'):
-        super(Bumblebee, self).__init__(args, verbosity, pair_delimiter)
+    arg_parser = configargparse.get_argument_parser()
+
+    def __init__(self):
+        args = self.arg_parser.parse_known_args()[0]
+        super(Bumblebee, self).__init__()
         self.name = 'bumblebee'
         self.min_history_ticks = 20  # 300 minute interval
-        self.pair = 'BTC_ETH'
+        self.pair = self.parse_pairs(args.pairs)[0]
         self.buy_sell_mode = BuySellMode.all
 
     def calculate(self, look_back, wallet):

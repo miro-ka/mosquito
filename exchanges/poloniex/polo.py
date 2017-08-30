@@ -22,7 +22,7 @@ class Polo(Base):
     arg_parser.add("--polo_buy_order", help='Poloniex buy order type')
     arg_parser.add("--polo_sell_order", help='Poloniex sell order type')
 
-    def __init__(self, verbosity=2):
+    def __init__(self):
         args = self.arg_parser.parse_known_args()[0]
         super(Polo, self).__init__()
         api_key = args.polo_api_key
@@ -31,7 +31,7 @@ class Polo(Base):
         self.polo = Poloniex(api_key, secret)
         self.buy_order_type = args.polo_buy_order
         self.sell_order_type = args.polo_sell_order
-        self.verbosity = verbosity
+        self.verbosity = args.verbosity
         self.pair_delimiter = '_'
         self.tickers_cache_refresh_interval = 50  # If the ticker request is within the interval, get data from cache
         self.last_tickers_fetch_epoch = 0  #
@@ -144,7 +144,7 @@ class Polo(Base):
             elif action.buy_sell_mode == BuySellMode.fixed:
                 action.amount = self.get_fixed_trade_amount(wallet, action)
 
-            if self.verbosity > 0:
+            if self.verbosity:
                 print('Processing live-action: ' + str(action.action) +
                       ', amount:', str(action.amount) +
                       ', pair:', action.pair +

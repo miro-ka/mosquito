@@ -1,19 +1,19 @@
 import talib
-
 from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState
 from core.bots.enums import BuySellMode
+import re
 
 
 class Mosquito(Base):
     """
-    !!! ONLY IN DEVELOPMENT AND TESTED ONLY IN BACK-TEST !!!
     About: Multi-currency strategy focusing on buying most profitable strategy
     """
+    pair_delimiter = None
 
-    def __init__(self, args, verbosity=2, pair_delimiter='_'):
-        super(Mosquito, self).__init__(args, verbosity, pair_delimiter)
+    def __init__(self):
+        super(Mosquito, self).__init__()
         self.name = 'mosquito'
         self.min_history_ticks = 26
         self.previous_obv = {}
@@ -27,6 +27,8 @@ class Mosquito(Base):
         """
         Main Strategy function, which takes recent history data and returns recommended list of actions
         """
+        if not self.pair_delimiter:
+            self.pair_delimiter = self.get_delimiter(look_back)
 
         (dataset_cnt, pairs_count) = self.get_dataset_count(look_back, self.group_by_field)
 
@@ -131,8 +133,9 @@ class Mosquito(Base):
             return self.actions
 
         # Handle all the pairs that have not been selected (are not up-trending)
-        positive_pair_names = [(i[0]).split(self.pair_delimiter, 1)[-1] for i in positive_pairs]
-        pair_prefix = pairs_names[0].split(self.pair_delimiter, 1)[0]
+
+        positive_pair_names = [re.split('[-_]', i[0])[-1] for i in positive_pairs]
+        pair_prefix = re.split('[-_]', pairs_names[0])[0]
         for wallet_item in wallet.current_balance:
             if wallet_item == pair_prefix:
                 continue

@@ -10,23 +10,28 @@ from datetime import timezone
 from dateutil.tz import *
 from dateutil.parser import *
 from core.bots.enums import BuySellMode
+import configargparse
 
 
 class BittrexClient(Base):
     """
     Bittrex interface
     """
-
+    arg_parser = configargparse.get_argument_parser()
+    arg_parser.add('--bittrex_api_key', help='Bittrex API key')
+    arg_parser.add("--bittrex_secret", help='Bittrex secret key')
+    arg_parser.add("--bittrex_txn_fee", help='Bittrex txn. fee')
     open_orders = []
 
-    def __init__(self, config, verbosity=2):
-        super(BittrexClient, self).__init__(config)
-        api_key = config['Bittrex']['api_key']
-        secret = config['Bittrex']['secret']
-        self.transaction_fee = float(config['Bittrex']['transaction_fee'])
+    def __init__(self):
+        args = self.arg_parser.parse_known_args()[0]
+        super(BittrexClient, self).__init__()
+        api_key = args.bittrex_api_key
+        secret = args.bittrex_secret
+        self.transaction_fee = float(args.bittrex_txn_fee)
         self.bittrex = Bittrex(api_key, secret)
         self.pair_delimiter = '-'
-        self.verbosity = verbosity
+        self.verbosity = args.verbosity
 
     def get_pairs(self):
         """
@@ -182,7 +187,7 @@ class BittrexClient(Base):
             elif action.buy_sell_mode == BuySellMode.fixed:
                 action.amount = self.get_fixed_trade_amount(wallet, action)
 
-            if self.verbosity > 0:
+            if self.verbosity:
                 print('Processing live-action: ' + str(action.action) +
                       ', amount:', str(action.amount) +
                       ', pair:', market +

@@ -37,8 +37,6 @@ class Engine:
     arg_parser.add("--all", help="Include all currencies/tickers")
     arg_parser.add("--days", help="Days to pre-fill")
 
-
-
     buffer_size = None
     interval = None
     pairs = None
@@ -70,18 +68,16 @@ class Engine:
             self.bot = Backtest(self.wallet.initial_balance.copy())
             self.trade_mode = TradeMode.backtest
         elif self.args.paper:
-            # TODO
-            self.bot = Paper(args, config_file, self.wallet.initial_balance.copy())
+            self.bot = Paper(self.wallet.initial_balance.copy())
             self.trade_mode = TradeMode.paper
             self.wallet.initial_balance = self.bot.get_balance()
             self.wallet.current_balance = self.bot.get_balance()
         elif self.args.live:
-            # TODO
-            self.bot = Live(args, config_file)
+            self.bot = Live()
             self.trade_mode = TradeMode.live
             self.wallet.initial_balance = self.bot.get_balance()
             self.wallet.current_balance = self.bot.get_balance()
-        self.strategy = strategy_class(self.verbosity, self.bot.get_pair_delimiter())
+        self.strategy = strategy_class()
         self.pairs = self.bot.get_pairs()
         self.look_back = pd.DataFrame()
         self.max_lookback_size = int(self.buffer_size*(60/self.interval)*len(self.pairs))
@@ -126,7 +122,7 @@ class Engine:
             self.interval = int(self.interval)
         self.config_strategy_name = self.args.strategy
         self.plot_pair = self.args.plot_pair
-        self.verbosity = int(self.args.verbosity)
+        self.verbosity = self.args.verbosity
 
     def on_simulation_done(self):
         """

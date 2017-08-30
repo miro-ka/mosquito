@@ -7,11 +7,10 @@ class Live(Base):
     """
     Main class for Live Trading
     """
-
     mode = TradeMode.live
 
-    def __init__(self, args, config_file):
-        super(Live, self).__init__(args, config_file, TradeMode.live)
+    def __init__(self):
+        super(Live, self).__init__(self.mode)
         self.counter = 0
         # open_orders = self.exchange.return_open_orders()
         # print(open_orders)

@@ -1,22 +1,23 @@
 from .base import Base
 from core.bots.enums import TradeMode
 import time
-import configparser
+import configargparse
 
 
 class Paper(Base):
     """
     Main class for Paper trading
     """
-
+    arg_parser = configargparse.get_argument_parser()
+    arg_parser.add('--use_real_wallet', help='Use/not use fictive wallet (only for paper simulation)',
+                   action='store_true')
     mode = TradeMode.paper
     ticker_df = None
 
-    def __init__(self, args, config_file, wallet):
-        super(Paper, self).__init__(args, config_file, self.mode)
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        self.use_real_wallet = config.getboolean('Paper', 'use_real_wallet')
+    def __init__(self, wallet):
+        args = self.arg_parser.parse_known_args()[0]
+        super(Paper, self).__init__(self.mode)
+        self.use_real_wallet = args.use_real_wallet
         if not self.use_real_wallet:
             self.balance = wallet.copy()
 

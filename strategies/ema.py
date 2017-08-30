@@ -1,5 +1,5 @@
 import talib
-
+import configargparse
 from core.tradeaction import TradeAction
 from .base import Base
 from .enums import TradeState
@@ -11,11 +11,14 @@ class Ema(Base):
     Ema strategy
     About: Buy when close_price > ema20, sell when close_price < ema20 and below death_cross
     """
-    def __init__(self, verbosity=2, pair_delimiter='_'):
-        super(Ema, self).__init__(verbosity, pair_delimiter)
-        self.name = 'Ema'
+    arg_parser = configargparse.get_argument_parser()
+
+    def __init__(self):
+        args = self.arg_parser.parse_known_args()[0]
+        super(Ema, self).__init__()
+        self.name = 'ema'
         self.min_history_ticks = 30
-        self.pair = 'BTC_ETH'
+        self.pair = self.parse_pairs(args.pairs)[0]
         self.buy_sell_mode = BuySellMode.all
 
     def calculate(self, look_back, wallet):

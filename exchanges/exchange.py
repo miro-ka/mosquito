@@ -25,7 +25,7 @@ class Exchange:
         self.args = self.arg_parser.parse_known_args()[0]
         self.exchange = self.load_exchange()
         self.trade_mode = trade_mode
-        self.verbosity = int(self.args.verbosity)
+        self.verbosity = self.args.verbosity
         self.db = self.initialize_db()
         self.ticker = self.db.ticker
 
@@ -68,14 +68,12 @@ class Exchange:
         """
         Loads exchange files
         """
-        verbosity = int(self.args.verbosity)
         self.exchange_name = self.args.exchange
 
         if self.exchange_name == 'polo':
-            return Polo(verbosity)
+            return Polo()
         elif self.exchange_name == 'bittrex':
-            # TODO
-            return BittrexClient(verbosity)
+            return BittrexClient()
         else:
             print('Trying to use not defined exchange!')
             return None
@@ -116,7 +114,7 @@ class Exchange:
                                           {"exchange": self.exchange_name}]})
 
             if db_doc is None:
-                if self.verbosity >= 3:
+                if self.verbosity:
                     print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch), 'yellow'))
                 continue
 

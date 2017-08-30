@@ -12,7 +12,7 @@ class Report:
 
     initial_closing_prices = None
     initial_balance = 0.0
-    verbosity = 1
+    verbosity = None
 
     def __init__(self,
                  initial_wallet,
@@ -154,7 +154,7 @@ class Report:
                 return 0.0
             return value/closing_price
 
-        if self.verbosity > 0:
+        if self.verbosity:
             print(colored("Couldn't find exchange rate for:" + currency + '. Report data invalid!', 'red'))
 
         return 0.0
