@@ -10,7 +10,6 @@ from backfill import main as backfill
 from exchanges.exchange import Exchange
 from strategies.enums import TradeState
 from core.bots.enums import BuySellMode
-from strategies.enums import TradeState as ts
 
 
 class Base(ABC):

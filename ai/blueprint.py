@@ -52,6 +52,6 @@ class Blueprint:
             scan = self.blueprint.scan(self.df_buffer)
             if scan:
                 print('storing blueprint scan..')
-                df_blueprint = df_blueprint.append(scan, ignore_index=True)
+                self.df_blueprint = self.df_blueprint.append(scan, ignore_index=True)
 
             self.ticker_epoch += self.ticker_size*60
