@@ -1,6 +1,6 @@
 import sys
 import configargparse
-from importlib import import_module
+import core.common as common
 import pandas as pd
 from core.bots.paper import Paper
 from termcolor import colored
@@ -50,7 +50,7 @@ class Engine:
     def __init__(self):
         self.args = self.arg_parser.parse_known_args()[0]
         self.parse_config()
-        strategy_class = self.load_strategy(self.args.strategy, self.config_strategy_name)
+        strategy_class = common.load_module('strategies.', self.args.strategy)
         self.wallet = Wallet()
         self.history = pd.DataFrame()
         trade_columns = ['date', 'pair', 'close_price', 'action']
@@ -82,22 +82,6 @@ class Engine:
                              self.bot.get_pair_delimiter())
         self.report.set_verbosity(self.verbosity)
         self.plot = Plot()
-
-    @staticmethod
-    def load_strategy(arg_strategy, config_strategy):
-        """
-        Loads strategy module based on given name.
-        """
-        if arg_strategy is None and config_strategy == '':
-            print(colored('Not provided strategy,. please add it as an argument or in config file', 'red'))
-            sys.exit()
-        if arg_strategy is not None:
-            strategy_name = arg_strategy
-        else:
-            strategy_name = config_strategy
-        mod = import_module("strategies." + strategy_name)
-        strategy_class = getattr(mod, strategy_name.capitalize())
-        return strategy_class
 
     def parse_config(self):
         """
@@ -178,12 +162,10 @@ class Engine:
                 # Save ticker to buffer
                 self.history = self.history.append(self.ticker, ignore_index=True)
                 self.look_back = self.look_back.append(self.ticker, ignore_index=True)
-                buffer_size = len(self.look_back.index)
-                if buffer_size > self.max_lookback_size:
-                    print('Max memory exceeded, cleaning/cutting buffer')
-                    rows_to_delete = buffer_size - self.max_lookback_size
-                    self.look_back = self.look_back.ix[rows_to_delete:]
-                    self.look_back = self.look_back.reset_index(drop=True)
+
+                # Check if buffer is not overflown
+                self.look_back = common.handle_buffer_limits(self.look_back, self.max_lookback_size)
+
                 if self.first_ticker is None:
                     self.first_ticker = self.ticker
                 self.last_valid_ticker = self.ticker

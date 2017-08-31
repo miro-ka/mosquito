@@ -1,15 +1,16 @@
-from abc import ABC, abstractmethod
-import configargparse
-import pandas as pd
-from termcolor import colored
-from strategies.enums import TradeState as ts
-import time
-from backfill import main as backfill
-import math
-from exchanges.exchange import Exchange
 import re
+import math
+import time
+import pandas as pd
+import configargparse
+import core.common as common
+from termcolor import colored
+from abc import ABC, abstractmethod
+from backfill import main as backfill
+from exchanges.exchange import Exchange
 from strategies.enums import TradeState
 from core.bots.enums import BuySellMode
+from strategies.enums import TradeState as ts
 
 
 class Base(ABC):
@@ -29,7 +30,7 @@ class Base(ABC):
         self.transaction_fee = self.exchange.get_transaction_fee()
         self.ticker_df = pd.DataFrame()
         self.verbosity = self.args.verbosity
-        self.pairs = self.process_input_pairs(self.args.pairs)
+        self.pairs = common.parse_pairs(self.exchange, self.args.pairs)
         self.fixed_trade_amount = float(self.args.fixed_trade_amount)
         self.pair_delimiter = self.exchange.get_pair_delimiter()
         self.last_tick_epoch = 0
@@ -39,25 +40,6 @@ class Base(ABC):
         Returns exchanges pair delimiter
         """
         return self.pair_delimiter
-
-    def process_input_pairs(self, in_pairs):
-        all_pairs = self.exchange.get_pairs()
-        if in_pairs == 'all':
-            print('setting_all_pairs')
-            return all_pairs
-        else:
-            pairs = []
-            parsed_pairs = in_pairs.replace(" ", "").split(',')
-            for in_pair in parsed_pairs:
-                if '*' in in_pair:
-                    prefix = in_pair.replace('*', '')
-                    pairs_list = [p for p in all_pairs if prefix in p]
-                    pairs.extend(pairs_list)
-                    # remove duplicates
-                    pairs = list(set(pairs))
-                else:
-                    pairs.append(in_pair)
-            return pairs
 
     def prefetch(self, min_ticker_size, ticker_interval):
         """
