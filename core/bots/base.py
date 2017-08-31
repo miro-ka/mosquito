@@ -132,7 +132,7 @@ class Base(ABC):
 
         for action in actions:
             # If action is None, just skip it
-            if action.action == ts.none:
+            if action.action == TradeState.none:
                 actions.remove(action)
                 continue
 
@@ -163,7 +163,7 @@ class Base(ABC):
 
             fee = self.transaction_fee * float(action.amount) / 100.0
             # *** Buy ***
-            if action.action == ts.buy:
+            if action.action == TradeState.buy:
                 if currency_balance <= 0:
                     print('Want to buy ' + action.pair + ', not enough money, or everything already bought..')
                     actions.remove(action)
@@ -177,7 +177,7 @@ class Base(ABC):
                 continue
 
             # *** Sell ***
-            elif action.action == ts.sell:
+            elif action.action == TradeState.sell:
                 if asset_balance <= 0:
                     print('Want to sell ' + action.pair + ', not enough assets, or everything already sold..')
                     actions.remove(action)

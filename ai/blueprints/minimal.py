@@ -32,7 +32,7 @@ class Minimal:
         final_scan_df = pd.DataFrame()
 
         # Check if we have enough datasets
-        (dataset_cnt, pairs_count) = common.get_dataset_count(df)
+        (dataset_cnt, _) = common.get_dataset_count(df)
         if dataset_cnt < self.min_history_ticks:
             print('dataset_cnt:', dataset_cnt)
             return final_scan_df
@@ -60,7 +60,7 @@ class Minimal:
         """
         Updates Y price intervals
         """
-        for idx, (pair, iter_counter, scan_df) in enumerate(self.scans_container):
+        for idx, (_, iter_counter, scan_df) in enumerate(self.scans_container):
             passed_interval = iter_counter * ticker_size
             scan_complete = True
 

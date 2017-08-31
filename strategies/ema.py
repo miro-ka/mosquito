@@ -26,7 +26,7 @@ class Ema(Base):
         """
         Main strategy logic (the meat of the strategy)
         """
-        (dataset_cnt, pairs_count) = common.get_dataset_count(look_back, self.group_by_field)
+        (dataset_cnt, _) = common.get_dataset_count(look_back, self.group_by_field)
 
         # Wait until we have enough data
         if dataset_cnt < self.min_history_ticks:
