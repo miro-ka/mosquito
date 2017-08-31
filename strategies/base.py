@@ -37,17 +37,6 @@ class Base(ABC):
     def parse_pairs(pairs):
         return [x.strip() for x in pairs.split(',')]
 
-    @staticmethod
-    def get_dataset_count(df, group_by_field):
-        """
-        Returns count of dataset and pairs_count (group by provided string)
-        """
-        pairs_group = df.groupby([group_by_field])
-        # cnt = pairs_group.count()
-        pairs_count = len(pairs_group.groups.keys())
-        dataset_cnt = pairs_group.size().iloc[0]
-        return dataset_cnt, pairs_count
-
     @abstractmethod
     def calculate(self, data, wallet):
         pass

@@ -49,3 +49,14 @@ def parse_pairs(exchange, in_pairs):
             else:
                 pairs.append(in_pair)
         return pairs
+
+
+def get_dataset_count(df, group_by_field='pair'):
+    """
+    Returns count of dataset and pairs_count (group by provided string)
+    """
+    pairs_group = df.groupby([group_by_field])
+    # cnt = pairs_group.count()
+    pairs_count = len(pairs_group.groups.keys())
+    dataset_cnt = pairs_group.size().iloc[0]
+    return dataset_cnt, pairs_count

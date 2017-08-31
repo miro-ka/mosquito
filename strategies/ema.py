@@ -1,9 +1,10 @@
 import talib
 import configargparse
-from core.tradeaction import TradeAction
 from .base import Base
+import core.common as common
 from .enums import TradeState
 from core.bots.enums import BuySellMode
+from core.tradeaction import TradeAction
 
 
 class Ema(Base):
@@ -25,7 +26,7 @@ class Ema(Base):
         """
         Main strategy logic (the meat of the strategy)
         """
-        (dataset_cnt, pairs_count) = self.get_dataset_count(look_back, self.group_by_field)
+        (dataset_cnt, pairs_count) = common.get_dataset_count(look_back, self.group_by_field)
 
         # Wait until we have enough data
         if dataset_cnt < self.min_history_ticks:

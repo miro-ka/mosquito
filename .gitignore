@@ -2,6 +2,7 @@
 core/__pycache__/
 core/bots/__pycache__/
 
+*.csv
 __pycache__/
 images/mosquito_imgs.zip
 images/mosquito_imgs/
