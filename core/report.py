@@ -1,8 +1,8 @@
-from termcolor import colored
-import pandas as pd
 import time
-from datetime import datetime
+import pandas as pd
 from dateutil.tz import *
+from termcolor import colored
+from datetime import datetime
 
 
 class Report:

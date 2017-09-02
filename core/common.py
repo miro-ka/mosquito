@@ -21,7 +21,7 @@ def handle_buffer_limits(df, max_size):
     """
     df_size = len(df.index)
     if df_size > max_size:
-        print(colored('Max memory exceeded, cleaning/cutting buffer', 'yellow'))
+        # print(colored('Max memory exceeded, cleaning', 'yellow'))
         rows_to_delete = df_size - max_size
         df = df.ix[rows_to_delete:]
         df = df.reset_index(drop=True)

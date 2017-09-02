@@ -1,3 +1,4 @@
+import time
 import configargparse
 from ai.blueprint import Blueprint
 
@@ -7,7 +8,11 @@ def run():
      Start blueprint
     """
     blueprint = Blueprint()
+    start_time = time.time()
     blueprint.run()
+    end_time = time.time()
+    time_delta = end_time - start_time
+    print('Finished in ' + str(int(time_delta)) + ' sec.')
 
 
 if __name__ == '__main__':

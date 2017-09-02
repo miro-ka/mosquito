@@ -2,6 +2,7 @@ import talib
 import pandas as pd
 import configargparse
 import core.common as common
+from termcolor import colored
 
 
 class Minimal:
@@ -14,6 +15,7 @@ class Minimal:
 
     def __init__(self, pairs):
         args = self.arg_parser.parse_known_args()[0]
+        self.name = 'minimal'
         self.pairs = pairs
         self.price_intervals = [int(x.strip()) for x in args.price_intervals.split(',')]
         self.min_history_ticks = 10
@@ -34,7 +36,7 @@ class Minimal:
         # Check if we have enough datasets
         (dataset_cnt, _) = common.get_dataset_count(df)
         if dataset_cnt < self.min_history_ticks:
-            print('dataset_cnt:', dataset_cnt)
+            # print('dataset_cnt:', dataset_cnt)
             return final_scan_df
 
         for pair_name in self.pairs:
@@ -49,26 +51,35 @@ class Minimal:
             self.scans_container.append((pair_name, 0, scan_df))
 
             # Update stored scans
-            final_scan = self.update_scans(pair_df, ticker_size)
+            final_scan = self.update_scans(pair_name, pair_df, ticker_size)
             if final_scan:
                 df_t = final_scan[2]
                 final_scan_df = final_scan_df.append(df_t, ignore_index=True)
 
         return final_scan_df
 
-    def update_scans(self, df, ticker_size):
+    def update_scans(self, pair_name, df, ticker_size):
         """
         Updates Y price intervals
         """
-        for idx, (_, iter_counter, scan_df) in enumerate(self.scans_container):
+        for idx, (pair, iter_counter, scan_df) in enumerate(self.scans_container):
+            if pair != pair_name:
+                continue
+
             passed_interval = iter_counter * ticker_size
             scan_complete = True
+
+            pair_df = df.loc[df['pair'] == pair]
+
+            if pair_df.empty:
+                print(colored('Got empty pair_df', 'red'))
+                continue
 
             # Update Yt intervals
             for Yt_name in self.Yt_column_names:
                 interval = int(Yt_name.replace(self.Yt_prefix, ''))
                 if passed_interval == interval:
-                    close_price = df['close'].iloc[-1]
+                    close_price = pair_df['close'].iloc[-1]
                     scan_df[Yt_name] = close_price
                 else:
                     column_value = scan_df.iloc[-1].get(Yt_name)

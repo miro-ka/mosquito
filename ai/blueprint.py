@@ -34,17 +34,39 @@ class Blueprint:
         self.df_buffer = pd.DataFrame()
         self.df_blueprint = pd.DataFrame()
 
+    @staticmethod
+    def print_progress_dot(counter):
+        """
+        Prints progress
+        """
+        if counter % 100 == 0:
+            print('.', end='', flush=True)
+        if counter > 10000:
+            counter = 0
+            print('')
+        return counter+1
+
+    def write_to_file(self):
+        """
+        Writes df to file
+        """
+        # Remove not important columns
+        print('\nProcessing done, total rows in dataset: ' + str(len(self.df_blueprint.index)))
+        self.df_blueprint = self.df_blueprint.drop(['_id', 'id', 'curr_1', 'curr_2'], axis=1)
+        filename = 'blueprint_' + self.blueprint.name + '_' + str(int(time.time())) + '.csv'
+        self.df_blueprint.to_csv(filename, index=False)
+
     def run(self):
         """
         Calculates and stores dataset
         """
+        dot_counter = 0
         while True:
             # Get new dataset
             df = self.exchange.get_offline_ticker(self.ticker_epoch, self.pairs)
             if df.empty:
-                print('No more data,..done')
-                self.df_blueprint.to_csv('blueprint.csv', index=False)
-                exit(0)
+                self.write_to_file()
+                return
 
             # Store df to buffer
             self.df_buffer = self.df_buffer.append(df, ignore_index=True)
@@ -52,7 +74,7 @@ class Blueprint:
 
             scan_df = self.blueprint.scan(self.df_buffer, self.ticker_size)
             if not scan_df.empty:
-                print('storing blueprint scan..')
+                dot_counter = self.print_progress_dot(dot_counter)
                 self.df_blueprint = self.df_blueprint.append(scan_df, ignore_index=True)
 
             self.ticker_epoch += self.ticker_size*60

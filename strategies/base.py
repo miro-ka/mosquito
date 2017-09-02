@@ -1,8 +1,8 @@
+import configargparse
+from termcolor import colored
 from abc import ABC, abstractmethod
 from .enums import TradeState as ts
 from strategies.enums import TradeState
-from termcolor import colored
-import configargparse
 
 
 class Base(ABC):
