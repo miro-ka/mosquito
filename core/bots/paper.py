@@ -2,7 +2,7 @@ from .base import Base
 from core.bots.enums import TradeMode
 import time
 import configargparse
-import pandas as pd
+
 
 class Paper(Base):
     """
