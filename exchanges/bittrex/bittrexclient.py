@@ -50,7 +50,16 @@ class BittrexClient(Base):
             pairs.append(pair)
         return pairs
 
-    def return_candles(self, currency_pair, epoch_start, epoch_end, period=300):
+    def get_candles_df(self, currency_pair, epoch_start, epoch_end, period=300):
+        """
+        Returns candlestick chart data in pandas dataframe
+        """
+        dict_data = self.get_candles(currency_pair, epoch_start, epoch_end, period)
+        df = pd.DataFrame(dict_data)
+        df['pair'] = currency_pair
+        return df
+
+    def get_candles(self, currency_pair, epoch_start, epoch_end, period=300):
         """
         Returns candlestick chart data
         """

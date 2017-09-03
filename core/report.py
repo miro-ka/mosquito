@@ -82,7 +82,7 @@ class Report:
             self.initialize_start_price(ticker_data)
             self.initial_balance = self.initialize_start_balance(self.initial_wallet,
                                                                  self.initial_closing_prices)
-        epoch_dt = ticker_data['date'][0]
+        epoch_dt = ticker_data['date'].iloc[0]
         utc_dt = datetime.fromtimestamp(epoch_dt, tz=tzutc())
         local_dt = utc_dt.astimezone(tzlocal())
 

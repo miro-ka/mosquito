@@ -2,7 +2,7 @@ from .base import Base
 from core.bots.enums import TradeMode
 import time
 import configargparse
-
+import pandas as pd
 
 class Paper(Base):
     """
@@ -38,12 +38,16 @@ class Paper(Base):
             self.ticker_df.drop(self.ticker_df.index, inplace=True)
 
         epoch_now = int(time.time())
+        epoch_start = epoch_now - interval*60*5
+        epoch_end = epoch_now
         for pair in self.pairs:
-            df = self.exchange.get_symbol_ticker(pair, interval)
+            new_df = self.exchange.get_candles_df(pair, epoch_start, epoch_end, interval*60)
             if self.ticker_df.empty:
-                self.ticker_df = df.copy()
+                self.ticker_df = new_df.copy()
             else:
-                self.ticker_df = self.ticker_df.append(df, ignore_index=True)
+                self.ticker_df = self.ticker_df.append(new_df, ignore_index=True)
+                # Remove duplicates
+                # self.ticker_df.drop_duplicates(subset=['date', 'pair'], inplace=True, keep='last')
 
         self.last_tick_epoch = epoch_now
         return self.ticker_df

@@ -107,7 +107,24 @@ class Polo(Base):
         ticker = self.polo.returnTicker()
         return list(ticker)
 
-    def return_candles(self, currency_pair, epoch_start, epoch_end, period=False):
+    def get_candles_df(self, currency_pair, epoch_start, epoch_end, period=False):
+        """
+        Returns candlestick chart data in pandas dataframe
+        """
+        try:
+            data = self.polo.returnChartData(currency_pair, period, epoch_start, epoch_end)
+            df = pd.DataFrame(data)
+            df = df.tail(1)
+            df['close'] = df['close'].astype(float)
+            df['volume'] = df['volume'].astype(float)
+            df['pair'] = currency_pair
+            return df
+        except (PoloniexError, JSONDecodeError) as e:
+            print()
+            print(colored('!!! Got exception while retrieving polo data:' + str(e) + ', pair: ' + currency_pair, 'red'))
+        return pd.DataFrame()
+
+    def get_candles(self, currency_pair, epoch_start, epoch_end, period=False):
         """
         Returns candlestick chart data
         """

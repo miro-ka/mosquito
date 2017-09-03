@@ -96,6 +96,18 @@ class Exchange:
         """
         return self.exchange.get_balances()
 
+    def get_candles_df(self, currency_pair, epoch_start, epoch_end, period=300):
+        """
+        Returns candlestick chart data in pandas dataframe
+        """
+        return self.exchange.get_candles_df(currency_pair, epoch_start, epoch_end, period)
+
+    def get_candles(self, currency_pair, epoch_start, epoch_end, period=300):
+        """
+        Returns candlestick chart data
+        """
+        return self.exchange.get_candles(currency_pair, epoch_start, epoch_end, period)
+
     def return_open_orders(self, currency_pair='all'):
         """
         Returns your open orders
