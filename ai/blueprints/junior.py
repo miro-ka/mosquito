@@ -5,9 +5,9 @@ import core.common as common
 from termcolor import colored
 
 
-class Minimal:
+class Junior:
     """
-    Minimal blueprint - example of implementation blueprint logic
+    Mid-size blueprint - EMA, RCI, CCI, OBV
     """
     arg_parser = configargparse.get_argument_parser()
     arg_parser.add('--price_intervals', help='Price intervals save in dataset (minutes) ', default='5, 30, 60')
@@ -18,7 +18,7 @@ class Minimal:
         self.name = 'minimal'
         self.pairs = pairs
         self.price_intervals = [int(x.strip()) for x in args.price_intervals.split(',')]
-        self.min_history_ticks = 10
+        self.min_history_ticks = 35
         self.Y_prefix = 'Y_'
         self.Yt_prefix = 'Yt_'
         self.Yt_column_names = self.create_yt_column_names(self.price_intervals, self.Yt_prefix)
@@ -104,13 +104,50 @@ class Minimal:
         Method which calculates and generates features
         """
         close = df['close'].values
+        high = df['high'].values
+        low = df['low'].values
+        volume = df['volume'].values
         last_row = df.tail(1).copy()
 
-        # ************** Calc EMA10
-        ema10_period = 10
-        ema10 = talib.EMA(close[-ema10_period:], timeperiod=ema10_period)[-1]
-        # last_row.loc[self.Y_prefix+'ema'] = ema10
-        last_row[self.Y_prefix+'ema'] = ema10
+        # ************** Calc EMAs
+        ema_periods = [3, 6, 12, 18]
+        for ema_period in ema_periods:
+            ema = talib.EMA(close[-ema_period:], timeperiod=ema_period)[-1]
+            last_row[self.Y_prefix + 'ema' + str(ema_period)] = ema
+
+        # ************** Calc RSIs
+        rsi_periods = [14]
+        for rsi_period in rsi_periods:
+            rsi = talib.RSI(close[-rsi_period:], timeperiod=rsi_period)[-1]
+            last_row[self.Y_prefix + 'rsi' + str(rsi_period)] = rsi
+
+        # ************** Calc CCIs
+        cci_periods = [14]
+        for cci_period in cci_periods:
+            cci = talib.CCI(high[-cci_period:],
+                            low[-cci_period:],
+                            close[-cci_period:],
+                            timeperiod=cci_period)[-1]
+            last_row[self.Y_prefix + 'cci' + str(cci_period)] = cci
+
+        # ************** Calc MACDs
+        macd_periods = [34]
+        for macd_period in macd_periods:
+            l = close[-macd_period:]
+            x = len(l)
+            macd, macd_signal, _ = talib.MACD(close[-macd_period:],
+                                              fastperiod=12,
+                                              slowperiod=26,
+                                              signalperiod=9)
+            last_row[self.Y_prefix + 'macd' + str(macd_periods)] = macd[-1]
+            last_row[self.Y_prefix + 'macd_s' + str(macd_periods)] = macd_signal[-1]
+
+        # ************** Calc OBVs
+        obv_periods = [6, 12, 18]
+        for obv_period in obv_periods:
+            obv = talib.OBV(close[-obv_period:], volume[-obv_period:])[-1]
+            last_row[self.Y_prefix + 'obv' + str(obv_period)] = obv
+
         return last_row
 
     def add_empty_outputs(self, df):
@@ -120,3 +157,4 @@ class Minimal:
         for interval in self.price_intervals:
             df[self.Yt_prefix+str(interval)] = None
         return df
+

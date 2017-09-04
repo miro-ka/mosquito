@@ -50,16 +50,16 @@ class BittrexClient(Base):
             pairs.append(pair)
         return pairs
 
-    def get_candles_df(self, currency_pair, epoch_start, epoch_end, period=300):
+    def get_candles_df(self, currency_pair, epoch_start, epoch_end, interval_in_sec=300):
         """
         Returns candlestick chart data in pandas dataframe
         """
-        dict_data = self.get_candles(currency_pair, epoch_start, epoch_end, period)
+        dict_data = self.get_candles(currency_pair, epoch_start, epoch_end, interval_in_sec)
         df = pd.DataFrame(dict_data)
         df['pair'] = currency_pair
         return df
 
-    def get_candles(self, currency_pair, epoch_start, epoch_end, period=300):
+    def get_candles(self, currency_pair, epoch_start, epoch_end, interval_in_sec=300):
         """
         Returns candlestick chart data
         """
@@ -106,7 +106,7 @@ class BittrexClient(Base):
 
         # Create/interpolate raw tickers to fit our interval ticker
         out_tickers = []
-        for ticker_epoch in range(epoch_start, epoch_end, period):
+        for ticker_epoch in range(epoch_start, epoch_end, interval_in_sec):
             items = [element for element in raw_tickers if element['date'] <= ticker_epoch]
             if len(items) < 0:
                 print(colored('Could not found a ticker for:' + currency_pair + ', epoch:' + str(ticker_epoch), 'red'))

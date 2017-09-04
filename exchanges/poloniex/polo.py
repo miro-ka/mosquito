@@ -21,6 +21,7 @@ class Polo(Base):
     arg_parser.add("--polo_txn_fee", help='Poloniex txn. fee')
     arg_parser.add("--polo_buy_order", help='Poloniex buy order type')
     arg_parser.add("--polo_sell_order", help='Poloniex sell order type')
+    valid_candle_intervals = [300, 900, 1800, 7200, 14400, 86400]
 
     def __init__(self):
         args = self.arg_parser.parse_known_args()[0]
@@ -112,7 +113,7 @@ class Polo(Base):
         Returns candlestick chart data in pandas dataframe
         """
         try:
-            data = self.polo.returnChartData(currency_pair, period, epoch_start, epoch_end)
+            data = self.get_candles(currency_pair, epoch_start, epoch_end, period)
             df = pd.DataFrame(data)
             df = df.tail(1)
             df['close'] = df['close'].astype(float)
@@ -124,17 +125,30 @@ class Polo(Base):
             print(colored('!!! Got exception while retrieving polo data:' + str(e) + ', pair: ' + currency_pair, 'red'))
         return pd.DataFrame()
 
-    def get_candles(self, currency_pair, epoch_start, epoch_end, period=False):
+    def get_candles(self, currency_pair, epoch_start, epoch_end, interval_in_sec=False):
         """
         Returns candlestick chart data
         """
+        candle_interval = self.get_valid_candle_interval(interval_in_sec)
         data = []
         try:
-            data = self.polo.returnChartData(currency_pair, period, epoch_start, epoch_end)
+            data = self.polo.returnChartData(currency_pair, candle_interval, epoch_start, epoch_end)
         except (PoloniexError, JSONDecodeError) as e:
             print()
             print(colored('!!! Got exception while retrieving polo data:' + str(e) + ', pair: ' + currency_pair, 'red'))
         return data
+
+    def get_valid_candle_interval(self, period_in_sec):
+        """
+        Returns closest value from valid candle intervals
+        """
+        if not period_in_sec:
+            return period_in_sec
+
+        if period_in_sec in self.valid_candle_intervals:
+            return period_in_sec
+        # Find the closest valid interval
+        return min(self.valid_candle_intervals, key=lambda x: abs(x - period_in_sec))
 
     def trade(self, actions, wallet, trade_mode):
         if trade_mode == TradeMode.backtest:

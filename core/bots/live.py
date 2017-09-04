@@ -15,14 +15,15 @@ class Live(Base):
         # open_orders = self.exchange.return_open_orders()
         # print(open_orders)
 
-    def get_next(self, interval):
+    def get_next(self, interval_in_min):
         """
         Returns next state
         Interval: Interval in minutes
         """
+        interval_in_sec = interval_in_min*60
         epoch_now = int(time.time())
         if self.last_tick_epoch > 0:
-            next_ticker_time = (self.last_tick_epoch + interval * 60)
+            next_ticker_time = (self.last_tick_epoch + interval_in_sec)
             delay_second = epoch_now - next_ticker_time
             if delay_second < 0:
                 print('Going to sleep for: ', abs(delay_second), ' seconds.')
@@ -34,13 +35,15 @@ class Live(Base):
         print('Fetching data for ' + str(len(self.pairs)) + ' ticker/tickers.', end='', flush=True)
 
         epoch_now = int(time.time())
-
+        epoch_start = epoch_now - interval_in_sec*5  # just to be sure get extra 5 datasets
+        epoch_end = epoch_now
         for pair in self.pairs:
-            df = self.exchange.get_symbol_ticker(pair, interval)
+            new_df = self.exchange.get_candles_df(pair, epoch_start, epoch_end, interval_in_sec)
+            # df = self.exchange.get_symbol_ticker(pair, interval_in_min)
             if self.ticker_df.empty:
-                self.ticker_df = df.copy()
+                self.ticker_df = new_df.copy()
             else:
-                self.ticker_df = self.ticker_df.append(df, ignore_index=True)
+                self.ticker_df = self.ticker_df.append(new_df, ignore_index=True)
             print('.', end='', flush=True)
 
         print('..done')
