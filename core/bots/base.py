@@ -73,10 +73,10 @@ class Base(ABC):
         return self.pairs
 
     @abstractmethod
-    def get_next(self, interval):
+    def get_next(self, interval_in_min):
         """
         Gets next data set
-        :param interval:
+        :param interval_in_min:
         :return: New data in DataFrame
         """
         pass

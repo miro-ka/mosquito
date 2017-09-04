@@ -33,6 +33,7 @@ class Blueprint:
         self.max_buffer_size = int(args.max_buffer_size * (60 / self.ticker_size) * len(self.pairs))
         self.df_buffer = pd.DataFrame()
         self.df_blueprint = pd.DataFrame()
+        self.export_file_name = 'blueprint_' + self.blueprint.name + '_' + str(int(time.time())) + '.csv'
 
     @staticmethod
     def print_progress_dot(counter):
@@ -41,7 +42,7 @@ class Blueprint:
         """
         if counter % 100 == 0:
             print('.', end='', flush=True)
-        if counter > 10000:
+        if counter > 1000:
             counter = 0
             print('')
         return counter+1
@@ -50,11 +51,9 @@ class Blueprint:
         """
         Writes df to file
         """
-        # Remove not important columns
-        print('\nProcessing done, total rows in dataset: ' + str(len(self.df_blueprint.index)))
+        print('\nSaving dataset.., total rows: ' + str(len(self.df_blueprint.index)))
         self.df_blueprint = self.df_blueprint.drop(['_id', 'id', 'curr_1', 'curr_2'], axis=1)
-        filename = 'blueprint_' + self.blueprint.name + '_' + str(int(time.time())) + '.csv'
-        self.df_blueprint.to_csv(filename, index=False)
+        self.df_blueprint.to_csv(self.export_file_name, index=False)
 
     def run(self):
         """

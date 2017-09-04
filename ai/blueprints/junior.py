@@ -134,7 +134,6 @@ class Junior:
         macd_periods = [34]
         for macd_period in macd_periods:
             l = close[-macd_period:]
-            x = len(l)
             macd, macd_signal, _ = talib.MACD(close[-macd_period:],
                                               fastperiod=12,
                                               slowperiod=26,

@@ -38,7 +38,7 @@ class Base(ABC):
         return [x.strip() for x in pairs.split(',')]
 
     @abstractmethod
-    def calculate(self, data, wallet):
+    def calculate(self, look_back, wallet):
         pass
 
     @staticmethod

@@ -44,14 +44,14 @@ class Backtest(Base):
             epoch_now = int(time.time())
             return epoch_now - (DAY*sim_hours)
 
-    def get_next(self, interval):
+    def get_next(self, interval_in_min):
         """
         Returns next state of current_time + interval (in minutes)
         """
         if self.sim_end and self.current_epoch > self.sim_end:
             return pd.DataFrame()
         self.ticker_df = self.exchange.get_offline_ticker(self.current_epoch, self.pairs)
-        self.current_epoch += interval*60
+        self.current_epoch += interval_in_min*60
         return self.ticker_df
 
     def trade(self, actions, wallet, trades, force_sell=True):
