@@ -34,26 +34,35 @@ class Blueprint:
         self.df_buffer = pd.DataFrame()
         self.df_blueprint = pd.DataFrame()
         self.export_file_name = 'blueprint_' + self.blueprint.name + '_' + str(int(time.time())) + '.csv'
+        self.export_file_initialized = False
 
-    @staticmethod
-    def print_progress_dot(counter):
+    def print_progress_dot(self, counter):
         """
         Prints progress
         """
         if counter % 100 == 0:
             print('.', end='', flush=True)
-        if counter > 1000:
+        if counter > 10000:
             counter = 0
-            print('')
+            self.write_to_file()
         return counter+1
 
     def write_to_file(self):
         """
         Writes df to file
         """
-        print('\nSaving dataset.., total rows: ' + str(len(self.df_blueprint.index)))
-        self.df_blueprint = self.df_blueprint.drop(['_id', 'id', 'curr_1', 'curr_2'], axis=1)
-        self.df_blueprint.to_csv(self.export_file_name, index=False)
+        export_df = self.df_blueprint.copy()
+        export_df = export_df.drop(['_id', 'id', 'curr_1', 'curr_2', 'exchange'], axis=1)
+        dt = export_df.tail(1).date.iloc[0]
+        dt_string = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(dt))
+        print('saving,..(last df date: ' + dt_string + ')')
+        if not self.export_file_initialized:
+            export_df.to_csv(self.export_file_name, index=False)
+            self.export_file_initialized = True
+        else:
+            export_df.to_csv(self.export_file_name, mode='a', header=False, index=False)
+
+        self.df_blueprint = self.df_blueprint[0:0]
 
     def run(self):
         """
