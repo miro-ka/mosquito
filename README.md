@@ -218,6 +218,26 @@ Transactions per hour: 2.03
 Simulation run time: 0 hours 1 minutes and 13 seconds
 ```
 
+## AI
+
+### Blueprint
+Blueprint is a part of AI package. Main function of the module is to generate datasets which can be used for training AI. Logic of Blueprint module is following:
+
+ 1. Create a blueprint file/module which contains features, indicators and output parameters. As an example you can take a look at ai/blueprints/minimal.py or ai/blueprints/junior.py
+
+ 2. Decide how many days you would like to run the Blueprint. Backfill data for that period.
+
+ 3. Choose which pair/pairs you would like to include. Following combinations should work [BTC_ETH] - single pair, [BTC_ETH, BTC_LTC] - list of pairs, [BTC_*] - all pairs with prefix BTC
+
+ 4. Start blueprint with following parameters (example below)
+
+```
+python3 blueprint.py --features junior --days 200
+```
+
+As a result you should see *.csv file in your Mosquito's root folder, which should contain the dataset.
+
+
 
 ## Donate
 If you would like to support the project in other way than code-contributing, you can donate Mosquito development on
