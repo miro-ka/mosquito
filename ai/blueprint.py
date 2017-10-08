@@ -7,7 +7,8 @@ from exchanges.exchange import Exchange
 
 class Blueprint:
     """
-    Main module for generating and handling datasets for AI
+    Main module for generating and handling datasets for AI. Application will generate datasets including
+    future target/output parameters.
     """
     arg_parser = configargparse.get_argument_parser()
     arg_parser.add('--days', help='Days to start blueprint from', default=30)
@@ -42,7 +43,7 @@ class Blueprint:
         """
         if counter % 100 == 0:
             print('.', end='', flush=True)
-        if counter > 10000:
+        if counter > 101:
             counter = 0
             self.write_to_file()
         return counter+1

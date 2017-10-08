@@ -99,7 +99,8 @@ class Junior:
 
         return None
 
-    def calculate_features(self, df):
+    @staticmethod
+    def calculate_features(df):
         """
         Method which calculates and generates features
         """

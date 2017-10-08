@@ -1,20 +1,25 @@
+# Extensions
 *.html
+*.zip
+*.csv
+*.prof
+
+# Folders
+__pycache__/
 core/__pycache__/
 core/bots/__pycache__/
-
-*.csv
-__pycache__/
-images/mosquito_imgs.zip
 images/mosquito_imgs/
-images/rendered_plain.png
-config.ini
-mosquito.ini
 .idea/
 exchanges/__pycache__/
 exchanges/poloniex/__pycache__/
 strategies/__pycache__/
-images/rendered_plain_small.png
 
+
+# Files
+config.ini
+mosquito.ini
+images/rendered_plain_small.png
 config.bumblebee.ini
 config.mosquito.ini
+
 
