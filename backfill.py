@@ -1,6 +1,7 @@
 from pymongo import MongoClient, ASCENDING
 from exchanges.poloniex.polo import Polo
 from exchanges.bittrex.bittrexclient import BittrexClient
+from termcolor import colored
 import configargparse
 import time
 
@@ -65,6 +66,9 @@ def main(args):
             candles = exchange.get_candles(pair, epoch_from, epoch_to, 300)  # by default 5 minutes candles (minimum)
             print(' (got total candles: ' + str(len(candles)) + ')')
             for candle in candles:
+                if candle['date'] == 0:
+                    print(colored('Found nothing for pair: ' + pair, 'yellow'))
+                    continue
                 # Convert strings to number (float or int)
                 for key, value in candle.items():
                     is_already_number = isinstance(value, (int, float, complex))
