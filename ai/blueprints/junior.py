@@ -10,7 +10,7 @@ class Junior:
     Mid-size blueprint - EMA, RCI, CCI, OBV
     """
     arg_parser = configargparse.get_argument_parser()
-    arg_parser.add('--price_intervals', help='Price intervals save in dataset (minutes) ', default='5, 30, 60')
+    arg_parser.add('--price_intervals', help='Price intervals saved in dataset (minutes) ', default='5, 30, 60')
     scans_container = []
 
     def __init__(self, pairs):

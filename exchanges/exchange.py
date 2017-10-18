@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from core.bots.enums import TradeMode
 import pandas as pd
 from termcolor import colored
+import time
 
 
 class Exchange:
@@ -119,15 +120,17 @@ class Exchange:
         Returns offline data from DB
         """
         ticker = pd.DataFrame()
-        # print('getting offline ticker for total pairs: ' + str(len(pairs)) + ', epoch:', str(epoch))
+        # print(' Getting offline ticker for total pairs: ' + str(len(pairs)) + ', epoch:', str(epoch))
         for pair in pairs:
-            db_doc = self.ticker.find_one({"$and": [{"date": {"$gte": epoch}},
+            db_doc = self.ticker.find_one({"$and": [{"date": {"$lte": epoch}},
                                           {"pair": pair},
                                           {"exchange": self.exchange_name}]})
 
             if db_doc is None:
                 if self.verbosity:
-                    print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch), 'yellow'))
+                    local_dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
+                    print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch) + ' (local: '
+                                  + str(local_dt) + ')', 'yellow'))
                 continue
 
             dict_keys = list(db_doc.keys())

@@ -71,12 +71,10 @@ def main(args):
                     continue
                 # Convert strings to number (float or int)
                 for key, value in candle.items():
-                    is_already_number = isinstance(value, (int, float, complex))
-                    if not is_already_number:
-                        try:
-                            candle[key] = int(value)
-                        except ValueError:
-                            candle[key] = float(value)
+                    if key == 'date':
+                        candle[key] = int(value)
+                    else:
+                        candle[key] = float(value)
                 new_db_item = candle.copy()
                 # Add identifier
                 new_db_item['exchange'] = exchange_name
