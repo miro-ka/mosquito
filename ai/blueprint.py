@@ -24,9 +24,10 @@ class Blueprint:
 
     def __init__(self):
         args = self.arg_parser.parse_known_args()[0]
+        self.blueprint_days = args.days
         self.ticker_size = int(args.ticker_size)
         self.blueprint_end_time = int(time.time())
-        self.start_time = self.blueprint_end_time - int(args.days)*86400
+        self.start_time = self.blueprint_end_time - int(self.blueprint_days)*86400
         self.ticker_epoch = self.start_time
         self.exchange = Exchange(None)
         self.pairs = common.parse_pairs(self.exchange, args.pairs)
@@ -74,6 +75,8 @@ class Blueprint:
         """
         Calculates and stores dataset
         """
+        print('Starting generating data for Blueprint', self.blueprint.name, ':back-days', self.blueprint_days,
+              '(This might take several hours/days,.so please stay back and relax)')
         dot_counter = 0
         while True:
             # Get new dataset
@@ -81,7 +84,6 @@ class Blueprint:
 
             # Check if the simulation is finished
             if self.ticker_epoch >= self.blueprint_end_time:
-            #if df.empty:
                 self.write_to_file()
                 return
 

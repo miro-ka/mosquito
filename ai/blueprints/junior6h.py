@@ -5,17 +5,17 @@ import core.common as common
 from termcolor import colored
 
 
-class Junior:
+class Junior6h:
     """
     Mid-size blueprint - EMA, RCI, CCI, OBV
     """
     arg_parser = configargparse.get_argument_parser()
-    arg_parser.add('--price_intervals', help='Price intervals saved in dataset (minutes) ', default='5, 30, 60')
+    arg_parser.add('--price_intervals', help='Price intervals saved in dataset (minutes) ', default='30, 60, 180, 360')
     scans_container = []
 
     def __init__(self, pairs):
         args = self.arg_parser.parse_known_args()[0]
-        self.name = 'junior'
+        self.name = 'junior6h'
         self.pairs = pairs
         self.price_intervals = [int(x.strip()) for x in args.price_intervals.split(',')]
         self.min_history_ticks = 35
@@ -58,23 +58,25 @@ class Junior:
         """
         Updates Y price intervals
         """
+        # 1) get all scans for particular pair_name
         for idx, (pair, iter_counter, scan_df) in enumerate(self.scans_container[:]):
             if pair != pair_name:
                 continue
 
             passed_interval = iter_counter * ticker_size
             scan_complete = True
-
             pair_df = df.loc[df['pair'] == pair]
 
             if pair_df.empty:
                 print(colored('Got empty pair_df', 'red'))
                 continue
 
-            # Update Yt intervals
+            # Update Yt (target) intervals
             for Yt_name in self.Yt_column_names:
                 interval = int(Yt_name.replace(self.Yt_prefix, ''))
-                if passed_interval == interval:
+
+                # If we have enough data and our target value is empty save it
+                if passed_interval >= interval and not scan_df.iloc[-1].get(Yt_name):
                     close_price = pair_df['close'].iloc[-1]
                     scan_df[Yt_name] = close_price
                 else:
@@ -106,20 +108,20 @@ class Junior:
         last_row = df.tail(1).copy()
 
         # ************** Calc EMAs
-        ema_periods = [3, 6, 12, 18]
+        ema_periods = [2, 4, 8, 12, 16, 20]
         for ema_period in ema_periods:
             ema = talib.EMA(close[-ema_period:], timeperiod=ema_period)[-1]
             last_row['ema' + str(ema_period)] = ema
 
         # ************** Calc RSIs
-        rsi_periods = [15]
+        rsi_periods = [5]
         for rsi_period in rsi_periods:
             rsi = talib.RSI(close[-rsi_period:], timeperiod=rsi_period-1)[-1]
             last_row['rsi' + str(rsi_period)] = rsi
             last_row['rsi_above_50' + str(rsi_period)] = int(rsi > 50.0)
 
         # ************** Calc CCIs
-        cci_periods = [14]
+        cci_periods = [5]
         for cci_period in cci_periods:
             cci = talib.CCI(high[-cci_period:],
                             low[-cci_period:],
@@ -127,7 +129,7 @@ class Junior:
                             timeperiod=cci_period)[-1]
             last_row['cci' + str(cci_period)] = cci
 
-        # ************** Calc MACD
+        # ************** Calc MACD 1
         macd_periods = [34]
         for macd_period in macd_periods:
             macd, macd_signal, _ = talib.MACD(close[-macd_period:],
@@ -136,11 +138,11 @@ class Junior:
                                               signalperiod=9)
             macd = macd[-1]
             signal_line = macd_signal[-1]
-            last_row['macd_above_signal'] = int(macd > signal_line)
-            last_row['macd_above_zero'] = int(macd > 0.0)
+            last_row['macd_above_signal' + str(macd_period)] = int(macd > signal_line)
+            last_row['macd_above_zero' + str(macd_period)] = int(macd > 0.0)
 
         # ************** Calc OBVs
-        obv_periods = [6, 12, 18]
+        obv_periods = [2, 4, 8, 12, 16, 20]
         for obv_period in obv_periods:
             obv = talib.OBV(close[-obv_period:], volume[-obv_period:])[-1]
             last_row['obv' + str(obv_period)] = obv
