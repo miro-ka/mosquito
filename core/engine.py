@@ -149,10 +149,12 @@ class Engine:
         try:
             while True:
                 # Get next ticker
-                self.ticker = self.bot.get_next(self.interval)
-                if self.ticker.empty:
+                new_ticker = self.bot.get_next(self.interval)
+                if new_ticker.empty or (self.ticker is not None and new_ticker.date[0] == self.ticker.date[0]):
                     print("No more data,..simulation done,. quitting")
                     exit(0)
+
+                self.ticker = new_ticker
 
                 # Check if ticker is valid
                 if not self.validate_ticker(self.ticker):

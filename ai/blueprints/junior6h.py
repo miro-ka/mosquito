@@ -1,7 +1,6 @@
 import talib
 import pandas as pd
 import configargparse
-import core.common as common
 from termcolor import colored
 
 
@@ -22,6 +21,16 @@ class Junior6h:
         self.Y_prefix = 'Y_'
         self.Yt_prefix = 'Yt_'
         self.Yt_column_names = self.create_yt_column_names(self.price_intervals, self.Yt_prefix)
+
+    @staticmethod
+    def get_column_names():
+        """
+        Returns column names included in the blueprint (input features)
+        """
+        return ['high', 'low',  'open',  'close',  'volume',  'quoteVolume', 'weightedAverage',
+         'ema2', 'ema4', 'ema8', 'ema12', 'ema16', 'ema20', 'rsi5', 'rsi_above_505', 'cci5',
+         'macd_above_signal34', 'macd_above_zero34', 'obv2', 'obv4',
+         'obv8','obv12', 'obv16', 'obv20']
 
     @staticmethod
     def create_yt_column_names(intervals, prefix):
