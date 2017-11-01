@@ -108,7 +108,7 @@ class BittrexClient(Base):
         out_tickers = []
         for ticker_epoch in range(epoch_start, epoch_end, interval_in_sec):
             items = [element for element in raw_tickers if element['date'] <= ticker_epoch]
-            if len(items) < 0:
+            if len(items) <= 0:
                 print(colored('Could not found a ticker for:' + currency_pair + ', epoch:' + str(ticker_epoch), 'red'))
                 continue
             # Get the last item (should be closest to search epoch)
