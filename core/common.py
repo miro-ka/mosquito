@@ -11,7 +11,7 @@ def load_module(module_prefix, module_name):
         print(colored('Not provided module,. please add it as an argument or in config file', 'red'))
         sys.exit()
     mod = import_module(module_prefix + module_name)
-    module_class = getattr(mod, module_name.capitalize())
+    module_class = getattr(mod, module_name.split('.')[-1].capitalize())
     return module_class
 
 

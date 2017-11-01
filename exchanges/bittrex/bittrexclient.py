@@ -11,6 +11,8 @@ from dateutil.tz import *
 from dateutil.parser import *
 from core.bots.enums import BuySellMode
 import configargparse
+import sys
+from socket import gethostbyname, gaierror
 
 
 class BittrexClient(Base):
@@ -64,7 +66,15 @@ class BittrexClient(Base):
         Returns candlestick chart data
         """
         currency_pair = currency_pair.replace('_', self.pair_delimiter)
-        res = self.bittrex.get_ticks(currency_pair, 'fiveMin')
+        try:
+            res = self.bittrex.get_ticks(currency_pair, 'fiveMin')
+        except gaierror as e:
+            print(colored('\n! Got gaierror exception from Bittrex client. Details: ' + e, 'red'))
+            return dict()
+        except Exception as e:
+            print(colored('\n! Got exception from Bittrex client. Details: ' + e, 'red'))
+            return dict()
+
         if res is None:
             print(colored('\n! Got empty result for pair: ' + currency_pair, 'red'))
             return dict()
