@@ -11,8 +11,7 @@ from dateutil.tz import *
 from dateutil.parser import *
 from core.bots.enums import BuySellMode
 import configargparse
-import sys
-from socket import gethostbyname, gaierror
+from socket import gaierror
 
 
 class BittrexClient(Base):
