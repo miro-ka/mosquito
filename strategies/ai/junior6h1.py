@@ -21,7 +21,7 @@ class Junior6h1(Base, ScikitBase):
         self.name = 'junior6h1'
         self.min_history_ticks = 35
         self.pair = self.parse_pairs(args.pairs)[0]
-        self.buy_sell_mode = BuySellMode.fixed
+        self.buy_sell_mode = BuySellMode.all
 
     def calculate(self, look_back, wallet):
         """
@@ -44,10 +44,10 @@ class Junior6h1(Base, ScikitBase):
 
         # Re-ordering column names
         column_names = Junior6h.get_column_names()
-        Y = df_blueprint[column_names]
-        predicted = self.predict(Y)[0]
+        x = df_blueprint[column_names]
+        predicted = self.predict(x)[0]
 
-        new_action = TradeState.sell if predicted == 0 else TradeState.buy
+        new_action = TradeState.sell if predicted == 1 else TradeState.buy
         trade_price = self.get_price(new_action, df.tail(), self.pair)
 
         action = TradeAction(self.pair,

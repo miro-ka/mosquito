@@ -140,7 +140,7 @@ This is the main module that handles passed strategy and places buy/sell orders.
  --root_report_currency ROOT_REPORT_CURRENCY
                        Root currency used in final plot (default: None)
  --buffer_size BUFFER_SIZE
-                       Buffer size (default: 24)
+                       Buffer size in days (default: 30)
  --prefetch            Prefetch data from history DB (default: False)
  --plot_pair PLOT_PAIR
                        Plot pair (default: None)

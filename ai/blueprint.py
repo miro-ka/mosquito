@@ -16,7 +16,7 @@ class Blueprint:
     arg_parser.add('--ticker_size', help='Size of the candle ticker (minutes)', default=5)
     arg_parser.add('--pairs', help='Pairs to blueprint')
     arg_parser.add('-v', '--verbosity', help='Verbosity', action='store_true')
-    arg_parser.add("--max_buffer_size", help="Maximum Buffer size (hours)", default=48)
+    arg_parser.add("--buffer_size", help="Maximum Buffer size (days)", default=30)
 
     features_list = None
     exchange = None
@@ -33,7 +33,7 @@ class Blueprint:
         self.pairs = common.parse_pairs(self.exchange, args.pairs)
         blueprints_module = common.load_module('ai.blueprints.', args.features)
         self.blueprint = blueprints_module(self.pairs)
-        self.max_buffer_size = int(args.max_buffer_size * (60 / self.ticker_size) * len(self.pairs))
+        self.max_buffer_size = int(int(args.buffer_size) * (1440 / self.ticker_size) * len(self.pairs))
         self.df_buffer = pd.DataFrame()
         self.df_blueprint = pd.DataFrame()
         self.export_file_name = 'blueprint_' + self.blueprint.name + '_' + str(int(time.time())) + '.csv'
@@ -59,15 +59,23 @@ class Blueprint:
             return
 
         export_df = self.df_blueprint.copy()
-        export_df = export_df.drop(['_id', 'id', 'curr_1', 'curr_2', 'exchange'], axis=1)
+        dropping_columns = ['_id', 'id', 'curr_1', 'curr_2', 'exchange']
+        df_columns = self.blueprint.get_feature_names()
+        df_columns = [x for x in df_columns if x not in dropping_columns]
+        export_df = export_df.drop(dropping_columns, axis=1)
+        export_df = export_df[df_columns]
         dt = export_df.tail(1).date.iloc[0]
         dt_string = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(dt))
         print('saving,..(last df date: ' + dt_string + ')')
         if not self.export_file_initialized:
-            export_df.to_csv(self.export_file_name, index=False)
+            export_df.to_csv(self.export_file_name, index=False, columns=df_columns)
             self.export_file_initialized = True
         else:
-            export_df.to_csv(self.export_file_name, mode='a', header=False, index=False)
+            export_df.to_csv(self.export_file_name,
+                             mode='a',
+                             header=False,
+                             index=False,
+                             columns=df_columns)
 
         self.df_blueprint = self.df_blueprint[0:0]
 
@@ -88,7 +96,11 @@ class Blueprint:
                 return
 
             # Store df to buffer
-            self.df_buffer = self.df_buffer.append(df, ignore_index=True)
+            if not self.df_buffer.empty:
+                df = df[list(self.df_buffer)]
+                self.df_buffer = self.df_buffer.append(df, ignore_index=True)
+            else:
+                self.df_buffer = self.df_buffer.append(df, ignore_index=True)
             self.df_buffer = common.handle_buffer_limits(self.df_buffer, self.max_buffer_size)
 
             scan_df = self.blueprint.scan(self.df_buffer, self.ticker_size)

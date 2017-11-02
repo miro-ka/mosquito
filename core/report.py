@@ -62,7 +62,10 @@ class Report:
         complete_report.append('Total txn: ' + str(len(trades)) + ' in ' + str(days) + ' days ' + str(hours) + ' hours and '
                                + str(minutes) + ' minutes')
         print('Simulated (data time):', days, 'days,', hours, 'hours and', minutes, 'minutes')
-        txn_per_hour = len(trades)/((sim_end-sim_start)/3600.0)
+        if sim_end-sim_start == 0:
+            txn_per_hour = len(trades)
+        else:
+            txn_per_hour = len(trades)/((sim_end-sim_start)/3600.0)
         print('Transactions per hour:', round(txn_per_hour, 2))
         # Get simulation run time values
         time_now = int(time.time())

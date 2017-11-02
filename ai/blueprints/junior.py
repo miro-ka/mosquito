@@ -1,7 +1,6 @@
 import talib
 import pandas as pd
 import configargparse
-import core.common as common
 from termcolor import colored
 
 

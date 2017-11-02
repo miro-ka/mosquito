@@ -42,7 +42,10 @@ class Paper(Base):
         epoch_start = epoch_now - interval_in_sec*5  # just to be sure get extra 5 datasets
         epoch_end = epoch_now
         for pair in self.pairs:
+            # print('getting candles for period:',  str(epoch_start) + '---' + str(epoch_end) + '----'
+            #      + str(interval_in_sec) + pair)
             new_df = self.exchange.get_candles_df(pair, epoch_start, epoch_end, interval_in_sec)
+            # rint('new_df____:', new_df)
             if self.ticker_df.empty:
                 self.ticker_df = new_df.copy()
             else:
@@ -51,7 +54,7 @@ class Paper(Base):
                 # self.ticker_df.drop_duplicates(subset=['date', 'pair'], inplace=True, keep='last')
 
         self.last_tick_epoch = epoch_now
-        return self.ticker_df
+        return self.ticker_df.copy()
 
     def get_balance(self):
         """
