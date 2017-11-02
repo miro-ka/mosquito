@@ -131,6 +131,24 @@ class Engine:
             return False
         return True
 
+    def simulation_finished(self, new_ticker):
+        """
+        Checks if simulation is finished based on new data
+        """
+        # If we got an empty dataset finish simulation
+        if new_ticker.empty:
+            return True
+
+        # If we have not data just continue
+        if self.ticker is None:
+            return False
+
+        # If we have received the same date,..we assume that we have no more data,..finish simulation
+        if not self.ticker.empty and (self.ticker is not None and new_ticker.date[0] == self.ticker.date[0]):
+            return True
+
+        return False
+
     def run(self):
         """
         This is the main simulation loop
@@ -150,7 +168,8 @@ class Engine:
             while True:
                 # Get next ticker
                 new_ticker = self.bot.get_next(self.interval)
-                if new_ticker.empty or (self.ticker is not None and new_ticker.date[0] == self.ticker.date[0]):
+
+                if self.simulation_finished(new_ticker):
                     print("No more data,..simulation done,. quitting")
                     exit(0)
 
