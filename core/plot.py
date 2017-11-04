@@ -1,10 +1,7 @@
-import plotly.plotly
 import plotly.graph_objs as go
 import pandas as pd
 import plotly.offline as offline
 from tzlocal import get_localzone
-# import pytz
-# import time
 
 
 class Plot:

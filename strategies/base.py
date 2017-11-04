@@ -39,7 +39,10 @@ class Base(ABC):
 
     @abstractmethod
     def calculate(self, look_back, wallet):
-        pass
+        """
+        Main Strategy function, which takes recent history data and returns recommended list of actions
+        """
+        None
 
     @staticmethod
     def get_price(trade_action, df, pair):

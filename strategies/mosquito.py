@@ -75,58 +75,6 @@ class Mosquito(Base):
             if ema_short <= ema_long:  # If we are below death cross, skip pair
                 continue
 
-
-            """
-            # ************** Calc OBV
-            obv_now = talib.OBV(close[-self.obv_interval:], volume[-self.obv_interval:])[-1]
-
-            buffer_ready = True
-            if pair not in self.previous_obv:
-                # print('missing previous_obvs, skipping pair: ' + pair)
-                self.previous_obv[pair] = obv_now
-                buffer_ready = False
-
-            self.previous_obv[pair] = obv_now
-            if self.previous_obv[pair] > obv_now > 0:
-                print('OBV is down-trending, skipping pair: ' + pair)
-
-            # ************** Get MACD
-            prev_pair_macds = [] if pair not in self.previous_macds else self.previous_macds[pair]
-            macd_value, signal_line = macd(close, numpy.asarray(prev_pair_macds))
-            prev_pair_macds.append(macd_value)
-            prev_pair_macds = prev_pair_macds[-9:]
-            self.previous_macds[pair] = prev_pair_macds
-            if signal_line is None:
-                buffer_ready = False
-
-            # If we don't have all data in our buffer, just skip the pair
-            if not buffer_ready:
-                got_all_buffers = False
-                continue
-
-            # *** Add conditions ***
-            # MACD - Skip pairs that has down-trending indicator
-            if self.verbosity > 5:
-                print('macd_value:', macd_value)
-                print('signal_line:', signal_line)
-            if math.isnan(macd_value) or 0 > macd_value < signal_line:
-                # print('Got negative macd, skipping pair: ' + pair)
-                continue
-
-            # ************** Calc EMA
-            sma_interval_short = 5
-            sma_interval_long = 15
-            sma_short = talib.SMA(close[-sma_interval_short:], timeperiod=sma_interval_short)[-1]
-            sma_long = talib.SMA(close[-sma_interval_long:], timeperiod=sma_interval_long)[-1]
-            if sma_short <= sma_long:  # If we are below death cross, skip pair
-                continue
-
-            # ************** ROPC
-            ropc_interval = 5
-            ropc_res = ropc(close[-ropc_interval:], timeperiod=ropc_interval)
-            if ropc_res < 1.0:
-                continue
-            """
             positive_pairs.append((pair, 0.0))
 
         # If we didn't get all buffers just return empty actions
