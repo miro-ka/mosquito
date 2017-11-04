@@ -1,3 +1,4 @@
+import os
 import time
 import pandas as pd
 import configargparse
@@ -17,6 +18,7 @@ class Blueprint:
     arg_parser.add('--pairs', help='Pairs to blueprint')
     arg_parser.add('-v', '--verbosity', help='Verbosity', action='store_true')
     arg_parser.add("--buffer_size", help="Maximum Buffer size (days)", default=30)
+    arg_parser.add("--output_dir", help="Output directory")
 
     features_list = None
     exchange = None
@@ -36,8 +38,18 @@ class Blueprint:
         self.max_buffer_size = int(int(args.buffer_size) * (1440 / self.ticker_size) * len(self.pairs))
         self.df_buffer = pd.DataFrame()
         self.df_blueprint = pd.DataFrame()
-        self.export_file_name = 'blueprint_' + self.blueprint.name + '_' + str(int(time.time())) + '.csv'
+        self.output_dir = args.output_dir
+        self.export_file_name = self.get_output_file_path(self.output_dir, self.blueprint.name)
         self.export_file_initialized = False
+
+    @staticmethod
+    def get_output_file_path(dir_path, blueprint_name):
+        filename = 'blueprint_' + blueprint_name + '_' + str(int(time.time())) + '.csv'
+        if dir_path:
+            if not dir_path.endswith(os.path.sep):
+                dir_path += os.path.sep
+            filename = dir_path + filename
+        return filename
 
     def print_progress_dot(self, counter):
         """

@@ -2,13 +2,13 @@ import talib
 from .base import Base
 
 
-class Junior(Base):
+class Blp5m1117(Base):
     """
-    Mid-size blueprint - EMA, RCI, CCI, OBV
+    Full blown blueprint - using 5m ticker
     """
 
     def __init__(self, pairs):
-        super(Junior, self).__init__('junior', pairs)
+        super(Blp5m1117, self).__init__('blp5m1117', pairs)
         self.min_history_ticks = 35
 
     @staticmethod
@@ -63,3 +63,5 @@ class Junior(Base):
             last_row['obv' + str(obv_period)] = obv
 
         return last_row
+
+

@@ -1,27 +1,28 @@
 import configargparse
 from strategies.base import Base
 import core.common as common
-from ai.blueprints.junior6h import Junior6h
+from ai.blueprints.junior import Junior as Model
 from strategies.ai.scikitbase import ScikitBase
 from core.bots.enums import BuySellMode
 from strategies.enums import TradeState
 from core.tradeaction import TradeAction
 
 
-class Junior6h1(Base, ScikitBase):
+class Junior(Base, ScikitBase):
     """
-    Junior6h1 strategy
-    About: Strategy using trained model from blueprint factory
+    Junior strategy
+    About: Strategy using trained model from Junior blueprint factory
     """
     arg_parser = configargparse.get_argument_parser()
 
     def __init__(self):
         args = self.arg_parser.parse_known_args()[0]
-        super(Junior6h1, self).__init__()
-        self.name = 'junior6h1'
+        super(Junior, self).__init__()
+        self.name = 'junior'
         self.min_history_ticks = 35
         self.pair = self.parse_pairs(args.pairs)[0]
         self.buy_sell_mode = BuySellMode.all
+        self.feature_names = ['open', 'quoteVolume', 'close', 'low', 'high', 'volume', 'weightedAverage', 'ema2', 'ema4', 'ema8', 'ema12', 'ema16', 'ema20', 'rsi5', 'rsi_above_505', 'cci5', 'macd_above_signal34', 'macd_above_zero34', 'obv2', 'obv4', 'obv8', 'obv12', 'obv16', 'obv20']
 
     def calculate(self, look_back, wallet):
         """
@@ -37,13 +38,13 @@ class Junior6h1(Base, ScikitBase):
         self.actions.clear()
 
         df = look_back.tail(self.min_history_ticks)
-        df_blueprint = Junior6h.calculate_features(df)
+        df_blueprint = Model.calculate_features(df)
 
         # Remove not-used columns
         df_blueprint = df_blueprint.drop(['pair', 'date', 'id', '_id', 'exchange', 'curr_1', 'curr_2'], axis=1)
 
         # Re-ordering column names
-        column_names = Junior6h.get_column_names()
+        column_names = self.feature_names
         x = df_blueprint[column_names]
         predicted = self.predict(x)[0]
 
