@@ -4,6 +4,7 @@ import pandas as pd
 import configargparse
 import core.common as common
 from exchanges.exchange import Exchange
+from termcolor import colored
 
 
 class Blueprint:
@@ -95,8 +96,9 @@ class Blueprint:
         """
         Calculates and stores dataset
         """
-        print('Starting generating data for Blueprint', self.blueprint.name, ':back-days', self.blueprint_days,
-              '(This might take several hours/days,.so please stay back and relax)')
+        info_text = 'Starting generating data for Blueprint ' + self.blueprint.name + ' :back-days ' + \
+                    self.blueprint_days + ' (This might take several hours/days,.so please stay back and relax)'
+        print(colored(info_text, 'yellow'))
         dot_counter = 0
         while True:
             # Get new dataset

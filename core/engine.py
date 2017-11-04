@@ -1,4 +1,3 @@
-import sys
 import configargparse
 import core.common as common
 import pandas as pd
