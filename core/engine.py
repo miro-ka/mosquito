@@ -20,7 +20,7 @@ class Engine:
     arg_parser = configargparse.get_argument_parser()
     arg_parser.add("--strategy", help="Name of strategy to be run (if not set, the default one will be used")
     arg_parser.add("--plot", help="Generate a candle stick plot at simulation end", action='store_true')
-    arg_parser.add("--interval", help="Simulation interval", default=5)
+    arg_parser.add("--ticker_size", help="Simulation ticker size", default=5)
     arg_parser.add("--root_report_currency", help="Root currency used in final plot")
     arg_parser.add("--buffer_size", help="Buffer size in days", default=30)
     arg_parser.add("--prefetch", help="Prefetch data from history DB",  action='store_true')
@@ -92,7 +92,7 @@ class Engine:
         self.prefetch = self.args.prefetch
         if self.buffer_size != '':
             self.buffer_size = int(self.buffer_size)
-        self.interval = self.args.interval
+        self.interval = self.args.ticker_size
         if self.interval != '':
             self.interval = int(self.interval)
         self.config_strategy_name = self.args.strategy

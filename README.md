@@ -136,7 +136,7 @@ This is the main module that handles passed strategy and places buy/sell orders.
  --live                REAL trading mode (default: False)
  --plot                Generate a candle stick plot at simulation end
                        (default: False)
- --interval INTERVAL   Simulation interval (default: 5)
+ --ticker_size TICKER_SIZE   Simulation ticker_size (default: 5)
  --root_report_currency ROOT_REPORT_CURRENCY
                        Root currency used in final plot (default: None)
  --buffer_size BUFFER_SIZE
