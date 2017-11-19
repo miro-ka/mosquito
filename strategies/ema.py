@@ -5,6 +5,7 @@ import core.common as common
 from .enums import TradeState
 from core.bots.enums import BuySellMode
 from core.tradeaction import TradeAction
+from lib.indicators.stoploss import StopLoss
 
 
 class Ema(Base):
@@ -21,6 +22,7 @@ class Ema(Base):
         self.min_history_ticks = 30
         self.pair = self.parse_pairs(args.pairs)[0]
         self.buy_sell_mode = BuySellMode.all
+        self.stop_loss = StopLoss(int(args.ticker_size))
 
     def calculate(self, look_back, wallet):
         """
@@ -34,20 +36,22 @@ class Ema(Base):
             return self.actions
 
         self.actions.clear()
+        new_action = TradeState.none
 
         # Calculate indicators
         df = look_back.tail(self.min_history_ticks)
         close = df['close'].values
 
-        # ************** Calc EMA20
-        ema20_period = 25
-        ema20 = talib.EMA(close[-ema20_period:], timeperiod=ema20_period)[-1]
+        # ************** Calc EMA
+        ema5 = talib.EMA(close[-5:], timeperiod=5)[-1]
+        ema10 = talib.EMA(close[-10:], timeperiod=10)[-1]
+        ema20 = talib.EMA(close[-20:], timeperiod=20)[-1]
         close_price = self.get_price(TradeState.none, df.tail(), self.pair)
 
         print('close_price:', close_price, 'ema:', ema20)
-        if close_price <= ema20:
+        if close_price < ema10 or close_price < ema20:
             new_action = TradeState.sell
-        else:
+        elif close_price > ema5 and close_price > ema10:
             new_action = TradeState.buy
 
         # ************** Calc EMA Death Cross
@@ -59,6 +63,11 @@ class Ema(Base):
             new_action = TradeState.sell
 
         trade_price = self.get_price(new_action, df.tail(), self.pair)
+
+        # Get stop-loss
+        if new_action == TradeState.buy and self.stop_loss.calculate(close):
+            print('stop-loss detected,..selling')
+            new_action = TradeState.sell
 
         action = TradeAction(self.pair,
                              new_action,
