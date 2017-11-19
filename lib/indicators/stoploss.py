@@ -21,6 +21,13 @@ class StopLoss:
         self.checkpoint = int(interval/ticker_size)
         self.stop_loss_limit = stop_loss_limit
 
+    def set_base_price(self, price):
+        """
+        Sets base price, which is compared to trailing-stop
+        :param price:
+        """
+        self.base_price = price
+
     def calculate(self, price):
         """
 
