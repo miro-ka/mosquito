@@ -13,7 +13,7 @@ images/mosquito_imgs/
 exchanges/__pycache__/
 exchanges/poloniex/__pycache__/
 strategies/__pycache__/
-
+notebooks/.ipynb_checkpoints/*
 
 # Files
 config.ini
@@ -22,4 +22,4 @@ images/rendered_plain_small.png
 config.bumblebee.ini
 config.mosquito.ini
 mosquito_ai.ini
-
+notebooks/.ipynb_checkpoints

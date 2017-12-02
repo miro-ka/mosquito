@@ -22,11 +22,15 @@ class Junior(Base):
         volume = df['volume'].values
         last_row = df.tail(1).copy()
 
-        # ************** Calc EMAs
-        ema_periods = [2, 4, 8, 12, 16, 20]
-        for ema_period in ema_periods:
-            ema = talib.EMA(close[-ema_period:], timeperiod=ema_period)[-1]
-            last_row['ema' + str(ema_period)] = ema
+        periods = [2, 4, 8, 12, 16, 20]
+        for period in periods:
+            # ************** Calc EMAs
+            ema = talib.EMA(close[-period:], timeperiod=period)[-1]
+            last_row['ema' + str(period)] = ema
+
+            # ************** Calc OBVs
+            obv = talib.OBV(close[-period:], volume[-period:])[-1]
+            last_row['obv' + str(period)] = obv
 
         # ************** Calc RSIs
         rsi_periods = [5]
@@ -55,11 +59,5 @@ class Junior(Base):
             signal_line = macd_signal[-1]
             last_row['macd_above_signal' + str(macd_period)] = int(macd > signal_line)
             last_row['macd_above_zero' + str(macd_period)] = int(macd > 0.0)
-
-        # ************** Calc OBVs
-        obv_periods = [2, 4, 8, 12, 16, 20]
-        for obv_period in obv_periods:
-            obv = talib.OBV(close[-obv_period:], volume[-obv_period:])[-1]
-            last_row['obv' + str(obv_period)] = obv
 
         return last_row

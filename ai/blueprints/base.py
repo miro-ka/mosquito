@@ -15,14 +15,15 @@ class Base(ABC):
 
     feature_names = []
     scans_container = []
+    min_history_ticks = 0
 
     def __init__(self, name, pairs):
         super(Base, self).__init__()
         self.name = name
         self.pairs = pairs
         arg_parser = configargparse.get_argument_parser()
-        args = arg_parser.parse_known_args()[0]
-        self.price_intervals = [int(x.strip()) for x in args.price_intervals.split(',')]
+        self.args = arg_parser.parse_known_args()[0]
+        self.price_intervals = [int(x.strip()) for x in self.args.price_intervals.split(',')]
         self.Y_prefix = 'Y_'
         self.Yt_prefix = 'Yt_'
         self.Yt_column_names = self.create_yt_column_names(self.price_intervals, self.Yt_prefix)
@@ -44,7 +45,6 @@ class Base(ABC):
         """
         Method which calculates and generates features
         """
-        None
 
     @staticmethod
     def create_yt_column_names(intervals, prefix):
