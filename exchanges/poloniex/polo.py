@@ -125,7 +125,7 @@ class Polo(Base):
             print(colored('!!! Got exception while retrieving polo data:' + str(e) + ', pair: ' + currency_pair, 'red'))
         return pd.DataFrame()
 
-    def get_candles(self, currency_pair, epoch_start, epoch_end, interval_in_sec=False):
+    def get_candles(self, currency_pair, epoch_start, epoch_end, interval_in_sec=300):
         """
         Returns candlestick chart data
         """

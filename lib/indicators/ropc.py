@@ -21,7 +21,7 @@ def ropc(close, timeperiod=5):
             prev_value = value
             continue
         value_diff = value - prev_value
-        perc_change = value_diff*100/prev_value
+        perc_change = (value_diff*100/prev_value)
         price_diff_sum += perc_change
 
     return price_diff_sum
