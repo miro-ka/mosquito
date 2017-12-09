@@ -20,14 +20,13 @@ class WalletLense:
         self.args = self.arg_parser.parse_known_args()[0]
         print(colored('Starting lense on exchange: ' + self.args.exchange, 'yellow'))
         self.exchange = Exchange()
+        self.postman = Postman()
 
     def get_stats(self):
         """
         Return
         """
-        #postman = Postman()
         #postman.send_mail("test", "huhuhu")
-        #self.send_email('4sico4@gmail.com', '1HappyMonkey', 'miroslav.karpis@gmail.com', 'tralala', 'some heavy body')
         #self.fetch_last_ticker(self.analysis_days)
         #df_candles = self.get_ticker(self.exchange.get_pairs(), self.analysis_days)
         df_candles = pd.read_csv('test_ticker.csv')
