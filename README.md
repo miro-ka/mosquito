@@ -238,6 +238,20 @@ python3 blueprint.py --features junior --days 200
 As a result you should see *.csv file in your Mosquito's root folder, which should contain the dataset.
 
 
+## Utilities
+
+### Wallet Lense 
+Simple module which sends up to 24h winners/losers market pairs summary by email in user specified intervals (sample below).
+ 
+<img src="https://user-images.githubusercontent.com/1301154/33880555-4b385b08-df32-11e7-8208-34cd4374aeff.png" width="371">
+
+#### Usage
+```
+# You need to have configured email parameters in ini file, or pass them as input arguments.
+python3 lense.py 
+```
+
+
 
 ## Donate
 If you would like to support the project in other way than code-contributing, you can donate Mosquito development on
