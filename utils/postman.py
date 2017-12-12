@@ -1,6 +1,8 @@
 import smtplib
 import configargparse
-from termcolor import colored
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from premailer import transform
 
 
 class Postman:
@@ -24,15 +26,38 @@ class Postman:
         Send email to configured account with given subject and body
         """
         mail_from = self.username
-        mail_to = self.recipients if type(self.recipients) is list else [self.recipients]
+        # mail_to = self.recipients if type(self.recipients) is list else [self.recipients]
+        mail_to = self.recipients
 
-        # Prepare actual message
-        message = """From: %s\nTo: %s\nSubject: %s\n\n%s
-            """ % (mail_from, ", ".join(mail_to), subject, body)
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.ehlo()
-        server.starttls()
-        server.login(self.username, self.password)
-        server.sendmail(mail_from, mail_to, message)
-        server.close()
-        print('successfully sent the mail')
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = mail_from
+        msg['To'] = mail_to
+
+        # body = self.html_style() + body
+        # msg.attach(MIMEText(body, 'html'))
+        body = transform(body)
+        #body = '<html> <h1 style="font-weight:bolder; border:1px solid black">Peter</h1> <p style="color:red">Hej</p> </html>'
+        msg.attach(MIMEText(body, 'html'))
+        mail = smtplib.SMTP("smtp.gmail.com", 587)
+        mail.ehlo()
+        mail.starttls()
+        mail.login(self.username, self.password)
+        mail.sendmail(mail_from, mail_to, msg.as_string())
+        mail.close()
+        print('mail successfully sent')
+
+    @staticmethod
+    def html_style():
+        """
+        Email css styles
+        """
+        style = '''
+        <style>
+            #headings {
+            font-size:26px !important;
+            line-height:32px !important;
+            }
+        </style>
+        '''
+        return style
