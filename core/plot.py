@@ -33,11 +33,11 @@ class Plot:
         df_trades['date'] = pd.to_datetime(df_trades['date'], unit='s', utc=True)
         local_tz = get_localzone()
         # Convert datetime to current time-zone
-        df['date'] = df['date'].dt.tz_localize('UTC').dt.tz_convert(local_tz)
+        df['date'] = df['date'].dt.tz_convert(local_tz)
         df = df.set_index(['date'])
         df_index = df.index.tz_localize(None)
 
-        df_trades['date'] = df_trades['date'].dt.tz_localize('UTC').dt.tz_convert(local_tz)
+        df_trades['date'] = df_trades['date'].dt.tz_convert(local_tz)
         df_trades = df_trades.set_index(['date'])
 
         # plotly.offline.init_notebook_mode()
