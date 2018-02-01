@@ -109,11 +109,11 @@ class Exchange:
         """
         return self.exchange.get_candles(currency_pair, epoch_start, epoch_end, period)
 
-    def return_open_orders(self, currency_pair='all'):
+    def get_open_orders(self, currency_pair='all'):
         """
         Returns your open orders
         """
-        return self.exchange.return_open_orders(currency_pair)
+        return self.exchange.get_open_orders(currency_pair)
 
     # Do not use!!!: It turns out that group method is very consuming (takes approx 3x then get_offline_ticker)
     def get_offline_tickers(self, epoch, pairs):

@@ -21,7 +21,7 @@ class Base(ABC):
         self.fixed_trade_amount = float(args.fixed_trade_amount)
 
     @abstractmethod
-    def return_open_orders(self, currency_pair='all'):
+    def get_open_orders(self, currency_pair='all'):
         """
         Returns your open orders
         """

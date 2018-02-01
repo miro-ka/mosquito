@@ -1,14 +1,14 @@
+import time
 import datetime
 import pandas as pd
+import configargparse
 from poloniex import Poloniex, PoloniexError
 from core.bots.enums import TradeMode
 from exchanges.base import Base
 from strategies.enums import TradeState
 from termcolor import colored
 from json import JSONDecodeError
-import time
 from core.bots.enums import BuySellMode
-import configargparse
 
 
 class Polo(Base):
@@ -24,8 +24,8 @@ class Polo(Base):
     valid_candle_intervals = [300, 900, 1800, 7200, 14400, 86400]
 
     def __init__(self):
-        args = self.arg_parser.parse_known_args()[0]
         super(Polo, self).__init__()
+        args = self.arg_parser.parse_known_args()[0]
         api_key = args.polo_api_key
         secret = args.polo_secret
         self.transaction_fee = float(args.polo_txn_fee)
@@ -35,7 +35,7 @@ class Polo(Base):
         self.verbosity = args.verbosity
         self.pair_delimiter = '_'
         self.tickers_cache_refresh_interval = 50  # If the ticker request is within the interval, get data from cache
-        self.last_tickers_fetch_epoch = 0  #
+        self.last_tickers_fetch_epoch = 0
         self.last_tickers_cache = None  # Cache for storing immediate tickers
 
     def get_balances(self):
@@ -95,7 +95,7 @@ class Polo(Base):
         """
         return self.polo.cancelOrder(order_number)
 
-    def return_open_orders(self, currency_pair='all'):
+    def get_open_orders(self, currency_pair='all'):
         """
         Returns your open orders
         """

@@ -12,7 +12,7 @@ class Live(Base):
     def __init__(self):
         super(Live, self).__init__(self.mode)
         self.counter = 0
-        # open_orders = self.exchange.return_open_orders()
+        # open_orders = self.exchange.get_open_orders()
         # print(open_orders)
 
     def get_next(self, interval_in_min):

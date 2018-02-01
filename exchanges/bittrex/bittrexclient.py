@@ -254,7 +254,7 @@ class BittrexClient(Base):
         """
         return self.bittrex.cancel(order_number)
 
-    def return_open_orders(self, currency_pair=''):
+    def get_open_orders(self, currency_pair=''):
         """
         Returns open orders
         """
