@@ -2,12 +2,12 @@ import time
 import datetime
 import pandas as pd
 import configargparse
+from termcolor import colored
+from exchanges.base import Base
+from json import JSONDecodeError
 from poloniex import Poloniex, PoloniexError
 from core.bots.enums import TradeMode
-from exchanges.base import Base
 from strategies.enums import TradeState
-from termcolor import colored
-from json import JSONDecodeError
 from core.bots.enums import BuySellMode
 
 
@@ -137,6 +137,13 @@ class Polo(Base):
             print()
             print(colored('!!! Got exception while retrieving polo data:' + str(e) + ', pair: ' + currency_pair, 'red'))
         return data
+
+    def get_trade_history(self, date_from, date_to, currency_pair='all'):
+        """
+        Returns trade history
+        """
+        # TODO
+        pass
 
     def get_valid_candle_interval(self, period_in_sec):
         """

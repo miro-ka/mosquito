@@ -259,3 +259,10 @@ class BittrexClient(Base):
         Returns open orders
         """
         return self.bittrex.get_open_orders(currency_pair)
+
+    def get_trade_history(self, date_from, date_to, currency_pair='all'):
+        """
+        Returns trade history
+        """
+        # TODO
+        pass

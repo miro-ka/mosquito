@@ -1,11 +1,11 @@
+import time
+import pymongo
+import pandas as pd
 import configargparse
+from termcolor import colored
 from .poloniex.polo import Polo
 from .bittrex.bittrexclient import BittrexClient
-import pymongo
 from core.bots.enums import TradeMode
-import pandas as pd
-from termcolor import colored
-import time
 
 
 class Exchange:
