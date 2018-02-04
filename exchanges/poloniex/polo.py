@@ -1,4 +1,5 @@
 import time
+import logging
 import datetime
 import pandas as pd
 import configargparse
@@ -32,7 +33,6 @@ class Polo(Base):
         self.polo = Poloniex(api_key, secret)
         self.buy_order_type = args.polo_buy_order
         self.sell_order_type = args.polo_sell_order
-        self.verbosity = args.verbosity
         self.pair_delimiter = '_'
         self.tickers_cache_refresh_interval = 50  # If the ticker request is within the interval, get data from cache
         self.last_tickers_fetch_epoch = 0
@@ -138,12 +138,19 @@ class Polo(Base):
             print(colored('!!! Got exception while retrieving polo data:' + str(e) + ', pair: ' + currency_pair, 'red'))
         return data
 
-    def get_trade_history(self, date_from, date_to, currency_pair='all'):
+    def get_market_history(self, start, end, currency_pair='all'):
         """
-        Returns trade history
+        Returns market trade history
         """
-        # TODO
-        pass
+        data = []
+        try:
+            data = self.polo.marketTradeHist(currencyPair=currency_pair,
+                                             start=start,
+                                             end=end)
+        except (PoloniexError, JSONDecodeError) as e:
+            logger = logging.getLogger(__name__)
+            logger.error('Got exception while retrieving polo data:' + str(e) + ', pair: ' + currency_pair, e)
+        return data
 
     def get_valid_candle_interval(self, period_in_sec):
         """
@@ -182,12 +189,11 @@ class Polo(Base):
             elif action.buy_sell_mode == BuySellMode.fixed:
                 action.amount = self.get_fixed_trade_amount(wallet, action)
 
-            if self.verbosity:
-                print('Processing live-action: ' + str(action.action) +
-                      ', amount:', str(action.amount) +
-                      ', pair:', action.pair +
-                      ', rate:', str(action.rate) +
-                      ', buy_sell_mode:', action.buy_sell_mode)
+            print('Processing live-action: ' + str(action.action) +
+                  ', amount:', str(action.amount) +
+                  ', pair:', action.pair +
+                  ', rate:', str(action.rate) +
+                  ', buy_sell_mode:', action.buy_sell_mode)
 
             # If we don't have enough assets, just skip/remove the action
             if action.amount == 0.0:

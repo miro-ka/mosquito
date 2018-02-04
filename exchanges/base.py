@@ -21,9 +21,9 @@ class Base(ABC):
         self.fixed_trade_amount = float(args.fixed_trade_amount)
 
     @abstractmethod
-    def get_trade_history(self, date_from, date_to, currency_pair='all'):
+    def get_market_history(self, date_from, date_to, currency_pair='all'):
         """
-        Returns trade history
+        Returns market trade history
         """
         pass
 

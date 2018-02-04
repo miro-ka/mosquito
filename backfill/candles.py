@@ -1,45 +1,30 @@
-import sys
 import time
 import logging
+from pymongo import ASCENDING
 from backfill.base import Base
 from core.constants import SECONDS_IN_DAY
-from termcolor import colored
 
 
-class BackfillTicker(Base):
+class Candles(Base):
     """
-    Back-fills ticker data
+    Back-fills ticker candle data
     """
 
     def __init__(self):
-        super(BackfillTicker, self).__init__()
+        super(Candles, self).__init__()
         self.args = self.arg_parser.parse_known_args()[0]
-        self.logger = logging.getLogger(__name__)
+        self.db_ticker = self.db.ticker
+        self.db_ticker.create_index([('id', ASCENDING)], unique=True)
 
     def run(self):
         """
         Run actual backfill job
         """
         # Get list of all currencies
-        all_pairs = self.exchange.get_pairs()
         logger = logging.getLogger(__name__)
-        logger.info("Back-filling total currencies:" + str(len(all_pairs)))
         time_start = time.time()
-        if self.args.all:
-            pairs = all_pairs
-        elif self.args.pairs is not None:
-            tmp_pairs = [self.args.pairs]
-            pairs = []
-            # Handle * suffix pairs
-            for pair in tmp_pairs:
-                if '*' in pair:
-                    prefix = pair.replace('*', '')
-                    pairs_list = [p for p in all_pairs if prefix in p]
-                    pairs.extend(pairs_list)
-                    # remove duplicates
-                    pairs = list(set(pairs))
-                else:
-                    pairs.append(pair)
+        pairs = self.get_backfill_pairs(self.args.all, self.args.pairs)
+        logger.info("Back-filling candles for total currencies:" + str(len(pairs)))
 
         # Get the candlestick data
         epoch_now = int(time.time())
@@ -48,14 +33,15 @@ class BackfillTicker(Base):
             for day in reversed(range(1, int(self.args.days) + 1)):
                 epoch_from = epoch_now - (SECONDS_IN_DAY * day)
                 epoch_to = epoch_now if day == 1 else epoch_now - (SECONDS_IN_DAY * (day - 1))
-                print('Getting currency data: ' + pair + ', days left: ' + str(day), end='')
-                candles = self.exchange.get_candles(pair, epoch_from, epoch_to,
-
+                logger.info('Getting currency data: ' + pair + ', days left: ' + str(day))
+                candles = self.exchange.get_candles(pair,
+                                                    epoch_from,
+                                                    epoch_to,
                                                     300)  # by default 5 minutes candles (minimum)
-                print(' (got total candles: ' + str(len(candles)) + ')')
+                logger.info(' (got total candles: ' + str(len(candles)) + ')')
                 for candle in candles:
                     if candle['date'] == 0:
-                        print(colored('Found nothing for pair: ' + pair, 'yellow'))
+                        self.logger.warning('Found nothing for pair: ' + pair)
                         continue
                     # Convert strings to number (float or int)
                     for key, value in candle.items():

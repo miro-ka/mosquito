@@ -1,4 +1,5 @@
 import time
+import logging
 import pandas as pd
 from bittrex.bittrex import Bittrex
 from core.bots.enums import TradeMode
@@ -180,6 +181,14 @@ class BittrexClient(Base):
         df['pair'] = symbol
         df['date'] = int(datetime.datetime.utcnow().timestamp())
         return df
+
+    def get_market_history(self, start, end, currency_pair='all'):
+        """
+        Returns market trade history
+        """
+        logger = logging.getLogger(__name__)
+        logger.warning('Not implemented!')
+        pass
 
     def trade(self, actions, wallet, trade_mode):
         """

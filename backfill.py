@@ -1,13 +1,14 @@
 import configargparse
-from backfill.backfillticker import BackfillTicker
+from backfill.candles import Candles
+from backfill.trades import Trades
 
 
 def main(args):
-    if 'backfilltrades' in args:
-        # TODO
-        print('wohoho')
+    if args.backfilltrades:
+        backfill_client = Trades()
+        backfill_client.run()
     else:
-        backfill_client = BackfillTicker()
+        backfill_client = Candles()
         backfill_client.run()
 
 

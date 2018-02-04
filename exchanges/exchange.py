@@ -26,7 +26,6 @@ class Exchange:
         self.args = self.arg_parser.parse_known_args()[0]
         self.exchange = self.load_exchange()
         self.trade_mode = trade_mode
-        self.verbosity = self.args.verbosity
         self.db = self.initialize_db()
         self.ticker = self.db.ticker
 
@@ -64,6 +63,12 @@ class Exchange:
         client = pymongo.MongoClient(url, port)
         db = client[db]
         return db
+
+    def get_exchange_name(self):
+        """
+        Returns name of the exchange
+        """
+        return self.exchange_name
 
     def load_exchange(self):
         """
@@ -115,6 +120,14 @@ class Exchange:
         """
         return self.exchange.get_open_orders(currency_pair)
 
+    def get_market_history(self, start, end, currency_pair='all'):
+        """
+        Returns trade history
+        """
+        return self.exchange.get_market_history(start=int(start),
+                                                end=int(end),
+                                                currency_pair=currency_pair)
+
     # Do not use!!!: It turns out that group method is very consuming (takes approx 3x then get_offline_ticker)
     def get_offline_tickers(self, epoch, pairs):
         """
@@ -156,10 +169,9 @@ class Exchange:
                                           sort=[("date", pymongo.DESCENDING)])
 
             if db_doc is None:
-                if self.verbosity:
-                    local_dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
-                    print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch) + ' (local: '
-                                  + str(local_dt) + ')', 'yellow'))
+                local_dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
+                print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch) + ' (local: '
+                              + str(local_dt) + ')', 'yellow'))
                 continue
 
             dict_keys = list(db_doc.keys())
