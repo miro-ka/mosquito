@@ -3,7 +3,7 @@ import configargparse
 from exchanges.exchange import Exchange
 
 
-def test_trade_history():
+def trade_history():
     """
     Gets sample trades history
     """
@@ -21,4 +21,4 @@ if __name__ == "__main__":
     arg_parser.add('-c', '--config', is_config_file=True, help='config file path', default='../mosquito.ini')
     options = arg_parser.parse_known_args()[0]
 
-    test_trade_history()
+    trade_history()
