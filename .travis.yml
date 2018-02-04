@@ -16,7 +16,7 @@ before_install:
   - cd ta-lib/ && ./configure --prefix=/usr LDFLAGS="-lm" && make && sudo make install && cd .. && rm -r ta-lib
 
 # command to install dependencies
-install: "pip3 install argparse pymongo configparser TA-Lib"
+install: "pip3 install argparse pymongo ConfigArgParse TA-Lib"
 
 script:
     - python3 tests/test.py
