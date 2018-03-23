@@ -6,7 +6,7 @@ import configargparse
 import core.common as common
 from termcolor import colored
 from abc import ABC, abstractmethod
-from backfill import main as backfill
+from backfill.candles import Candles
 from exchanges.exchange import Exchange
 from strategies.enums import TradeState
 from core.bots.enums import BuySellMode
@@ -49,9 +49,8 @@ class Base(ABC):
         # Prefetch/Backfill data
         self.args.days = prefetch_days
         orig_pair = self.args.pairs
-        for pair in self.pairs:
-            self.args.pairs = pair
-            backfill(self.args)
+        backfill_candles = Candles()
+        backfill_candles.run()
         self.args.pairs = orig_pair
         # Load data to our ticker buffer
         prefetch_epoch_size = ticker_interval * min_ticker_size * 60

@@ -17,6 +17,6 @@ def run():
 
 if __name__ == '__main__':
     arg_parser = configargparse.get_argument_parser()
-    arg_parser.add('--pairs', help='Pairs to backfill. For ex. [BTC_ETH, BTC_* (to get all BTC_* prefixed pairs]')
+    arg_parser.add('--pairs', help='Pairs to run blueprint on. For ex. [BTC_ETH, BTC_* (to get all BTC_* prefixed pairs]')
     arg_parser.add('-c', '--config', is_config_file=True, help='config file path', default='mosquito.ini')
     run()

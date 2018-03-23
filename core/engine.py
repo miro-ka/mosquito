@@ -25,7 +25,7 @@ class Engine:
     arg_parser.add("--prefetch", help="Prefetch data from history DB",  action='store_true')
     arg_parser.add("--plot_pair", help="Plot pair")
     arg_parser.add("--all", help="Include all currencies/tickers")
-    arg_parser.add("--days", help="Days to pre-fill")
+    arg_parser.add("--days", help="Days to backtest")
 
     buffer_size = None
     interval = None
@@ -145,7 +145,7 @@ class Engine:
 
         # If we have received the same date,..we assume that we have no more data,..finish simulation
         if not self.ticker.empty and (self.ticker is not None and new_ticker.equals(self.ticker)):
-            print(colored('Received ticker data are the same as previous data (this can happen,..but not too often): '
+            print(colored('Received ticker data that equal to previous data (this can happen,.but not too often): '
                           + str(new_ticker.date[0]), 'yellow'))
             if self.trade_mode == TradeMode.backtest:
                 return True
