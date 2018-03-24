@@ -24,6 +24,7 @@ class Blueprint:
     features_list = None
     exchange = None
     blueprint = None
+    out_dir = 'out/blueprints/'
 
     def __init__(self):
         args = self.arg_parser.parse_known_args()[0]
@@ -42,6 +43,10 @@ class Blueprint:
         self.output_dir = args.output_dir
         self.export_file_name = self.get_output_file_path(self.output_dir, self.blueprint.name)
         self.export_file_initialized = False
+
+        # Crete output dir
+        if not os.path.exists(self.out_dir):
+            os.makedirs(self.out_dir)
 
     @staticmethod
     def get_output_file_path(dir_path, blueprint_name):
@@ -84,7 +89,7 @@ class Blueprint:
             export_df.to_csv(self.export_file_name, index=False, columns=df_columns)
             self.export_file_initialized = True
         else:
-            export_df.to_csv(self.export_file_name,
+            export_df.to_csv(self.out_dir + self.export_file_name,
                              mode='a',
                              header=False,
                              index=False,

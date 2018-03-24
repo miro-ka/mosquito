@@ -235,7 +235,7 @@ Blueprint is a part of AI package. Main function of the module is to generate da
 python3 blueprint.py --features junior --days 200
 ```
 
-As a result you should see *.csv file in your Mosquito's root folder, which should contain the dataset.
+As a result you should see *.csv file in your Mosquito's **out/blueprints** folder, which should contain the dataset.
 
 
 ## Utilities
