@@ -86,7 +86,7 @@ class Blueprint:
         dt_string = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(dt))
         print('saving,..(last df date: ' + dt_string + ')')
         if not self.export_file_initialized:
-            export_df.to_csv(self.export_file_name, index=False, columns=df_columns)
+            export_df.to_csv(self.out_dir + self.export_file_name, index=False, columns=df_columns)
             self.export_file_initialized = True
         else:
             export_df.to_csv(self.out_dir + self.export_file_name,
