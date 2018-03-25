@@ -2,16 +2,20 @@ git+https://github.com/miti0/python-bittrex#egg=python-bittrex
 certifi==2018.1.18
 chardet==3.0.4
 ConfigArgParse==0.12.0
+cssselect==1.0.3
+cssutils==1.0.2
 decorator==4.2.1
 idna==2.6
 ipython-genutils==0.2.0
 jsonschema==2.6.0
 jupyter-core==4.4.0
+lxml==4.2.1
 nbformat==4.4.0
 numpy==1.14.0
 pandas==0.22.0
 plotly==2.3.0
 git+https://github.com/s4w3d0ff/python-poloniex#egg=poloniex
+premailer==3.1.1
 pymongo==3.6.0
 python-dateutil==2.6.1
 pytz==2017.3
@@ -19,7 +23,6 @@ requests==2.7.0
 scikit-learn==0.19.1
 six==1.11.0
 sklearn==0.0
-# see instruction here for ta-lib dependencies https://github.com/mrjbq7/ta-lib
 TA-Lib==0.4.16
 termcolor==1.1.0
 traitlets==4.3.2
