@@ -2,13 +2,13 @@ import talib
 from .base import Base
 
 
-class LuckyAntilope(Base):
+class Luckyantelope(Base):
     """
     Full blown blueprint - using 5m ticker
     """
 
     def __init__(self, pairs):
-        super(Blp5m1117, self).__init__('blp5m1117', pairs)
+        super(Luckyantelope, self).__init__('luckyantelope', pairs)
         self.min_history_ticks = 35
 
     @staticmethod

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import configargparse
 from termcolor import colored
-from backfill import main as backfill
+from backfill.candles import Candles
 from exchanges.exchange import Exchange
 from utils.postman import Postman
 
@@ -176,4 +176,5 @@ class WalletLense:
         """
         self.args.days = prefetch_days
         self.args.all = True
-        backfill(self.args)
+        backfill_client = Candles()
+        backfill_client.run()

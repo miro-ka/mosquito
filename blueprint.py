@@ -1,6 +1,7 @@
 import time
 import configargparse
 from ai.blueprint import Blueprint
+import logging
 
 
 def run():
@@ -12,7 +13,8 @@ def run():
     blueprint.run()
     end_time = time.time()
     time_delta = end_time - start_time
-    print('Finished in ' + str(int(time_delta)) + ' sec.')
+    logger = logging.getLogger(__name__)
+    logger.info('Finished in ' + str(int(time_delta)) + ' sec.')
 
 
 if __name__ == '__main__':

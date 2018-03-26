@@ -5,6 +5,7 @@
 *.prof
 
 # Folders
+notebooks/
 __pycache__/
 core/__pycache__/
 core/bots/__pycache__/
