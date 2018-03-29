@@ -6,6 +6,7 @@ from termcolor import colored
 from backfill.candles import Candles
 from exchanges.exchange import Exchange
 from utils.postman import Postman
+import telegram
 
 
 class WalletLense:
@@ -65,7 +66,6 @@ class WalletLense:
         body = ''
         for body_item in body_list:
             body += '\n' + body_item
-
         self.postman.send_mail('mosquito_stats', body)
 
     def get_wallet_stats(self, ticker):

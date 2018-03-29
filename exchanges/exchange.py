@@ -1,4 +1,5 @@
 import time
+import logging
 import pymongo
 import pandas as pd
 import configargparse
@@ -21,13 +22,16 @@ class Exchange:
     arg_parser.add('--db_port', help='Mongo db port')
     arg_parser.add('--db', help='Mongo db')
     arg_parser.add('--pairs', help='Pairs')
+    logger = logging.getLogger(__name__)
 
-    def __init__(self, trade_mode=TradeMode.backtest):
+    def __init__(self, trade_mode=TradeMode.backtest, ticker_size=5):
         self.args = self.arg_parser.parse_known_args()[0]
         self.exchange = self.load_exchange()
         self.trade_mode = trade_mode
         self.db = self.initialize_db()
-        self.ticker = self.db.ticker
+        self.ticker_client = self.db.ticker
+        self.trades_client = self.db.trades
+        self.ticker_size = ticker_size
 
     def get_pair_delimiter(self):
         """
@@ -149,7 +153,7 @@ class Exchange:
              }
         ]
 
-        db_list = list(self.ticker.aggregate(pipeline, allowDiskUse=True))
+        db_list = list(self.ticker_client.aggregate(pipeline, allowDiskUse=True))
         ticker_df = pd.DataFrame(db_list)
         df_pair = ticker_df['pair'].str.split('_', 1, expand=True)
         ticker_df = pd.concat([ticker_df, df_pair], axis=1)
@@ -158,15 +162,15 @@ class Exchange:
 
     def get_offline_ticker(self, epoch, pairs):
         """
-        Returns offline data from DB
+        Returns offline ticker data from DB
         """
         ticker = pd.DataFrame()
         # print(' Getting offline ticker for total pairs: ' + str(len(pairs)) + ', epoch:', str(epoch))
         for pair in pairs:
-            db_doc = self.ticker.find_one({"$and": [{"date": {"$lte": epoch}},
-                                          {"pair": pair},
-                                          {"exchange": self.exchange_name}]},
-                                          sort=[("date", pymongo.DESCENDING)])
+            db_doc = self.ticker_client.find_one({"$and": [{"date": {"$lte": epoch}},
+                                                           {"pair": pair},
+                                                           {"exchange": self.exchange_name}]},
+                                                 sort=[("date", pymongo.DESCENDING)])
 
             if db_doc is None:
                 local_dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
@@ -181,3 +185,87 @@ class Exchange:
             df.rename(columns={0: 'curr_1', 1: 'curr_2'}, inplace=True)
             ticker = ticker.append(df, ignore_index=True)
         return ticker
+
+    def get_offline_trades(self, epoch, pairs):
+        """
+        Returns offline trades data from DB
+        """
+        trades = pd.DataFrame()
+        date_start = epoch - self.ticker_size*60
+        for pair in pairs:
+            timer_start = time.time()
+            db_doc = self.trades_client.find({"$and": [{"date": {"$gte": date_start, "$lte": epoch}},
+                                                       {"pair": pair},
+                                                       {"exchange": self.exchange_name}]})
+            timer_duration = int(time.time() - timer_start)
+            self.logger.info('data fetched from DB in sec:' + str(timer_duration))
+
+            if db_doc.count() == 0:
+                local_dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
+                print(colored('No offline data for pair: ' + pair + ', epoch: ' + str(epoch) + ' (local: '
+                              + str(local_dt) + ')', 'yellow'))
+
+                # Add empty/zeroes dataframe
+                single_trades_df = self.summarize_trades(pd.DataFrame(), pair)
+                trades = trades.append(single_trades_df, ignore_index=True)
+                continue
+
+            timer_start = time.time()
+            dict_keys = list(db_doc[0].keys())
+            pair_trades_tmp = pd.DataFrame(list(db_doc), columns=dict_keys)
+            timer_duration = int(time.time() - timer_start)
+            self.logger.info('mongo doc parsed in sec:' + str(timer_duration))
+
+            timer_start = time.time()
+            single_trades_df = self.summarize_trades(pair_trades_tmp, pair)
+            timer_duration = int(time.time() - timer_start)
+            self.logger.info('trades data summarized in sec:' + str(timer_duration))
+            trades = trades.append(single_trades_df, ignore_index=True)
+        return trades
+
+    def summarize_trades(self, df, pair):
+        """
+        Summarizes trades
+        """
+        trades_dict = {'pair': pair,
+                       'exchange': self.exchange_name,
+                       'buys_count': 0,
+                       'buys_min': 0.0,
+                       'buys_max': 0.0,
+                       'buys_mean': 0,
+                       'buys_volume': 0.0,
+                       'buys_rate_mean': 0.0,
+                       'buys_rate_spam': 0.0,
+                       'sells_count': 0,
+                       'sells_min': 0.0,
+                       'sells_max': 0.0,
+                       'sells_mean': 0,
+                       'sells_volume': 0.0,
+                       'sells_rate_mean': 0.0,
+                       'sells_rate_spam': 0.0,
+                       }
+
+        if not df.empty:
+            # Buy trades
+            buys_df = df[df['type'] == 'buy']
+            trades_dict['pair'] = df.pair.iloc[0]
+            trades_dict['exchange'] = df.exchange.iloc[0]
+            trades_dict['buys_count'] = int(buys_df.shape[0])
+            trades_dict['buys_min'] = buys_df.amount.min()
+            trades_dict['buys_max'] = buys_df.amount.max()
+            trades_dict['buys_mean'] = buys_df.amount.mean()
+            trades_dict['buys_volume'] = buys_df.amount.sum()
+            trades_dict['buys_rate_mean'] = buys_df.rate.mean()
+            trades_dict['buys_rate_spam'] = buys_df.rate.max() - buys_df.rate.min()
+            # Sell trades
+            sells_df = df[df['type'] == 'sell']
+            trades_dict['sells_count'] = int(sells_df.shape[0])
+            trades_dict['sells_min'] = sells_df.amount.min()
+            trades_dict['sells_max'] = sells_df.amount.max()
+            trades_dict['sells_mean'] = sells_df.amount.mean()
+            trades_dict['sells_volume'] = sells_df.amount.sum()
+            trades_dict['sells_rate_mean'] = sells_df.rate.mean()
+            trades_dict['sells_rate_spam'] = sells_df.rate.max() - sells_df.rate.min()
+
+        ticker_df = pd.DataFrame.from_dict(trades_dict, orient="index").transpose()
+        return ticker_df

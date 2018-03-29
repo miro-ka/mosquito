@@ -50,27 +50,29 @@ class Base(ABC):
     def create_yt_column_names(intervals, prefix):
         return [prefix + str(interval) for interval in intervals]
 
-    def scan(self, df, ticker_size):
+    def scan(self,
+             ticker_df=None,
+             ticker_size=5):
         """
         Function that generates a blueprint from given dataset
         """
         final_scan_df = pd.DataFrame()
-        if df.empty:
+        if ticker_df.empty:
             return final_scan_df
 
         for pair_name in self.pairs:
             # Check if we have enough datasets
-            pair_df = df.loc[df['pair'] == pair_name].sort_values('date')
-            if len(pair_df.index) < self.min_history_ticks:
+            pair_ticker_df = ticker_df.loc[ticker_df['pair'] == pair_name].sort_values('date')
+            if len(pair_ticker_df.index) < self.min_history_ticks:
                 continue
 
             # Create features
-            features_df = self.calculate_features(pair_df.copy())
+            features_df = self.calculate_features(pair_ticker_df.copy())
             # Initial output fields
             features_df = self.add_empty_outputs(features_df)
             self.scans_container.append((pair_name, 1, features_df))
             # Update stored scans
-            final_scan = self.update(pair_name, pair_df, ticker_size)
+            final_scan = self.update(pair_name, pair_ticker_df, ticker_size)
             if final_scan:
                 df_t = final_scan[2].copy()
                 final_scan_df = final_scan_df.append(df_t, ignore_index=True)

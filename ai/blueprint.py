@@ -1,5 +1,6 @@
 import os
 import time
+import logging
 import pandas as pd
 import configargparse
 import core.common as common
@@ -21,6 +22,7 @@ class Blueprint:
     arg_parser.add("--buffer_size", help="Maximum Buffer size (days)", default=30)
     arg_parser.add("--output_dir", help="Output directory")
 
+    logger = logging.getLogger(__name__)
     features_list = None
     exchange = None
     blueprint = None
@@ -33,12 +35,12 @@ class Blueprint:
         self.blueprint_end_time = int(time.time())
         self.start_time = self.blueprint_end_time - int(self.blueprint_days)*86400
         self.ticker_epoch = self.start_time
-        self.exchange = Exchange(None)
+        self.exchange = Exchange(None, ticker_size=self.ticker_size)
         self.pairs = common.parse_pairs(self.exchange, args.pairs)
         blueprints_module = common.load_module('ai.blueprints.', args.features)
         self.blueprint = blueprints_module(self.pairs)
         self.max_buffer_size = int(int(args.buffer_size) * (1440 / self.ticker_size) * len(self.pairs))
-        self.df_buffer = pd.DataFrame()
+        self.df_ticker_buffer = pd.DataFrame()
         self.df_blueprint = pd.DataFrame()
         self.output_dir = args.output_dir
         self.export_file_name = self.get_output_file_path(self.output_dir, self.blueprint.name)
@@ -107,25 +109,46 @@ class Blueprint:
         dot_counter = 0
         while True:
             # Get new dataset
-            df = self.exchange.get_offline_ticker(self.ticker_epoch, self.pairs)
+            time_now = int(time.time())
+            df_ticker = self.exchange.get_offline_ticker(self.ticker_epoch, self.pairs)
+            time_diff = int(time.time()) - time_now
+            self.logger.debug('df_ticker fetched in sec:' + str(time_diff))
+
+            time_now = int(time.time())
+            df_trades = self.exchange.get_offline_trades(self.ticker_epoch, self.pairs)
+            time_diff = int(time.time()) - time_now
+            self.logger.debug('df_trades fetched in sec:' + str(time_diff))
+            print('trades_shape:' +  str(df_trades.shape[0]))
+
+            if df_trades.empty:
+                df = df_ticker
+            else:
+                df = df_ticker.merge(df_trades)
 
             # Check if the simulation is finished
             if self.ticker_epoch >= self.blueprint_end_time:
                 self.write_to_file()
                 return
 
-            # Store df to buffer
-            if not self.df_buffer.empty:
-                df = df[list(self.df_buffer)]
-                self.df_buffer = self.df_buffer.append(df, ignore_index=True)
+            # Store ticker to buffer
+            if not self.df_ticker_buffer.empty:
+                df = df[list(self.df_ticker_buffer)]
+                self.df_ticker_buffer = self.df_ticker_buffer.append(df, ignore_index=True)
             else:
-                self.df_buffer = self.df_buffer.append(df, ignore_index=True)
-            self.df_buffer = common.handle_buffer_limits(self.df_buffer, self.max_buffer_size)
+                self.df_ticker_buffer = self.df_ticker_buffer.append(df, ignore_index=True)
+            self.df_ticker_buffer = common.handle_buffer_limits(self.df_ticker_buffer, self.max_buffer_size)
 
-            scan_df = self.blueprint.scan(self.df_buffer, self.ticker_size)
+            scan_df = self.blueprint.scan(ticker_df=self.df_ticker_buffer,
+                                          ticker_size=self.ticker_size)
             if not scan_df.empty:
                 dot_counter = self.print_progress_dot(dot_counter)
                 self.df_blueprint = self.df_blueprint.append(scan_df, ignore_index=True)
 
             self.ticker_epoch += self.ticker_size*60
 
+    @staticmethod
+    def add_trades(ticker_df, trades_df):
+        """
+        Merges trades with ticker data
+        """
+        print('w')
