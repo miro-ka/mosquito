@@ -1,4 +1,3 @@
-git+https://github.com/miti0/python-bittrex#egg=python-bittrex
 cachetools==2.0.1
 certifi==2018.1.18
 chardet==3.0.4
@@ -6,6 +5,7 @@ ConfigArgParse==0.12.0
 cssselect==1.0.3
 cssutils==1.0.2
 decorator==4.2.1
+future==0.16.0
 google-api-core==1.1.0
 google-auth==1.4.1
 google-cloud-core==0.28.1
@@ -15,6 +15,7 @@ googleapis-common-protos==1.5.3
 idna==2.6
 ipython-genutils==0.2.0
 Jinja2==2.10
+joblib==0.11
 jsonschema==2.6.0
 jupyter-core==4.4.0
 lxml==4.2.1
@@ -23,17 +24,19 @@ nbformat==4.4.0
 numpy==1.14.0
 pandas==0.22.0
 plotly==2.3.0
-git+https://github.com/s4w3d0ff/python-poloniex#egg=poloniex
+poloniex==0.4.7
 premailer==3.1.1
 protobuf==3.5.2.post1
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pymongo==3.6.0
 python-dateutil==2.6.1
+python-telegram-bot==10.0.1
 pytz==2017.3
 requests==2.18.4
 rsa==3.4.2
 scikit-learn==0.19.1
+scipy==1.0.1
 six==1.11.0
 sklearn==0.0
 TA-Lib==0.4.16
@@ -41,3 +44,5 @@ termcolor==1.1.0
 traitlets==4.3.2
 tzlocal==1.5.1
 urllib3==1.22
+git+https://github.com/miti0/python-bittrex#egg=python-bittrex
+git+https://github.com/s4w3d0ff/python-poloniex#egg=poloniex
