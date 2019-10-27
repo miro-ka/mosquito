@@ -264,7 +264,7 @@ following Bitcoin address:
 
 
 ### License: GNU GENERAL PUBLIC LICENSE
-- Copyright (C) 2017 Miroslav Karpis (miti0)
+- Copyright (C) 2019 Miroslav Karpis (miti0)
 
 
   The GNU General Public License is a free, copyleft license for
