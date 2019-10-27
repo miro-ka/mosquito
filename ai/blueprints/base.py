@@ -11,7 +11,7 @@ class Base(ABC):
     arg_parser = configargparse.get_argument_parser()
     arg_parser.add('--price_intervals',
                    help='Price intervals saved in dataset (minutes) ',
-                   default='30, 60, 120, 180, 360')
+                   default='120, 360, 720')
 
     feature_names = []
     scans_container = []

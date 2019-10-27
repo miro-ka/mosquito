@@ -1,5 +1,6 @@
 import time
 import json
+import numpy as np
 import logging
 import pandas as pd
 import configargparse
@@ -55,6 +56,10 @@ class Trades(Base):
 
                 df = pd.DataFrame(trades)
                 df = df.infer_objects()
+                df['exchange'] = self.exchange_name
+                df['pair'] = pair
+                df = df.convert_objects(convert_numeric=True)
+                df['date'] = (pd.to_datetime(df.date).astype(np.int64)/10e8).astype(int)
                 df['id'] = self.exchange_name + '-' + pair + '-' + df['globalTradeID'].astype(str)
                 id_list = list(df['id'])
                 # self.db_ticker.update_one({'id': unique_id}, {'$set': new_db_item}, upsert=True)
@@ -69,9 +74,6 @@ class Trades(Base):
                         continue
                 records = json.loads(df.T.to_json()).values()
                 self.db_trades.insert(records)
-                # records = df.to_dict(orient='records')
-                # for record in records:
-                #    self.db_trades.update_one({'id': record['id']}, {'$set': record}, upsert=True)
 
         time_end = time.time()
         duration_in_sec = int(time_end-time_start)

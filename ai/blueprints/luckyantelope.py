@@ -4,12 +4,12 @@ from .base import Base
 
 class Luckyantelope(Base):
     """
-    Full blown blueprint - using 5m ticker
+    Full blown blueprint - using 2h ticker
     """
 
     def __init__(self, pairs):
         super(Luckyantelope, self).__init__('luckyantelope', pairs)
-        self.min_history_ticks = 35
+        self.min_history_ticks = 21
 
     @staticmethod
     def calculate_features(df):
@@ -45,12 +45,12 @@ class Luckyantelope(Base):
             last_row['cci' + str(cci_period)] = cci
 
         # ************** Calc MACD 1
-        macd_periods = [34]
+        macd_periods = [20]
         for macd_period in macd_periods:
             macd, macd_signal, _ = talib.MACD(close[-macd_period:],
-                                              fastperiod=12,
-                                              slowperiod=26,
-                                              signalperiod=9)
+                                              fastperiod=6,
+                                              slowperiod=12,
+                                              signalperiod=8)
             macd = macd[-1]
             signal_line = macd_signal[-1]
             last_row['macd_above_signal' + str(macd_period)] = int(macd > signal_line)

@@ -51,6 +51,13 @@ class Backtest(Base):
         if self.sim_end and self.current_epoch > self.sim_end:
             return pd.DataFrame()
         self.ticker_df = self.exchange.get_offline_ticker(self.current_epoch, self.pairs)
+        df_trades = self.exchange.get_offline_trades(self.current_epoch, self.pairs)
+
+        if df_trades.empty:
+            self.ticker_df = self.ticker_df
+        else:
+            self.ticker_df = self.ticker_df.merge(df_trades)
+
         self.current_epoch += interval_in_min*60
         return self.ticker_df
 

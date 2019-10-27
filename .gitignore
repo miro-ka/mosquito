@@ -6,6 +6,7 @@
 .DS_Store
 
 # Folders
+out/
 notebooks/
 __pycache__/
 core/__pycache__/

@@ -103,7 +103,7 @@ class Blueprint:
         """
         Calculates and stores dataset
         """
-        info_text = 'Starting generating data for Blueprint ' + self.blueprint.name + ' :back-days ' + \
+        info_text = 'Starting generating data for Blueprint ' + self.blueprint.name + ', back-days ' + \
                     self.blueprint_days + ' (This might take several hours/days,.so please stay back and relax)'
         print(colored(info_text, 'yellow'))
         dot_counter = 0
@@ -118,7 +118,6 @@ class Blueprint:
             df_trades = self.exchange.get_offline_trades(self.ticker_epoch, self.pairs)
             time_diff = int(time.time()) - time_now
             self.logger.debug('df_trades fetched in sec:' + str(time_diff))
-            print('trades_shape:' +  str(df_trades.shape[0]))
 
             if df_trades.empty:
                 df = df_ticker

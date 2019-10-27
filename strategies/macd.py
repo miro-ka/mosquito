@@ -8,7 +8,7 @@ from core.tradeaction import TradeAction
 from lib.indicators.stoploss import StopLoss
 
 
-class Ema(Base):
+class Macd(Base):
     """
     Ema strategy
     About: Buy when close_price > ema20, sell when close_price < ema20 and below death_cross
@@ -17,12 +17,13 @@ class Ema(Base):
 
     def __init__(self):
         args = self.arg_parser.parse_known_args()[0]
-        super(Ema, self).__init__()
-        self.name = 'ema'
-        self.min_history_ticks = 30
+        super(Macd, self).__init__()
+        self.name = 'macd'
+        self.min_history_ticks = 51
         self.pair = self.parse_pairs(args.pairs)[0]
         self.buy_sell_mode = BuySellMode.all
         self.stop_loss = StopLoss(int(args.ticker_size))
+        self.buy_triggers = 0
 
     def calculate(self, look_back, wallet):
         """
@@ -42,32 +43,36 @@ class Ema(Base):
         df = look_back.tail(self.min_history_ticks)
         close = df['close'].values
 
-        # ************** Calc EMA
-        ema5 = talib.EMA(close[-5:], timeperiod=5)[-1]
-        ema10 = talib.EMA(close[-10:], timeperiod=10)[-1]
-        ema20 = talib.EMA(close[-20:], timeperiod=20)[-1]
-        close_price = self.get_price(TradeState.none, df.tail(), self.pair)
+        last_row = df.tail(1).copy()
 
-        print('close_price:', close_price, 'ema:', ema20)
-        if close_price < ema10 or close_price < ema20:
-            new_action = TradeState.sell
-        elif close_price > ema5 and close_price > ema10:
+        # ************** Calc SMA-50
+        sma = df['close'].rolling(window=50).mean().values[-1]
+        print('sma-50:', sma)
+
+        # ************** Calc EMA-30
+        ema_period = 30
+        ema = df['close'].ewm(span=ema_period, adjust=False).mean().values[-1]
+        print('ema-30:', ema)
+
+        ema_above_sma = ema > sma
+        print('ema_above_sma: ', ema_above_sma)
+
+        if ema_above_sma:
+            # self.buy_triggers += 1
+            # if self.buy_triggers >= 5:
             new_action = TradeState.buy
-
-        # ************** Calc EMA Death Cross
-        ema_interval_short = 6
-        ema_interval_long = 25
-        ema_short = talib.EMA(close[-ema_interval_short:], timeperiod=ema_interval_short)[-1]
-        ema_long = talib.EMA(close[-ema_interval_long:], timeperiod=ema_interval_long)[-1]
-        if ema_short <= ema_long:  # If we are below death cross, sell
+        else:
             new_action = TradeState.sell
+            self.buy_triggers = 0
 
         trade_price = self.get_price(new_action, df.tail(), self.pair)
 
+        """
         # Get stop-loss
         if new_action == TradeState.buy and self.stop_loss.calculate(close):
             print('stop-loss detected,..selling')
             new_action = TradeState.sell
+        """
 
         action = TradeAction(self.pair,
                              new_action,
@@ -76,6 +81,7 @@ class Ema(Base):
                              buy_sell_mode=self.buy_sell_mode)
 
         self.actions.append(action)
+
         return self.actions
 
 

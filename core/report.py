@@ -117,7 +117,7 @@ class Report:
         wallet_string = ''
         for symbol, balance in wallet.items():
             if balance > 0:
-                wallet_string += '| ' + str(balance) + symbol
+                wallet_string += '| ' + str(balance) + ' ' + symbol
         wallet_string += ' |'
         return wallet_string
 
