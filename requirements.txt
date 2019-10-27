@@ -14,7 +14,7 @@ google-resumable-media==0.3.1
 googleapis-common-protos==1.5.3
 idna==2.6
 ipython-genutils==0.2.0
-Jinja2==2.10
+Jinja2==2.10.3
 joblib==0.11
 jsonschema==2.6.0
 jupyter-core==4.4.0
@@ -34,7 +34,7 @@ python-bittrex==0.1.2
 python-dateutil==2.6.1
 python-telegram-bot==10.0.1
 pytz==2017.3
-requests==2.18.4
+requests==2.22.0
 rsa==3.4.2
 scikit-learn==0.21.3
 scipy==1.3.1
@@ -44,7 +44,7 @@ TA-Lib==0.4.16
 termcolor==1.1.0
 traitlets==4.3.2
 tzlocal==1.5.1
-urllib3==1.22
+urllib3==1.25.6
 websocket-client==0.56.0
 git+https://github.com/miti0/python-bittrex#egg=python-bittrex
-# git+https://github.com/s4w3d0ff/python-poloniex#egg=poloniex
+
