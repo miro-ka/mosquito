@@ -21,22 +21,23 @@ jupyter-core==4.4.0
 lxml==4.2.1
 MarkupSafe==1.0
 nbformat==4.4.0
-numpy==1.14.0
-pandas==0.22.0
+numpy==1.17.3
+pandas==0.25.2
 plotly==2.3.0
-poloniex==0.4.7
+poloniexapi==0.5.7
 premailer==3.1.1
 protobuf==3.5.2.post1
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pymongo==3.6.0
+python-bittrex==0.1.2
 python-dateutil==2.6.1
 python-telegram-bot==10.0.1
 pytz==2017.3
 requests==2.18.4
 rsa==3.4.2
-scikit-learn==0.19.1
-scipy==1.0.1
+scikit-learn==0.21.3
+scipy==1.3.1
 six==1.11.0
 sklearn==0.0
 TA-Lib==0.4.16
@@ -44,5 +45,6 @@ termcolor==1.1.0
 traitlets==4.3.2
 tzlocal==1.5.1
 urllib3==1.22
+websocket-client==0.56.0
 git+https://github.com/miti0/python-bittrex#egg=python-bittrex
-git+https://github.com/s4w3d0ff/python-poloniex#egg=poloniex
+# git+https://github.com/s4w3d0ff/python-poloniex#egg=poloniex

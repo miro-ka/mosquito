@@ -3,6 +3,7 @@
 *.zip
 *.csv
 *.prof
+.DS_Store
 
 # Folders
 notebooks/
