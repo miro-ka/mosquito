@@ -1,6 +1,6 @@
 import plotly.graph_objs as go
 import pandas as pd
-import plotly.offline as offline
+from plotly.offline import plot
 from tzlocal import get_localzone
 
 
@@ -52,9 +52,16 @@ class Plot:
         # Create buy/sell annotations
         annotations = []
         for index, row in df_trades.iterrows():
-            d = dict(x=index.tz_localize(None), y=row['close_price'], xref='x', yref='y', ax=0,
+            d = dict(x=index.tz_localize(None),
+                     y=row['close_price'],
+                     xref='x',
+                     yref='y',
+                     ax=0,
                      ay=40 if row['action'] == 'buy' else -40,
-                     showarrow=True, arrowhead=2, arrowsize=3, arrowwidth=2,
+                     showarrow=True,
+                     arrowhead=2,
+                     arrowsize=3,
+                     arrowwidth=2,
                      arrowcolor='red' if row['action'] == 'sell' else 'green',
                      bordercolor='#c7c7c7')
             annotations.append(d)
@@ -65,11 +72,10 @@ class Plot:
             s = str(item)
             title = title + '<BR>' + s
 
-
         layout = go.Layout(
             title=title,
             titlefont=dict(
-                # family='Courier New, monospace',
+                family='Courier New, monospace',
                 size=14,
                 color='#606060'
             ),
@@ -78,11 +84,11 @@ class Plot:
             annotations=annotations
         )
 
+        figure = go.Figure(data=data, layout=layout)
+
         # Auto-open html page
-        offline.plot({'data': data,
-                      # TODO: plot is broken in new plotly version
-                      # 'layout': layout
-                      },
-                     auto_open=True,
-                     image_filename='plot_image',
-                     validate=False)
+        plot(figure,
+             auto_open=True,
+             image_filename='plot_image',
+             validate=False)
+
