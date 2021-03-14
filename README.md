@@ -57,7 +57,7 @@ Mosquito currently supports following exchanges:
  You can get list of all available arguments with:
 
 ```
- python3 mosquito.py --help
+ python mosquito.py --help
 ```
 
 
@@ -78,17 +78,17 @@ optional arguments:
 
 Example 1) Load historical data for BTC_ETH pair for the last 5 days:
 ```
-python3 backfill --days 5 --pairs BTC_USD
+python backfill.py --days 5 --pairs BTC_USD
 ```
 
 Example 2) Load historical data for ALL pairs for the last 2 days
 ```
-python3 backfill --days 3 --all
+python backfill.py --days 3 --all
 ```
 
 Example 3) Load historical data for all pairs starting with BTC_ for the last day
 ```
-python3 backfill --days 1 --pairs BTC_*
+python backfill.py --days 1 --pairs BTC_*
 ```
 
 
@@ -185,7 +185,7 @@ Trading mode that simulates live ticker with placing fictive buy/sell orders. Si
 
 Below is an example of running a backtest together with final buy/sell plot generated at the end of the simulation.
 ```
-python3 mosquito.py --paper
+python mosquito.py --paper
 ```
 > ! Please be aware that Paper should 99% work, but it is currently under final verification test.
 
@@ -194,7 +194,7 @@ python3 mosquito.py --paper
 Live trading with placing REAL buy/sell orders. Configuration is done via *config.ini* file (some of the parameters can be overridden with command line arguments).
 Below is an example of running a backtest together with final buy/sell plot generated at the end of the simulation.
 ```
-python3 mosquito.py --live
+python mosquito.py --live
 ```
 > ! Please be aware that Live should 99% work, but it is currently under final verification test.
 
@@ -236,7 +236,7 @@ Blueprint is a part of AI package. Main function of the module is to generate da
  4. Start blueprint with following parameters (example below)
 
 ```
-python3 blueprint.py --features junior --days 200
+python blueprint.py --features junior --days 200
 ```
 
 As a result you should see *.csv file in your Mosquito's **out/blueprints** folder, which should contain the dataset.
@@ -252,7 +252,7 @@ Simple module which sends up to 24h winners/losers market pairs summary by email
 #### Usage
 ```
 # You need to have configured email parameters in ini file, or pass them as input arguments.
-python3 lense.py 
+python lense.py 
 ```
 
 
@@ -268,7 +268,7 @@ following Bitcoin address:
 
 
 ### License: GNU GENERAL PUBLIC LICENSE
-- Copyright (C) 2021 Miroslav Karpis (miro-ka)
+- Copyright (C) 2021 Miro Karpis (miro-ka)
 
 
   The GNU General Public License is a free, copyleft license for

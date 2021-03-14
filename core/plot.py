@@ -65,6 +65,7 @@ class Plot:
             s = str(item)
             title = title + '<BR>' + s
 
+
         layout = go.Layout(
             title=title,
             titlefont=dict(
@@ -78,7 +79,10 @@ class Plot:
         )
 
         # Auto-open html page
-        offline.plot({'data': data, 'layout': layout},
+        offline.plot({'data': data,
+                      # TODO: plot is broken in new plotly version
+                      # 'layout': layout
+                      },
                      auto_open=True,
                      image_filename='plot_image',
                      validate=False)

@@ -1,5 +1,6 @@
-import talib
 import configargparse
+import pandas as pd
+import pandas_ta as ta
 from .base import Base
 import core.common as common
 from .enums import TradeState
@@ -40,12 +41,13 @@ class Ema(Base):
 
         # Calculate indicators
         df = look_back.tail(self.min_history_ticks)
-        close = df['close'].values
+        close = df['close']
 
         # ************** Calc EMA
-        ema5 = talib.EMA(close[-5:], timeperiod=5)[-1]
-        ema10 = talib.EMA(close[-10:], timeperiod=10)[-1]
-        ema20 = talib.EMA(close[-20:], timeperiod=20)[-1]
+        ema5 = ta.ema(close, length=5).values[-1]
+        ema10 = ta.ema(close, length=10).values[-1]
+        ema20 = ta.ema(close, length=20).values[-1]
+
         close_price = self.get_price(TradeState.none, df.tail(), self.pair)
 
         print('close_price:', close_price, 'ema:', ema20)
@@ -54,18 +56,10 @@ class Ema(Base):
         elif close_price > ema5 and close_price > ema10:
             new_action = TradeState.buy
 
-        # ************** Calc EMA Death Cross
-        ema_interval_short = 6
-        ema_interval_long = 25
-        ema_short = talib.EMA(close[-ema_interval_short:], timeperiod=ema_interval_short)[-1]
-        ema_long = talib.EMA(close[-ema_interval_long:], timeperiod=ema_interval_long)[-1]
-        if ema_short <= ema_long:  # If we are below death cross, sell
-            new_action = TradeState.sell
-
         trade_price = self.get_price(new_action, df.tail(), self.pair)
 
         # Get stop-loss
-        if new_action == TradeState.buy and self.stop_loss.calculate(close):
+        if new_action == TradeState.buy and self.stop_loss.calculate(close.values):
             print('stop-loss detected,..selling')
             new_action = TradeState.sell
 

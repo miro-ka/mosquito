@@ -41,7 +41,7 @@ class Candles(Base):
                 logger.info(' (got total candles: ' + str(len(candles)) + ')')
                 for candle in candles:
                     if candle['date'] == 0:
-                        self.logger.warning('Found nothing for pair: ' + pair)
+                        logger.warning('Found nothing for pair: ' + pair)
                         continue
                     # Convert strings to number (float or int)
                     for key, value in candle.items():
