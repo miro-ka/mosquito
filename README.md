@@ -26,7 +26,7 @@ Mosquito currently supports following exchanges:
 
 
 ## Requirements
- * Python 3.*
+ * Python 3.8
  * mongodb
  * Depending on the exchange you want to use:
    * [Poloniex-api](https://github.com/s4w3d0ff/python-poloniex)
@@ -39,15 +39,19 @@ Mosquito currently supports following exchanges:
 
 
 ### Install
- 1. clone repo
+ 1. Clone repo
  ```
  git clone https://github.com/miti0/mosquito.git
  ```
- 2. install mongodb & required python packages
+ 2. Install requirements (ideally in separate virtual environment)
+ ```
+ pip install -r requirements.txt
+ ```
+ 3. Install [mongodb](https://www.mongodb.com/try/download/community) 
 
- 3. set-up mosquito.ini (if you want to use sample config, just rename mosquito.sample.ini to mosquito.ini)
+ 4. Set-up mosquito.ini (if you want to use sample config, just rename mosquito.sample.ini to mosquito.ini)
 
- 3. Run desired command (full list of commands below)
+ 5. Run desired command (full list of commands below)
 
  All parameters in the program can be overridden with input arguments.
  You can get list of all available arguments with:
@@ -257,14 +261,14 @@ python3 lense.py
 If you would like to support the project in other way than code-contributing, you can donate Mosquito development on
 following Bitcoin address:
 
-16v94untkyuTXyE4euWzDA5r4vKd996CP8
+3QK7MXUQfnWHqGPQePtTsen5m1jQ4MfUTJ
 
 ---
 
 
 
 ### License: GNU GENERAL PUBLIC LICENSE
-- Copyright (C) 2019 Miroslav Karpis (miti0)
+- Copyright (C) 2021 Miroslav Karpis (miro-ka)
 
 
   The GNU General Public License is a free, copyleft license for
