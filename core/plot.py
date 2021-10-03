@@ -32,13 +32,13 @@ class Plot:
         df['date'] = pd.to_datetime(df['date'], unit='s', utc=True)
         df_trades['date'] = pd.to_datetime(df_trades['date'], unit='s', utc=True)
         local_tz = get_localzone()
-        # Convert datetime to current time-zone
-        df['date'] = df['date'].dt.tz_convert(local_tz)
         df = df.set_index(['date'])
+        df.tz_convert(local_tz)
+        # Convert datetime to current time-zone
         df_index = df.index.tz_localize(None)
 
-        df_trades['date'] = df_trades['date'].dt.tz_convert(local_tz)
         df_trades = df_trades.set_index(['date'])
+        df_trades.tz_convert(local_tz)
 
         # plotly.offline.init_notebook_mode()
 
@@ -61,7 +61,7 @@ class Plot:
                      showarrow=True,
                      arrowhead=2,
                      arrowsize=3,
-                     arrowwidth=2,
+                     arrowwidth=1,
                      arrowcolor='red' if row['action'] == 'sell' else 'green',
                      bordercolor='#c7c7c7')
             annotations.append(d)

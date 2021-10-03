@@ -8,6 +8,9 @@ Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms,
 [![codebeat badge](https://codebeat.co/badges/46a04bf1-ce92-41ad-84ba-6627e08f54d5)](https://codebeat.co/projects/github-com-miti0-mosquito-master)
 
 ## About
+
+![Mosquito - backtesting](images/console_sample.png)
+
 Mosquito is a crypto currency trading bot written in Python, with main focus on modularity,
 so it is straight forward to plug-in new exchange.
 
@@ -16,6 +19,7 @@ The idea to build a new bot came because of missing following easy-access featur
  * **Easy AI plug & play** - Possibility to easily plug any of the existing AI/ML libraries (for ex. scikit or keras)
 
 > **Please be AWARE that Mosquito is still in beta and under heavy development. Please use it in Live trading VERY carefully.**
+
 
 ### Supported Exchanges
 Mosquito currently supports following exchanges:
@@ -27,7 +31,7 @@ Mosquito currently supports following exchanges:
 
 
 ## Requirements
- * Python 3.8
+ * Python 3.9
  * mongodb
  * Depending on the exchange you want to use:
    * [Poloniex-api](https://github.com/s4w3d0ff/python-poloniex)
@@ -79,7 +83,7 @@ optional arguments:
 
 Example 1) Load historical data for BTC_ETH pair for the last 5 days:
 ```
-python backfill.py --days 5 --pairs BTC_USD
+python backfill.py --days 5 --pairs USDT_BTC
 ```
 
 Example 2) Load historical data for ALL pairs for the last 2 days

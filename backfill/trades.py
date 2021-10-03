@@ -58,8 +58,9 @@ class Trades(Base):
                 df = df.infer_objects()
                 df['exchange'] = self.exchange_name
                 df['pair'] = pair
-                df = df.convert_objects(convert_numeric=True)
-                df['date'] = (pd.to_datetime(df.date).astype(np.int64)/10e8).astype(int)
+                df = df.apply(pd.to_numeric, errors="ignore")
+                # df = df.convert_objects(convert_numeric=True)
+                df['date'] = (pd.to_datetime(df.date).view(np.int64)/10e8).astype(int)
                 df['id'] = self.exchange_name + '-' + pair + '-' + df['globalTradeID'].astype(str)
                 id_list = list(df['id'])
                 # self.db_ticker.update_one({'id': unique_id}, {'$set': new_db_item}, upsert=True)

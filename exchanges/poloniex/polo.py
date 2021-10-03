@@ -68,7 +68,7 @@ class Polo(Base):
                 pair_ticker = ticker[symbol]
                 self.last_tickers_fetch_epoch = int(time.time())
                 self.last_tickers_cache = ticker.copy()
-            except (PoloniexError | JSONDecodeError) as e:
+            except (PoloniexError, JSONDecodeError) as e:
                 print(colored('!!! Got exception in get_symbol_ticker. Details: ' + str(e), 'red'))
                 pair_ticker = self.last_tickers_cache[symbol].copy()
                 pair_ticker = dict.fromkeys(pair_ticker, None)
@@ -135,7 +135,7 @@ class Polo(Base):
             data = self.polo.returnChartData(currency_pair, candle_interval, epoch_start, epoch_end)
         except (PoloniexError, JSONDecodeError) as e:
             print()
-            print(colored('!!! Got exception while retrieving polo data:' + str(e) + ', pair: ' + currency_pair, 'red'))
+            print(colored('!!! Got exception while retrieving polo data: ' + str(e) + ', pair: ' + currency_pair, 'red'))
         return data
 
     def get_market_history(self, start, end, currency_pair='all'):
