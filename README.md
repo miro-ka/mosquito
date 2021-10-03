@@ -11,10 +11,9 @@ Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms,
 Mosquito is a crypto currency trading bot written in Python, with main focus on modularity,
 so it is straight forward to plug-in new exchange.
 
-The idea to build a new bot came because of I was missing following easy-access features in all of available bots
-available at the time mid 2017:
+The idea to build a new bot came because of missing following easy-access features in all of available open-source bots:
  * **Multi-currency bot** - Be able to monitor and exchange several currencies in one strategy (no need to run 5 same strategies for 5 different currencies).
- * **Easy AI plug** - Possibility to easily plug any of the existing AI/ML libraries (for ex. scikit or keras)
+ * **Easy AI plug & play** - Possibility to easily plug any of the existing AI/ML libraries (for ex. scikit or keras)
 
 > **Please be AWARE that Mosquito is still in beta and under heavy development. Please use it in Live trading VERY carefully.**
 
@@ -23,6 +22,8 @@ Mosquito currently supports following exchanges:
  * **Poloniex** - supporting *fillOrKill* and *immediateOrCancel* trading types. *postOnly* type is not supported. You can
  read more about trading types [here.](https://github.com/s4w3d0ff/python-poloniex/blob/master/poloniex/__init__.py)
  * **Bittrex** - supporting *Trade Limit Buy/Sell Orders*
+ * **Kucoin** - work in progress
+
 
 
 ## Requirements
@@ -261,7 +262,7 @@ python lense.py
 If you would like to support the project in other way than code-contributing, you can donate Mosquito development on
 following Bitcoin address:
 
-3QK7MXUQfnWHqGPQePtTsen5m1jQ4MfUTJ
+1Cw8VyaR2p2rjaSrQuZ1sqBCemYoMEx4iN
 
 ---
 
