@@ -3,7 +3,7 @@
 Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms, inspired by [zenbot.](https://github.com/carlos8f/zenbot)
 
 [![Build Status](https://travis-ci.org/miro-ka/mosquito.svg?branch=master)](https://travis-ci.org/miro-ka/mosquito)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d037c01ffa2441118ae709efeaae34b1)](https://www.codacy.com/app/miti0/mosquito?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=miti0/mosquito&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/294dac01b9d74557a874797ab5856b72)](https://www.codacy.com/gh/miro-ka/mosquito/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=miro-ka/mosquito&amp;utm_campaign=Badge_Grade)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/mosquito-bot/Lobby)
 [![codebeat badge](https://codebeat.co/badges/46a04bf1-ce92-41ad-84ba-6627e08f54d5)](https://codebeat.co/projects/github-com-miti0-mosquito-master)
 
