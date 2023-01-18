@@ -261,19 +261,12 @@ python lense.py
 ```
 
 
-
-## Donate
-If you would like to support the project in other way than code-contributing, you can donate Mosquito development on
-following Bitcoin address:
-
-1Cw8VyaR2p2rjaSrQuZ1sqBCemYoMEx4iN
-
 ---
 
 
 
 ### License: GNU GENERAL PUBLIC LICENSE
-- Copyright (C) 2021 Miro Karpis (miro-ka)
+- Copyright (C) 2023 (miro-ka)
 
 
   The GNU General Public License is a free, copyleft license for
