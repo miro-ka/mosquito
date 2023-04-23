@@ -2,16 +2,14 @@
 
 Flexible Trading Bot with main focus on Machine Learning and Genetic Algorithms, inspired by [zenbot.](https://github.com/carlos8f/zenbot)
 
-[![Build Status](https://travis-ci.org/miro-ka/mosquito.svg?branch=master)](https://travis-ci.org/miro-ka/mosquito)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/294dac01b9d74557a874797ab5856b72)](https://www.codacy.com/gh/miro-ka/mosquito/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=miro-ka/mosquito&amp;utm_campaign=Badge_Grade)
-[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/mosquito-bot/Lobby)
 [![codebeat badge](https://codebeat.co/badges/46a04bf1-ce92-41ad-84ba-6627e08f54d5)](https://codebeat.co/projects/github-com-miti0-mosquito-master)
 
 ## About
 
 ![Mosquito - backtesting](images/console_sample.png)
 
-Mosquito is a crypto currency trading bot written in Python, with main focus on modularity,
+Mosquito is a cryptocurrency trading bot written in Python, with main focus on modularity,
 so it is straight forward to plug-in new exchange.
 
 The idea to build a new bot came because of missing following easy-access features in all of available open-source bots:
@@ -234,7 +232,7 @@ Blueprint is a part of AI package. Main function of the module is to generate da
 
  1. Create a blueprint file/module which contains features, indicators and output parameters. As an example you can take a look at ai/blueprints/minimal.py or ai/blueprints/junior.py
 
- 2. Decide how many days you would like to run the Blueprint. Backfill data for that period.
+ 2. Decide how many days you would like to run the Blueprint. Backfield data for that period.
 
  3. Choose which pair/pairs you would like to include. Following combinations should work [BTC_ETH] - single pair, [BTC_ETH, BTC_LTC] - list of pairs, [BTC_*] - all pairs with prefix BTC
 
