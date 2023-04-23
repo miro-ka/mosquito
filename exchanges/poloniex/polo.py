@@ -136,6 +136,10 @@ class Polo(Base):
         except (PoloniexError, JSONDecodeError) as e:
             print()
             print(colored('!!! Got exception while retrieving polo data: ' + str(e) + ', pair: ' + currency_pair, 'red'))
+
+        if not isinstance(data, list):
+            print(colored('!!! Received invalid candle payload. Details: ' + str(data), 'red'))
+            return[]
         return data
 
     def get_market_history(self, start, end, currency_pair='all'):
